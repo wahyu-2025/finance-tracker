@@ -1,0 +1,14 @@
+services:
+    svc-auth:
+        build: .
+        container_name: svc-auth
+        restart: always
+        command: npm run start
+        expose:
+            - 7701 # Specify the exposed port, we will need this to access the app from local machine
+        networks:
+            - necessity-network
+
+networks:
+    necessity-network:
+        external: true

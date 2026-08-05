@@ -1,0 +1,45 @@
+{
+    "app": {
+        "name": "Backend",
+        "description": "Purpose of this service is to Authentication",
+        "version": "1.0.0",
+        "env": "Development"
+    },
+    "server": {
+        "port": "5000",
+        "host": "0.0.0.0",
+        "host_swagger": "http://127.0.0.1:5000",
+        "max_body": "50mb",
+        "max_upload": 104857600,
+        "morgan": "combined",
+        "cors": "*",
+        "ssl": {
+            "enable": false,
+            "cert": "",
+            "key": ""
+        }
+    },
+    "database": {
+        "engine": "mysql",
+        "host": "localhost",
+        "port": "3306",
+        "username": "root",
+        "password": "",
+        "database": "db_finance_tracker",
+        "logging": true,
+        "sync": true
+    },
+    "fcm": {
+        "path_json": "./assets/tpay-77d3c-6ed65d2845dc.json"
+    },
+    "auth": {
+        "refresh_token_lifetime_day": 30,
+        "access_token_lifetime": 86400,
+        "expired_otp": 10,
+        "suspend_otp": 60,
+        "try_attemppin": 3,
+        "try_attempotp": 5,
+        "algorithm": "aes-256-cbc",
+        "keystring": "T&93903kdkk30003003#@09030Tcel25"
+    }
+}

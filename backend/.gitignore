@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Logs
+*.log
+logs/
+
+# Environment / Config secrets
+config/prod.json
+config/stag.json
+
+# OS
+.DS_Store
+Thumbs.db
