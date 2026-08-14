@@ -1,8 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { UserData, UserService } from '../api/user.service';
 import { AuthService, LoginData, RegisterData } from '../api/auth.service';
 import { TokenService } from '../api/token';
-import api from '../api/axiosInstance';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface AuthContextType {
