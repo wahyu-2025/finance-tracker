@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { UserData, UserService } from '../api/user.service';
 import { AuthService, LoginData, RegisterData } from '../api/auth.service';
+import { TokenService } from '../api/token';
 import api from '../api/axiosInstance';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -18,7 +19,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<UserData | null>(null);
-  const [token, setToken] = useState<string | null>(localStorage.getItem('access_token'));
+  const [token, setToken] = useState<string | null>(TokenService.getAccessToken());
   const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
   const location = useLocation();
@@ -42,7 +43,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (data: LoginData) => {
     const res = await AuthService.login(data);
     const accessToken = res.data.token.access_token;
-    localStorage.setItem('access_token', accessToken);
+    const refreshToken = res.data.token.refresh_token;
+    TokenService.setTokens(accessToken, refreshToken);
     setToken(accessToken);
     setUser({ id: res.data.id, name: res.data.name, email: res.data.email });
     if (location.pathname === '/login') {
@@ -57,7 +59,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem('access_token');
+    TokenService.removeTokens();
     setToken(null);
     setUser(null);
     navigate('/login');

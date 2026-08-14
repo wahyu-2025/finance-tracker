@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { TransactionService, TransactionData } from "@/api/transaction.service";
 import { CategoryService, CategoryData } from "@/api/category.service";
@@ -203,6 +203,13 @@ export function TransactionsPage() {
       deleteMutation.mutate(id);
     }
   };
+
+  useEffect(() => {
+    if(!isDialogOpen) {
+      setAmount(null)
+      setDisplayValue("")
+    }
+  }, [isDialogOpen])
 
   return (
     <div className="container space-y-6">
