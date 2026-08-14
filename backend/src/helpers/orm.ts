@@ -1,4 +1,3 @@
-import config from 'config';
 import { DataSource } from "typeorm";
 import { ILogObj, Logger } from 'tslog';
 import { entities } from "../entities/index";
@@ -9,25 +8,28 @@ export class OrmHelper {
     static setup() {
         const log: Logger<ILogObj> = new Logger({ name: '[OrmHelper]', type: 'pretty' });
 
-        const engine: 'mysql' | 'postgres' = config.get("database.engine")
+        const engine = (process.env.DB_ENGINE || 'mysql') as 'mysql' | 'postgres'
 
         OrmHelper.DB = new DataSource({
             type: engine,
-            host: config.get("database.host"),
-            port: Number(config.get("database.port")),
-            username: String(config.get("database.username")),
-            password: String(config.get("database.password")),
-            database: String(config.get("database.database")),
-            synchronize: config.get('database.sync'),
-            logging: config.get('database.logging'),
+            host: process.env.DB_HOST,
+            port: Number(process.env.DB_PORT),
+            username: process.env.DB_USERNAME,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_DATABASE,
+            synchronize: process.env.DB_SYNC === 'true',
+            logging: process.env.DB_LOGGING === 'true',
             entities: entities,
             subscribers: [],
             migrations: [],
+            ssl: process.env.DB_SSL_ENABLE === 'true' ? {
+                rejectUnauthorized: false
+            } : undefined,
         })
 
         OrmHelper.DB.initialize()
             .then(() => {
-                // here you can start to work with your database
+                log.info('Database connected')
             })
             .catch((error: any) => log.error(error))
     }

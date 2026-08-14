@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { Logger, ILogObj } from "tslog";
 import { app } from "./server";
 import config from 'config'
@@ -8,11 +9,11 @@ import 'source-map-support/register';
 
 const log: Logger<ILogObj> = new Logger({ name: '[Index]', type: 'pretty' });
 
-const HOST = config.get('server.host')
-const PORT = Number(config.get('server.port'))
+const HOST = process.env.HOST || config.get('server.host')
+const PORT = Number(process.env.PORT || config.get('server.port'))
 
 const server = app.listen(config.get('server.ssl.enable') ? PORT + 1000 : PORT, String(HOST), () => {
-    log.info(`Server ${config.get('app.name')} running on port http://${HOST}:${PORT}`);
+    log.info(`Server ${process.env.APP_NAME || config.get('app.name')} running on port http://${HOST}:${PORT}`);
 });
 
 if (config.get('server.ssl.enable')) {

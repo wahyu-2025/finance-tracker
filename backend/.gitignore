@@ -9,6 +9,9 @@ dist/
 logs/
 
 # Environment / Config secrets
+.env
+.env.*
+!.env.example
 config/prod.json
 config/stag.json
 

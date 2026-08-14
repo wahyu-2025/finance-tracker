@@ -1,0 +1,68 @@
+{
+    "app": {
+        "name": "APP_NAME",
+        "description": "APP_DESCRIPTION",
+        "version": "APP_VERSION",
+        "env": "APP_ENV"
+    },
+    "server": {
+        "port": "PORT",
+        "host": "HOST",
+        "host_swagger": "HOST_SWAGGER",
+        "max_body": "MAX_BODY",
+        "morgan": "MORGAN_FORMAT",
+        "cors": "CORS_ORIGIN",
+        "ssl": {
+            "enable": {
+                "__name": "SSL_ENABLE",
+                "__format": "boolean"
+            },
+            "cert": "SSL_CERT",
+            "key": "SSL_KEY"
+        }
+    },
+    "database": {
+        "engine": "DB_ENGINE",
+        "host": "DB_HOST",
+        "port": "DB_PORT",
+        "username": "DB_USERNAME",
+        "password": "DB_PASSWORD",
+        "database": "DB_DATABASE",
+        "logging": {
+            "__name": "DB_LOGGING",
+            "__format": "boolean"
+        },
+        "sync": {
+            "__name": "DB_SYNC",
+            "__format": "boolean"
+        }
+    },
+    "auth": {
+        "refresh_token_lifetime_day": {
+            "__name": "AUTH_REFRESH_TOKEN_LIFETIME_DAY",
+            "__format": "number"
+        },
+        "access_token_lifetime": {
+            "__name": "AUTH_ACCESS_TOKEN_LIFETIME",
+            "__format": "number"
+        },
+        "expired_otp": {
+            "__name": "AUTH_EXPIRED_OTP",
+            "__format": "number"
+        },
+        "suspend_otp": {
+            "__name": "AUTH_SUSPEND_OTP",
+            "__format": "number"
+        },
+        "try_attemppin": {
+            "__name": "AUTH_TRY_ATTEMPPIN",
+            "__format": "number"
+        },
+        "try_attempotp": {
+            "__name": "AUTH_TRY_ATTEMPOTP",
+            "__format": "number"
+        },
+        "algorithm": "AUTH_ALGORITHM",
+        "keystring": "AUTH_KEYSTRING"
+    }
+}
