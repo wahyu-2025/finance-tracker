@@ -25,6 +25,9 @@ export class OrmHelper {
             ssl: process.env.DB_SSL_ENABLE === 'true' ? {
                 rejectUnauthorized: false
             } : undefined,
+            extra: {
+                connectTimeout: 30000,
+            },
         })
 
         OrmHelper.DB.initialize()

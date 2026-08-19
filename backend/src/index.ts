@@ -5,6 +5,8 @@ import config from 'config'
 import https from 'https';
 import fs from 'fs';
 import 'source-map-support/register';
+import { setDefaultResultOrder } from 'node:dns';
+setDefaultResultOrder('ipv4first');
 
 
 const log: Logger<ILogObj> = new Logger({ name: '[Index]', type: 'pretty' });
