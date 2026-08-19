@@ -8,7 +8,11 @@
         "dev": "nodemon src/index.ts",
         "build": "tsc && npm run copy-keys",
         "copy-keys": "cp -r src/helpers/key dist/src/helpers/key",
-        "swagger": "node src/swagger/builder.js"
+        "swagger": "node src/swagger/builder.js",
+        "typeorm": "typeorm-ts-node-commonjs",
+"migration:generate": "npm run typeorm -- migration:generate -d src/data-source.ts src/migrations/InitTable",
+    "migration:run": "npm run typeorm -- migration:run -d src/data-source.ts",
+    "migration:revert": "npm run typeorm -- migration:revert -d src/data-source.ts"
     },
     "keywords": [],
     "author": "",
