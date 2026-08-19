@@ -10,6 +10,10 @@ export class OrmHelper {
 
         const engine = (process.env.DB_ENGINE || 'mysql') as 'mysql' | 'postgres'
 
+         log.info('DB_SSL_ENABLE raw value:', JSON.stringify(process.env.DB_SSL_ENABLE))
+    log.info('DB_HOST:', process.env.DB_HOST)
+    log.info('DB_PORT:', process.env.DB_PORT)
+
         OrmHelper.DB = new DataSource({
             type: engine,
             host: process.env.DB_HOST,
@@ -29,6 +33,8 @@ export class OrmHelper {
                 connectTimeout: 30000,
             },
         })
+
+        log.info('SSL config yang dipake:', JSON.stringify((OrmHelper.DB.options as any).ssl))
 
         OrmHelper.DB.initialize()
             .then(() => {
