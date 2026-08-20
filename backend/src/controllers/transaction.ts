@@ -90,6 +90,13 @@ export class TransactionController {
       #swagger.tags = ['Transaction']
       #swagger.summary = 'Update transaction'
       #swagger.security = [{"bearerAuth": []}]
+      #swagger.requestBody = {
+        category_id: Joi.number().required(),
+        type: Joi.string().valid(CategoryType.INCOME, CategoryType.EXPENSE).required(),
+        amount: Joi.number().min(0).required(),
+        transaction_date: Joi.date().iso().required(),
+        description: Joi.string().allow('', null).optional()
+      }
     */
     try {
       const schema = Joi.object({
