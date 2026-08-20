@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { AxiosErrorResponse } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -19,8 +20,9 @@ export function RegisterPage() {
     setLoading(true);
     try {
       await register({ fullname, email, password });
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed');
+    } catch (err: unknown) {
+      const axiosErr = err as AxiosErrorResponse;
+      setError(axiosErr.response?.data?.message || 'Registration failed');
     }
     setLoading(false);
   };

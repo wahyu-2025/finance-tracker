@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { CategoryService, CategoryData } from '@/api/category.service';
+import { AxiosErrorResponse } from '@/types';
 import { Toolbar, ToolbarHeading, ToolbarPageTitle, ToolbarDescription, ToolbarActions } from '@/components/layouts/layout-1/components/toolbar';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -50,7 +51,7 @@ export function CategoriesPage() {
       setIsDialogOpen(false);
       toast.success('Category created successfully');
     },
-    onError: (err: any) => {
+    onError: (err: AxiosErrorResponse) => {
       toast.error(err.response?.data?.message || 'Failed to create category');
     }
   });
@@ -62,7 +63,7 @@ export function CategoriesPage() {
       setIsDialogOpen(false);
       toast.success('Category updated successfully');
     },
-    onError: (err: any) => {
+    onError: (err: AxiosErrorResponse) => {
       toast.error(err.response?.data?.message || 'Failed to update category');
     }
   });
@@ -73,7 +74,7 @@ export function CategoriesPage() {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       toast.success('Category deleted successfully');
     },
-    onError: (err: any) => {
+    onError: (err: AxiosErrorResponse) => {
       toast.error(err.response?.data?.message || 'Failed to delete category');
     }
   });
@@ -113,7 +114,7 @@ export function CategoriesPage() {
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Type</TableHead>
-              <TableHead className="w-[100px]">Actions</TableHead>
+              <TableHead className="w-25">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

@@ -2,12 +2,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { CustomRecapService } from "@/api/custom-recap.service";
 import { TransactionService } from "@/api/transaction.service";
+import { Transaction } from "@/types";
 import {
   Toolbar,
   ToolbarHeading,
   ToolbarPageTitle,
 } from "@/components/layouts/layout-1/components/toolbar";
-import { Card } from "@/components/ui/card";
+// import { Card } from "@/components/ui/card";
 import { formatPrice } from "@/lib/helpers";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Search, ChevronRight } from "lucide-react";
@@ -37,7 +38,7 @@ export function CustomCategoryHistoryPage() {
   const history = data?.history || [];
 
   // Filter history by category name and search term
-  const filteredHistory = history.filter((t: any) => {
+  const filteredHistory = history.filter((t: Transaction) => {
     const isCategoryMatch = (t.category?.name || 'Lainnya') === categoryName;
     const isSearchMatch = t.description?.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           t.category?.name?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -45,7 +46,7 @@ export function CustomCategoryHistoryPage() {
   });
 
   // Group history by date
-  const groupedHistory = filteredHistory.reduce((acc: any, curr: any) => {
+  const groupedHistory = filteredHistory.reduce((acc: Record<string, Transaction[]>, curr: Transaction) => {
     const date = curr.transaction_date;
     if (!acc[date]) {
       acc[date] = [];
@@ -88,7 +89,7 @@ export function CustomCategoryHistoryPage() {
       <div className="pt-2 space-y-4">
           {Object.keys(groupedHistory).sort((a,b) => new Date(b).getTime() - new Date(a).getTime()).map(date => {
             const dayTransactions = groupedHistory[date];
-            const dayTotal = dayTransactions.reduce((acc: number, t: any) => acc + (t.type === 'INCOME' ? Number(t.amount) : -Number(t.amount)), 0);
+            const dayTotal = dayTransactions.reduce((acc: number, t: Transaction) => acc + (t.type === 'INCOME' ? Number(t.amount) : -Number(t.amount)), 0);
             
             // Format Day and Date like in Screenshot 4: "28 04 2026 Selasa"
             const d = new Date(date);
@@ -112,7 +113,7 @@ export function CustomCategoryHistoryPage() {
                 </div>
                 
                 <div className="divide-y pl-12">
-                  {dayTransactions.map((t: any) => (
+                  {dayTransactions.map((t: Transaction) => (
                     <div key={t.id} className="py-3 flex justify-between items-center cursor-pointer hover:bg-muted/30">
                       <div>
                         <div className="font-semibold text-sm">{t.category?.name || 'Lainnya'}</div>
@@ -120,7 +121,7 @@ export function CustomCategoryHistoryPage() {
                       </div>
                       <div className="flex items-center gap-2">
                          <span className={`font-semibold ${t.type === 'INCOME' ? 'text-emerald-500' : ''}`}>
-                          {t.type === 'INCOME' ? '+' : '-'}{formatPrice(t.amount)}
+                          {t.type === 'INCOME' ? '+' : '-'}{formatPrice(Number(t.amount))}
                         </span>
                         <ChevronRight className="w-4 h-4 text-muted-foreground" />
                       </div>

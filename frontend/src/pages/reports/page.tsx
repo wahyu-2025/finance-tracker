@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { CustomRecapService, CustomRecapData } from "@/api/custom-recap.service";
+import { CustomRecapService, CustomRecapData, CustomRecapItem } from "@/api/custom-recap.service";
 import {
   Toolbar,
   ToolbarHeading,
@@ -10,7 +10,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatPrice } from "@/lib/helpers";
-import { Link, useNavigate } from "react-router-dom"; // Need router-dom for Navigation
+import { useNavigate } from "react-router-dom"; // Need router-dom for Navigation
 import { Button } from "@/components/ui/button";
 import { Plus, ChevronRight } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -127,7 +127,7 @@ export function ReportsPage() {
             </div>
           ) : (
             <div className="grid gap-4">
-              {recaps.map((recap: any) => (
+              {recaps.map((recap: CustomRecapItem) => (
                 <Card 
                   key={recap.id} 
                   className="p-0 overflow-hidden cursor-pointer hover:border-primary/50 transition-colors"

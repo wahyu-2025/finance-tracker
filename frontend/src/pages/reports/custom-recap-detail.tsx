@@ -1,8 +1,9 @@
-import { useState } from "react";
+// import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { CustomRecapService } from "@/api/custom-recap.service";
 import { TransactionService } from "@/api/transaction.service";
+import { Transaction, PerCategory } from "@/types";
 import {
   Toolbar,
   ToolbarHeading,
@@ -13,10 +14,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatPrice } from "@/lib/helpers";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Download, ChevronRight } from "lucide-react";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 const EXPENSE_COLORS = ["#ef4444", "#f97316", "#f59e0b", "#eab308", "#84cc16", "#22c55e"];
-const INCOME_COLORS = ["#3b82f6", "#0ea5e9", "#06b6d4", "#14b8a6", "#10b981", "#34d399"];
+// const INCOME_COLORS = ["#3b82f6", "#0ea5e9", "#06b6d4", "#14b8a6", "#10b981", "#34d399"];
 
 export function CustomRecapDetailPage() {
   const { id } = useParams();
@@ -42,7 +43,7 @@ export function CustomRecapDetailPage() {
   const history = data?.history || [];
 
   // Group history by date for Riwayat tab
-  const groupedHistory = history.reduce((acc: any, curr: any) => {
+  const groupedHistory = history.reduce((acc: Record<string, Transaction[]>, curr: Transaction) => {
     const date = curr.transaction_date;
     if (!acc[date]) {
       acc[date] = [];
@@ -92,12 +93,12 @@ export function CustomRecapDetailPage() {
         <TabsContent value="grafik" className="pt-4 space-y-6">
           <Card className="p-4">
             <h3 className="text-center font-semibold mb-4 text-red-500">Pengeluaran</h3>
-            <div className="h-[250px] w-full">
+            <div className="h-62.5 w-full">
               {expenseByCategory.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie data={expenseByCategory} dataKey="total" nameKey="category" cx="50%" cy="50%" innerRadius={60} outerRadius={90}>
-                      {expenseByCategory.map((_: any, index: number) => (
+                      {expenseByCategory.map((_: PerCategory, index: number) => (
                         <Cell key={`cell-${index}`} fill={EXPENSE_COLORS[index % EXPENSE_COLORS.length]} />
                       ))}
                     </Pie>
@@ -109,7 +110,7 @@ export function CustomRecapDetailPage() {
               )}
             </div>
             <div className="space-y-2 mt-4">
-              {expenseByCategory.map((item: any, index: number) => (
+              {expenseByCategory.map((item: PerCategory, index: number) => (
                 <div key={item.category} className="flex justify-between items-center text-sm">
                   <div className="flex items-center gap-2">
                     <span className="w-10 text-xs font-bold text-white text-center py-0.5 rounded" style={{ backgroundColor: EXPENSE_COLORS[index % EXPENSE_COLORS.length] }}>
@@ -145,7 +146,7 @@ export function CustomRecapDetailPage() {
           <div>
             <h4 className="font-semibold text-center mb-4 text-muted-foreground">Pengeluaran per Kategori</h4>
             <Card className="divide-y">
-              {expenseByCategory.map((item: any) => (
+              {expenseByCategory.map((item: PerCategory) => (
                 <div 
                   key={item.category} 
                   className="p-4 flex justify-between items-center cursor-pointer hover:bg-muted/50 transition-colors"
@@ -165,7 +166,7 @@ export function CustomRecapDetailPage() {
           <div>
             <h4 className="font-semibold text-center mb-4 text-muted-foreground">Pemasukan per Kategori</h4>
             <Card className="divide-y">
-              {incomeByCategory.map((item: any) => (
+              {incomeByCategory.map((item: PerCategory) => (
                 <div 
                   key={item.category} 
                   className="p-4 flex justify-between items-center cursor-pointer hover:bg-muted/50 transition-colors"
@@ -186,7 +187,7 @@ export function CustomRecapDetailPage() {
         <TabsContent value="riwayat" className="pt-4 space-y-4">
           {Object.keys(groupedHistory).sort((a,b) => new Date(b).getTime() - new Date(a).getTime()).map(date => {
             const dayTransactions = groupedHistory[date];
-            const dayTotal = dayTransactions.reduce((acc: number, t: any) => acc + (t.type === 'INCOME' ? Number(t.amount) : -Number(t.amount)), 0);
+            const dayTotal = dayTransactions.reduce((acc: number, t: Transaction) => acc + (t.type === 'INCOME' ? Number(t.amount) : -Number(t.amount)), 0);
             return (
               <div key={date} className="space-y-2">
                 <div className="flex justify-between items-center px-2 py-1 bg-muted/50 rounded-md text-sm font-semibold">
@@ -194,7 +195,7 @@ export function CustomRecapDetailPage() {
                   <span className={dayTotal >= 0 ? 'text-emerald-500' : ''}>{dayTotal > 0 ? '+' : ''}{formatPrice(dayTotal)}</span>
                 </div>
                 <Card className="divide-y">
-                  {dayTransactions.map((t: any) => (
+                  {dayTransactions.map((t: Transaction) => (
                     <div key={t.id} className="p-4 flex justify-between items-center">
                       <div>
                         <div className="font-medium text-sm">{t.category?.name || 'Lainnya'}</div>
@@ -202,7 +203,7 @@ export function CustomRecapDetailPage() {
                       </div>
                       <div className="flex items-center gap-2">
                          <span className={`font-semibold ${t.type === 'INCOME' ? 'text-emerald-500' : ''}`}>
-                          {t.type === 'INCOME' ? '+' : '-'}{formatPrice(t.amount)}
+                          {t.type === 'INCOME' ? '+' : '-'}{formatPrice(Number(t.amount))}
                         </span>
                         <ChevronRight className="w-4 h-4 text-muted-foreground" />
                       </div>

@@ -1,5 +1,5 @@
-import { TransactionHistoryProps } from '@/pages/transactions/page';
 import api from './axiosInstance';
+import { ApiResponse, TransactionHistoryData } from '@/types';
 
 export interface TransactionData {
   id?: number;
@@ -23,7 +23,7 @@ export const TransactionService = {
     const response = await api.delete(`/api/transaction/${id}`);
     return response.data;
   },
-  getHistory: async (startDate: string, endDate: string): Promise<TransactionHistoryProps> => {
+  getHistory: async (startDate: string, endDate: string): Promise<ApiResponse<TransactionHistoryData>> => {
     const response = await api.get('/api/transaction/history', {
       params: { startDate, endDate }
     });

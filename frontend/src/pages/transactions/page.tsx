@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { TransactionService, TransactionData } from "@/api/transaction.service";
-import { CategoryService, CategoryData } from "@/api/category.service";
+import { CategoryService } from "@/api/category.service";
+import { Category, Transaction, AxiosErrorResponse } from "@/types";
 import {
   Toolbar,
   ToolbarHeading,
@@ -33,57 +34,11 @@ import { toast } from "sonner";
 import { format, subDays } from "date-fns";
 import { formatPrice, parsePrice } from "@/lib/helpers";
 
-export interface TransactionHistoryProps {
-  data: Data;
-}
-
-export interface Data {
-  balance_summary: BalanceSummary;
-  expense_per_category: PerCategory[];
-  income_per_category: PerCategory[];
-  history: History[];
-}
-
-export interface BalanceSummary {
-  total_income: number;
-  total_expense: number;
-  balance: number;
-}
-
-export interface History {
-  id: number;
-  user_id: number;
-  category_id: number;
-  type: string;
-  amount: string;
-  transaction_date: Date;
-  description: string;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt: null;
-  category: Category;
-}
-
-export interface Category {
-  id: number;
-  user_id: number;
-  name: string;
-  type: string;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt: null;
-}
-
-export interface PerCategory {
-  category: string;
-  total: number;
-}
-
 export function TransactionsPage() {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] =
-    useState<TransactionData | null>(null);
+    useState<Transaction | null>(null);
 
   const [dateRange, setDateRange] = useState({
     startDate: format(subDays(new Date(), 90), "yyyy-MM-dd"),
@@ -114,7 +69,7 @@ export function TransactionsPage() {
   const transactions = historyResponse?.data?.history || [];
   const categories = categoriesResponse?.data || [];
   const filteredCategories = categories.filter(
-    (c: CategoryData) => c.type === type,
+    (c: Category) => c.type === type,
   );
 
   const resetForm = () => {
@@ -131,7 +86,7 @@ export function TransactionsPage() {
     setIsDialogOpen(true);
   };
 
-  const openEditDialog = (tx: any) => {
+  const openEditDialog = (tx: Transaction) => {
     setEditingTransaction(tx);
     setAmount(Number(tx.amount));
     setDisplayValue(formatPrice(Number(tx.amount)))
@@ -149,23 +104,22 @@ export function TransactionsPage() {
       setIsDialogOpen(false);
       toast.success("Transaction added successfully");
     },
-    onError: (err: any) => {
+    onError: (err: AxiosErrorResponse) => {
       toast.error(err.response?.data?.message || "Failed to add transaction");
     },
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data: TransactionData) =>{
+    mutationFn: (data: TransactionData) => {
       const {id, ...rest} = data
-      console.log("ID yang dikirim:", id);       // <-- Cek apakah ini ID transaksi yang benar?
-    console.log("Payload yang dikirim:", rest);
-      return TransactionService.update(id!, rest)},
+      return TransactionService.update(id!, rest)
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
       setIsDialogOpen(false);
       toast.success("Transaction updated successfully");
     },
-    onError: (err: any) => {
+    onError: (err: AxiosErrorResponse) => {
       toast.error(
         err.response?.data?.message || "Failed to update transaction",
       );
@@ -178,7 +132,7 @@ export function TransactionsPage() {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
       toast.success("Transaction deleted successfully");
     },
-    onError: (err: any) => {
+    onError: (err: AxiosErrorResponse) => {
       toast.error(
         err.response?.data?.message || "Failed to delete transaction",
       );
@@ -209,7 +163,7 @@ export function TransactionsPage() {
   };
 
   useEffect(() => {
-    if(!isDialogOpen) {
+    if (!isDialogOpen) {
       setAmount(null)
       setDisplayValue("")
     }
@@ -270,7 +224,7 @@ export function TransactionsPage() {
               <TableHead>Description</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Amount</TableHead>
-              <TableHead className="w-[100px]">Actions</TableHead>
+              <TableHead className="w-25">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -399,7 +353,7 @@ export function TransactionsPage() {
                   <option value="" disabled>
                     Select a category
                   </option>
-                  {filteredCategories.map((c: CategoryData) => (
+                  {filteredCategories.map((c: Category) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
                     </option>

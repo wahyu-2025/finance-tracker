@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { TransactionService } from "@/api/transaction.service";
+import { PerCategory, Transaction } from "@/types";
 import {
   Toolbar,
   ToolbarHeading,
@@ -110,7 +111,7 @@ export function DashboardPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <Card className="glassmorphism p-6 flex flex-col gap-4">
               <h3 className="text-lg font-semibold">Expenses by Category</h3>
-              <div className="h-[300px] w-full">
+              <div className="h-75 w-full">
                 {expenseByCategory.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -124,7 +125,7 @@ export function DashboardPage() {
                         outerRadius={80}
                         paddingAngle={5}
                       >
-                        {expenseByCategory.map((_: any, index: number) => (
+                        {expenseByCategory.map((_: PerCategory, index: number) => (
                           <Cell
                             key={`cell-${index}`}
                             fill={COLORS[index % COLORS.length]}
@@ -152,7 +153,7 @@ export function DashboardPage() {
               <div className="flex-1 overflow-auto">
                 {recentTransactions.length > 0 ? (
                   <div className="divide-y divide-border">
-                    {recentTransactions.map((tx: any) => (
+                    {recentTransactions.map((tx: Transaction) => (
                       <div
                         key={tx.id}
                         className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors"

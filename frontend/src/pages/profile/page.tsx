@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { AxiosErrorResponse } from '@/types';
 import { Toolbar, ToolbarHeading, ToolbarPageTitle, ToolbarDescription } from '@/components/layouts/layout-1/components/toolbar';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,8 +27,9 @@ export function ProfilePage() {
     try {
       await updateProfile({ fullname, email });
       toast.success('Profile updated successfully');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to update profile');
+    } catch (error: unknown) {
+      const axiosError = error as AxiosErrorResponse;
+      toast.error(axiosError.response?.data?.message || 'Failed to update profile');
     }
     setIsSaving(false);
   };
