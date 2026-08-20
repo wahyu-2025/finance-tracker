@@ -4,9 +4,23 @@ import express from "express";
 
 export class CorsHelper {
   static setup(app: express.Application) {
-    console.log("CORS:", config.get("server.cors"));
+    const rawOrigins = config.get<string>("server.cors");
+
+    console.log("CORS config:", rawOrigins);
+
     const corsOptions: cors.CorsOptions = {
-      origin: config.get("server.cors"),
+      origin:
+        rawOrigins === "*"
+          ? "*"
+          : (origin, callback) => {
+              const allowedOrigins = rawOrigins.split(",").map((o) => o.trim());
+              if (!origin || allowedOrigins.includes(origin)) {
+                callback(null, true);
+              } else {
+                callback(new Error(`CORS blocked for origin: ${origin}`));
+              }
+            },
+      credentials: rawOrigins !== "*",
       optionsSuccessStatus: 200,
     };
 

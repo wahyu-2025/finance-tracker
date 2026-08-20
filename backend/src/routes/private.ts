@@ -5,6 +5,7 @@ import guardPre from 'express-jwt-permissions';
 import { AuthController } from '../controllers/auth';
 import { CategoryController } from '../controllers/category';
 import { TransactionController } from '../controllers/transaction';
+import { CustomRecapController } from '../controllers/custom-recap';
 
 const guard = guardPre({
     requestProperty: 'auth',
@@ -32,5 +33,12 @@ export class RoutePrivate {
         app.put('/api/transaction/:id', TransactionController.update)
         app.delete('/api/transaction/:id', TransactionController.delete)
         app.get('/api/transaction/history', TransactionController.getHistory)
+        
+        // Custom Recap Routes
+        app.post('/api/custom-recap', CustomRecapController.create)
+        app.get('/api/custom-recap', CustomRecapController.getAll)
+        app.get('/api/custom-recap/:id', CustomRecapController.getOne)
+        app.put('/api/custom-recap/:id', CustomRecapController.update)
+        app.delete('/api/custom-recap/:id', CustomRecapController.delete)
     }
 }
