@@ -36,7 +36,11 @@ api.interceptors.request.use(
 );
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Setiap ada response sukses, reset timer idle session
+    TokenService.touchActivity();
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
 

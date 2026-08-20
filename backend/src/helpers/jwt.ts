@@ -25,7 +25,7 @@ export default class JwtHelper {
                     }
                     return null;
                 },
-            }).unless({ path: ["/token"] }),
+            }).unless({ path: ["/token", "/api/auth/refresh_token"] }),
             function (req: Request, res: Response, next: NextFunction) {
                 console.log("Authorization:", req.headers.authorization);
                 console.log("AUTH:", req.auth);

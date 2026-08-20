@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { UserData, UserService } from '../api/user.service';
 import { AuthService, LoginData, RegisterData } from '../api/auth.service';
 import { TokenService } from '../api/token';
@@ -22,6 +22,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
   const location = useLocation();
+  const idleTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Cek idle session tiap 1 menit
+  const startIdleTimer = () => {
+    stopIdleTimer();
+    idleTimerRef.current = setInterval(() => {
+      if (TokenService.isSessionExpired()) {
+        console.log('[Session] Idle 15 menit, logout otomatis');
+        logout();
+      }
+    }, 60 * 1000); // cek tiap 1 menit
+  };
+
+  const stopIdleTimer = () => {
+    if (idleTimerRef.current) {
+      clearInterval(idleTimerRef.current);
+      idleTimerRef.current = null;
+    }
+  };
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -29,6 +48,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
           const res = await UserService.getProfile();
           setUser(res.data);
+          startIdleTimer(); // mulai timer setelah berhasil load profile
         } catch (error) {
           console.error("Failed to fetch profile", error);
           logout();
@@ -37,6 +57,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
     };
     fetchProfile();
+
+    return () => stopIdleTimer();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   const login = async (data: LoginData) => {
@@ -44,6 +67,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const accessToken = res.data.token.access_token;
     const refreshToken = res.data.token.refresh_token;
     TokenService.setTokens(accessToken, refreshToken);
+    TokenService.touchActivity(); // reset timer dari sekarang
     setToken(accessToken);
     setUser({ id: res.data.id, name: res.data.name, email: res.data.email });
     if (location.pathname === '/login') {
@@ -53,11 +77,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const register = async (data: RegisterData) => {
     await AuthService.register(data);
-    // After register, normally we can redirect to login
     navigate('/login');
   };
 
   const logout = () => {
+    stopIdleTimer();
     TokenService.removeTokens();
     setToken(null);
     setUser(null);

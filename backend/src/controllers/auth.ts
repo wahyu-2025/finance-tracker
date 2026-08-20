@@ -104,7 +104,7 @@ export class AuthController {
       };
 
       const access_token = JwtHelper.signToken(payload, '15m');
-      const refresh_token = JwtHelper.signToken(payloadRefreshToken, '15m');
+      const refresh_token = JwtHelper.signToken(payloadRefreshToken, '1h');
 
       let token: any = {
         access_token,
