@@ -7,6 +7,7 @@ import { RegisterPage } from '@/pages/register/page';
 import { DashboardPage } from '@/pages/dashboard/page';
 import { ReportsPage } from '@/pages/reports/page';
 import { CustomRecapDetailPage } from '@/pages/reports/custom-recap-detail';
+import { CustomCategoryHistoryPage } from '@/pages/reports/custom-category-history';
 import { ProfilePage } from '@/pages/profile/page';
 import { CategoriesPage } from '@/pages/categories/page';
 import { TransactionsPage } from '@/pages/transactions/page';
@@ -21,6 +22,7 @@ export function AppRoutingSetup() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/reports" element={<ReportsPage />} />
         <Route path="/reports/custom/:id" element={<CustomRecapDetailPage />} />
+        <Route path="/reports/custom/:id/category/:categoryName" element={<CustomCategoryHistoryPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/categories" element={<CategoriesPage />} />
         <Route path="/transactions" element={<TransactionsPage />} />

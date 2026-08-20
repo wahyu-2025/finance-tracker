@@ -146,7 +146,11 @@ export function CustomRecapDetailPage() {
             <h4 className="font-semibold text-center mb-4 text-muted-foreground">Pengeluaran per Kategori</h4>
             <Card className="divide-y">
               {expenseByCategory.map((item: any) => (
-                <div key={item.category} className="p-4 flex justify-between items-center">
+                <div 
+                  key={item.category} 
+                  className="p-4 flex justify-between items-center cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => navigate(`/reports/custom/${recap.id}/category/${item.category}`)}
+                >
                   <span className="text-sm">{item.category}</span>
                   <div className="flex items-center gap-2">
                     <span className="font-semibold">{formatPrice(item.total)}</span>
@@ -162,7 +166,11 @@ export function CustomRecapDetailPage() {
             <h4 className="font-semibold text-center mb-4 text-muted-foreground">Pemasukan per Kategori</h4>
             <Card className="divide-y">
               {incomeByCategory.map((item: any) => (
-                <div key={item.category} className="p-4 flex justify-between items-center">
+                <div 
+                  key={item.category} 
+                  className="p-4 flex justify-between items-center cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => navigate(`/reports/custom/${recap.id}/category/${item.category}`)}
+                >
                   <span className="text-sm">{item.category}</span>
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-emerald-500">{formatPrice(item.total)}</span>
