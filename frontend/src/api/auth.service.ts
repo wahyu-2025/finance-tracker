@@ -1,4 +1,5 @@
 import api from './axiosInstance';
+import { TokenService } from './token';
 
 export interface LoginData {
   email?: string;
@@ -14,6 +15,14 @@ export interface RegisterData {
 export const AuthService = {
   login: async (data: LoginData) => {
     const response = await api.post('/api/auth/login', data);
+    const tokenData = response.data?.data?.token;
+    
+    if (tokenData) {
+      TokenService.setTokens(
+        tokenData.access_token, 
+        tokenData.refresh_token
+      );
+    }
     return response.data;
   },
   register: async (data: RegisterData) => {

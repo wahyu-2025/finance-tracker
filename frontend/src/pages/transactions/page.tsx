@@ -134,6 +134,7 @@ export function TransactionsPage() {
   const openEditDialog = (tx: any) => {
     setEditingTransaction(tx);
     setAmount(Number(tx.amount));
+    setDisplayValue(formatPrice(Number(tx.amount)))
     setType(tx.type);
     setCategoryId(tx.category_id.toString());
     setTransactionDate(format(new Date(tx.transaction_date), "yyyy-MM-dd"));
@@ -154,8 +155,11 @@ export function TransactionsPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data: TransactionData) =>
-      TransactionService.update(data.id!, data),
+    mutationFn: (data: TransactionData) =>{
+      const {id, ...rest} = data
+      console.log("ID yang dikirim:", id);       // <-- Cek apakah ini ID transaksi yang benar?
+    console.log("Payload yang dikirim:", rest);
+      return TransactionService.update(id!, rest)},
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
       setIsDialogOpen(false);
