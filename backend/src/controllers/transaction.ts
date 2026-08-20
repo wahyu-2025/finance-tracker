@@ -12,6 +12,38 @@ export class TransactionController {
       #swagger.tags = ['Transaction']
       #swagger.summary = 'Create a new transaction'
       #swagger.security = [{"bearerAuth": []}]
+      #swagger.requestBody = {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                category_id: {
+                  type: "integer",
+                  example: 1
+                },
+                type: {
+                  type: "string",
+                  example: "expense"
+                },
+                amount: {
+                  type: "number",
+                  example: 100
+                },
+                transaction_date: {
+                  type: "string",
+                  example: "2024-01-01"
+                },
+                description: {
+                  type: "string",
+                  example: "Food"
+                }
+              }
+            }
+          }
+        }
+      }
     */
     try {
       const schema = Joi.object({

@@ -9,6 +9,61 @@ import Joi from 'joi';
 export class CustomRecapController {
 
   static async create(req: Request, res: Response) {
+    /**
+     * @swagger
+     * /api/custom-recap:
+     *   post:
+     *     summary: Create a new custom recap
+     *     tags:
+     *       - Custom Recap
+     *     security:
+     *       - bearerAuth: []
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             required:
+     *               - name
+     *               - start_date
+     *               - end_date
+     *             properties:
+     *               name:
+     *                 type: string
+     *                 example: Weekly Recap
+     *               start_date:
+     *                 type: string
+     *                 format: date
+     *                 example: "2024-01-01"
+     *               end_date:
+     *                 type: string
+     *                 format: date
+     *                 example: "2024-01-07"
+     *     responses:
+     *       201:
+     *         description: Custom recap created successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 status:
+     *                   type: integer
+     *                   example: 201
+     *                 message:
+     *                   type: string
+     *                   example: Custom recap created successfully
+     *                 data:
+     *                   type: object
+     *                   example:
+     *                     id: 1
+     *                     name: Weekly Recap
+     *                     start_date: "2024-01-01"
+     *                     end_date: "2024-01-07"
+     *                     createdAt: "2024-01-10T12:00:00.000Z"
+     *                     updatedAt: "2024-01-10T12:00:00.000Z"
+     */
     try {
       const schema = Joi.object({
         name: Joi.string().required(),
