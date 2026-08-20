@@ -11,9 +11,9 @@ export interface ToolbarHeadingProps {
   description?: string | ReactNode;
 }
 
-function Toolbar({ children }: { children?: ReactNode }) {
+function Toolbar({ children, className }: { children?: ReactNode, className?: string }) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-5 pb-7.5">
+    <div className={cn("flex flex-wrap items-center justify-between gap-5 pb-7.5", className)}>
       {children}
     </div>
   );
@@ -75,13 +75,16 @@ function ToolbarHeading ({ children }: { children: ReactNode }) {
   return <div className="flex flex-col justify-center gap-2">{children}</div>;
 }
 
-function ToolbarPageTitle ({ children }: { children?: string }) {
+function ToolbarPageTitle ({ children, className }: { children?: string, className?: string }) {
   const { pathname } = useLocation();
   const { getCurrentItem } = useMenu(pathname);
   const item = getCurrentItem(MENU_SIDEBAR);
 
   return (
-    <h1 className="text-xl font-medium leading-none text-mono">
+    <h1 className={cn(
+        "text-xl font-medium leading-none text-mono",
+        className,
+      )}>
       {children ? children : item?.title || 'Untitled'}
     </h1>
   );
