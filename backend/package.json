@@ -4,9 +4,9 @@
     "description": "Financial Tracking API",
     "main": "src/index.ts",
     "scripts": {
-        "start": "NODE_ENV=prod node dist/src/index.js",
+        "start": "NODE_ENV=production node dist/src/index.js",
         "dev": "nodemon src/index.ts",
-        "build": "tsc && npm run copy-keys",
+        "build": "npm run swagger && tsc && npm run copy-keys",
         "copy-keys": "cp -r src/helpers/key dist/src/helpers/key",
         "swagger": "node src/swagger/builder.js",
         "typeorm": "typeorm-ts-node-commonjs",

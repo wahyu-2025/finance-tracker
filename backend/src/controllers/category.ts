@@ -65,10 +65,6 @@ export class CategoryController {
       #swagger.tags = ['Category']
       #swagger.summary = 'Update private category'
       #swagger.security = [{"bearerAuth": []}]
-      #swagger.requestBody = {
-        name: Joi.string().required(),
-        type: Joi.string().valid(CategoryType.INCOME, CategoryType.EXPENSE).required()
-      }
     */
     try {
       const schema = Joi.object({
