@@ -2,13 +2,13 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Backend",
-    "description": "Financial Tracking API",
+    "description": "Financial Tracking API - Production",
     "version": "1.0.0"
   },
   "servers": [
     {
-      "url": "http://127.0.0.1:5000",
-      "description": "Environment Development"
+      "url": "https://finance-tracker-production-b2fd.up.railway.app",
+      "description": "Environment Production"
     }
   ],
   "paths": {
@@ -166,7 +166,39 @@
           {
             "bearerAuth": []
           }
-        ]
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "category_id": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "type": {
+                    "type": "string",
+                    "example": "expense"
+                  },
+                  "amount": {
+                    "type": "number",
+                    "example": 100
+                  },
+                  "transaction_date": {
+                    "type": "string",
+                    "example": "2024-01-01"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Food"
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/transaction/{id}": {
@@ -195,7 +227,39 @@
           {
             "bearerAuth": []
           }
-        ]
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "category_id": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "type": {
+                    "type": "string",
+                    "example": "expense"
+                  },
+                  "amount": {
+                    "type": "number",
+                    "example": 100
+                  },
+                  "transaction_date": {
+                    "type": "string",
+                    "example": "2024-01-01"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Food"
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "delete": {
         "tags": [
@@ -260,6 +324,80 @@
             "bearerAuth": []
           }
         ]
+      }
+    },
+    "/api/custom-recap": {
+      "post": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/custom-recap/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
       }
     },
     "/api/auth/register": {
