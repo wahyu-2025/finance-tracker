@@ -74,7 +74,17 @@
           {
             "bearerAuth": []
           }
-        ]
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCategoryRequest"
+              }
+            }
+          }
+        }
       },
       "get": {
         "tags": [
@@ -108,7 +118,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "description": "Category ID"
           }
         ],
         "responses": {
@@ -120,7 +131,17 @@
           {
             "bearerAuth": []
           }
-        ]
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCategoryRequest"
+              }
+            }
+          }
+        }
       },
       "delete": {
         "tags": [
@@ -135,7 +156,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "description": "Category ID"
           }
         ],
         "responses": {
@@ -172,29 +194,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "category_id": {
-                    "type": "integer",
-                    "example": 1
-                  },
-                  "type": {
-                    "type": "string",
-                    "example": "expense"
-                  },
-                  "amount": {
-                    "type": "number",
-                    "example": 100
-                  },
-                  "transaction_date": {
-                    "type": "string",
-                    "example": "2024-01-01"
-                  },
-                  "description": {
-                    "type": "string",
-                    "example": "Food"
-                  }
-                }
+                "$ref": "#/components/schemas/CreateTransactionRequest"
               }
             }
           }
@@ -215,7 +215,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "description": "Transaction ID"
           }
         ],
         "responses": {
@@ -233,29 +234,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "category_id": {
-                    "type": "integer",
-                    "example": 1
-                  },
-                  "type": {
-                    "type": "string",
-                    "example": "expense"
-                  },
-                  "amount": {
-                    "type": "number",
-                    "example": 100
-                  },
-                  "transaction_date": {
-                    "type": "string",
-                    "example": "2024-01-01"
-                  },
-                  "description": {
-                    "type": "string",
-                    "example": "Food"
-                  }
-                }
+                "$ref": "#/components/schemas/UpdateTransactionRequest"
               }
             }
           }
@@ -274,7 +253,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "description": "Transaction ID"
           }
         ],
         "responses": {
@@ -328,24 +308,56 @@
     },
     "/api/custom-recap": {
       "post": {
+        "tags": [
+          "Custom Recap"
+        ],
+        "summary": "Create a new custom recap",
         "description": "",
         "responses": {
           "default": {
             "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCustomRecapRequest"
+              }
+            }
           }
         }
       },
       "get": {
+        "tags": [
+          "Custom Recap"
+        ],
+        "summary": "Get all custom recaps",
         "description": "",
         "responses": {
           "default": {
             "description": ""
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/api/custom-recap/{id}": {
       "get": {
+        "tags": [
+          "Custom Recap"
+        ],
+        "summary": "Get a specific custom recap",
         "description": "",
         "parameters": [
           {
@@ -354,16 +366,26 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "description": "Custom Recap ID"
           }
         ],
         "responses": {
           "default": {
             "description": ""
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       },
       "put": {
+        "tags": [
+          "Custom Recap"
+        ],
+        "summary": "Update a custom recap",
         "description": "",
         "parameters": [
           {
@@ -372,16 +394,36 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "description": "Custom Recap ID"
           }
         ],
         "responses": {
           "default": {
             "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCustomRecapRequest"
+              }
+            }
           }
         }
       },
       "delete": {
+        "tags": [
+          "Custom Recap"
+        ],
+        "summary": "Delete a custom recap",
         "description": "",
         "parameters": [
           {
@@ -390,14 +432,20 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "description": "Custom Recap ID"
           }
         ],
         "responses": {
           "default": {
             "description": ""
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/api/auth/register": {
@@ -670,6 +718,116 @@
           "order_direction": {
             "type": "string",
             "example": "desc"
+          }
+        }
+      },
+      "CreateCategoryRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Food"
+          },
+          "type": {
+            "type": "string",
+            "example": "expense"
+          }
+        }
+      },
+      "UpdateCategoryRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Food"
+          },
+          "type": {
+            "type": "string",
+            "example": "expense"
+          }
+        }
+      },
+      "CreateTransactionRequest": {
+        "type": "object",
+        "properties": {
+          "category_id": {
+            "type": "number",
+            "example": 1
+          },
+          "type": {
+            "type": "string",
+            "example": "expense"
+          },
+          "amount": {
+            "type": "number",
+            "example": 50000
+          },
+          "transaction_date": {
+            "type": "string",
+            "example": "2024-01-01"
+          },
+          "description": {
+            "type": "string",
+            "example": "Makan siang"
+          }
+        }
+      },
+      "UpdateTransactionRequest": {
+        "type": "object",
+        "properties": {
+          "category_id": {
+            "type": "number",
+            "example": 1
+          },
+          "type": {
+            "type": "string",
+            "example": "expense"
+          },
+          "amount": {
+            "type": "number",
+            "example": 50000
+          },
+          "transaction_date": {
+            "type": "string",
+            "example": "2024-01-01"
+          },
+          "description": {
+            "type": "string",
+            "example": "Makan siang"
+          }
+        }
+      },
+      "CreateCustomRecapRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Rekap Januari 2024"
+          },
+          "start_date": {
+            "type": "string",
+            "example": "2024-01-01"
+          },
+          "end_date": {
+            "type": "string",
+            "example": "2024-01-31"
+          }
+        }
+      },
+      "UpdateCustomRecapRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Rekap Januari 2024"
+          },
+          "start_date": {
+            "type": "string",
+            "example": "2024-01-01"
+          },
+          "end_date": {
+            "type": "string",
+            "example": "2024-01-31"
           }
         }
       }

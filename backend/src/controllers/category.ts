@@ -11,6 +11,14 @@ export class CategoryController {
       #swagger.tags = ['Category']
       #swagger.summary = 'Create a new private category'
       #swagger.security = [{"bearerAuth": []}]
+      #swagger.requestBody = {
+          required: true,
+          content: {
+              "application/json": {
+                  schema: { $ref: "#/components/schemas/CreateCategoryRequest" }  
+              }
+          }
+      }
     */
     try {
       const schema = Joi.object({
@@ -65,6 +73,15 @@ export class CategoryController {
       #swagger.tags = ['Category']
       #swagger.summary = 'Update private category'
       #swagger.security = [{"bearerAuth": []}]
+      #swagger.parameters['id'] = { description: 'Category ID', type: 'integer' }
+      #swagger.requestBody = {
+          required: true,
+          content: {
+              "application/json": {
+                  schema: { $ref: "#/components/schemas/UpdateCategoryRequest" }  
+              }
+          }
+      }
     */
     try {
       const schema = Joi.object({
@@ -107,6 +124,7 @@ export class CategoryController {
       #swagger.tags = ['Category']
       #swagger.summary = 'Delete private category'
       #swagger.security = [{"bearerAuth": []}]
+      #swagger.parameters['id'] = { description: 'Category ID', type: 'integer' }
     */
     try {
       const categoryRepository = OrmHelper.DB.getRepository(Category);

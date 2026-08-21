@@ -60,6 +60,38 @@ const doc = {
           order_field: 'name',
           order_direction: 'desc'
       },
+      CreateCategoryRequest: {
+          name: "Food",
+          type: "expense"
+      },
+      UpdateCategoryRequest: {
+          name: "Food",
+          type: "expense"
+      },
+      CreateTransactionRequest: {
+          category_id: 1,
+          type: "expense",
+          amount: 50000,
+          transaction_date: "2024-01-01",
+          description: "Makan siang"
+      },
+      UpdateTransactionRequest: {
+          category_id: 1,
+          type: "expense",
+          amount: 50000,
+          transaction_date: "2024-01-01",
+          description: "Makan siang"
+      },
+      CreateCustomRecapRequest: {
+          name: "Rekap Januari 2024",
+          start_date: "2024-01-01",
+          end_date: "2024-01-31"
+      },
+      UpdateCustomRecapRequest: {
+          name: "Rekap Januari 2024",
+          start_date: "2024-01-01",
+          end_date: "2024-01-31"
+      },
     },
     parameters: {
       // Anda dapat mendefinisikan parameter lainnya di sini jika diperlukan

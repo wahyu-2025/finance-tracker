@@ -9,7 +9,19 @@ import Joi from 'joi';
 export class CustomRecapController {
 
   static async create(req: Request, res: Response) {
-    
+    /* 
+      #swagger.tags = ['Custom Recap']
+      #swagger.summary = 'Create a new custom recap'
+      #swagger.security = [{"bearerAuth": []}]
+      #swagger.requestBody = {
+          required: true,
+          content: {
+              "application/json": {
+                  schema: { $ref: "#/components/schemas/CreateCustomRecapRequest" }  
+              }
+          }
+      }
+    */
     try {
       const schema = Joi.object({
         name: Joi.string().required(),
@@ -40,6 +52,11 @@ export class CustomRecapController {
   }
 
   static async getAll(req: Request, res: Response) {
+    /* 
+      #swagger.tags = ['Custom Recap']
+      #swagger.summary = 'Get all custom recaps'
+      #swagger.security = [{"bearerAuth": []}]
+    */
     try {
       const userId = req.auth?.id;
       const customRecapRepository = OrmHelper.DB.getRepository(CustomRecap);
@@ -84,6 +101,12 @@ export class CustomRecapController {
   }
 
   static async getOne(req: Request, res: Response) {
+      /* 
+        #swagger.tags = ['Custom Recap']
+        #swagger.summary = 'Get a specific custom recap'
+        #swagger.security = [{"bearerAuth": []}]
+        #swagger.parameters['id'] = { description: 'Custom Recap ID', type: 'integer' }
+      */
       try {
         const userId = req.auth?.id;
         const recapIdParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
@@ -110,6 +133,20 @@ export class CustomRecapController {
   }
 
   static async update(req: Request, res: Response) {
+    /* 
+      #swagger.tags = ['Custom Recap']
+      #swagger.summary = 'Update a custom recap'
+      #swagger.security = [{"bearerAuth": []}]
+      #swagger.parameters['id'] = { description: 'Custom Recap ID', type: 'integer' }
+      #swagger.requestBody = {
+          required: true,
+          content: {
+              "application/json": {
+                  schema: { $ref: "#/components/schemas/UpdateCustomRecapRequest" }  
+              }
+          }
+      }
+    */
     try {
       const schema = Joi.object({
         name: Joi.string().required(),
@@ -149,6 +186,12 @@ export class CustomRecapController {
   }
 
   static async delete(req: Request, res: Response) {
+    /* 
+      #swagger.tags = ['Custom Recap']
+      #swagger.summary = 'Delete a custom recap'
+      #swagger.security = [{"bearerAuth": []}]
+      #swagger.parameters['id'] = { description: 'Custom Recap ID', type: 'integer' }
+    */
     try {
       const customRecapRepository = OrmHelper.DB.getRepository(CustomRecap);
       const recapIdParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;

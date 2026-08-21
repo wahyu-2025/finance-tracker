@@ -16,31 +16,7 @@ export class TransactionController {
         required: true,
         content: {
           "application/json": {
-            schema: {
-              type: "object",
-              properties: {
-                category_id: {
-                  type: "integer",
-                  example: 1
-                },
-                type: {
-                  type: "string",
-                  example: "expense"
-                },
-                amount: {
-                  type: "number",
-                  example: 100
-                },
-                transaction_date: {
-                  type: "string",
-                  example: "2024-01-01"
-                },
-                description: {
-                  type: "string",
-                  example: "Food"
-                }
-              }
-            }
+            schema: { $ref: "#/components/schemas/CreateTransactionRequest" }
           }
         }
       }
@@ -90,35 +66,12 @@ export class TransactionController {
       #swagger.tags = ['Transaction']
       #swagger.summary = 'Update transaction'
       #swagger.security = [{"bearerAuth": []}]
+      #swagger.parameters['id'] = { description: 'Transaction ID', type: 'integer' }
       #swagger.requestBody = {
         required: true,
         content: {
           "application/json": {
-            schema: {
-              type: "object",
-              properties: {
-                category_id: {
-                  type: "integer",
-                  example: 1
-                },
-                type: {
-                  type: "string",
-                  example: "expense"
-                },
-                amount: {
-                  type: "number",
-                  example: 100
-                },
-                transaction_date: {
-                  type: "string",
-                  example: "2024-01-01"
-                },
-                description: {
-                  type: "string",
-                  example: "Food"
-                }
-              }
-            }
+            schema: { $ref: "#/components/schemas/UpdateTransactionRequest" }
           }
         }
       }
@@ -177,6 +130,7 @@ export class TransactionController {
       #swagger.tags = ['Transaction']
       #swagger.summary = 'Delete transaction'
       #swagger.security = [{"bearerAuth": []}]
+      #swagger.parameters['id'] = { description: 'Transaction ID', type: 'integer' }
     */
     try {
       const transactionRepository = OrmHelper.DB.getRepository(Transaction);
