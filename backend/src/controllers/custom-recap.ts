@@ -46,8 +46,8 @@ export class CustomRecapController {
 
       const savedRecap = await customRecapRepository.save(newRecap);
       return ReturnHelper.successResponseAny(res, 201, "Custom recap created successfully", savedRecap);
-    } catch (err: any) {
-      return ReturnHelper.errorResponse(res, 500, 500, err.message);
+    } catch (err: unknown) {
+      return ReturnHelper.errorResponse(res, 500, 500, (err as Error).message);
     }
   }
 
@@ -95,8 +95,8 @@ export class CustomRecapController {
       }));
 
       return ReturnHelper.successResponseAny(res, 200, "Custom recaps fetched successfully", recapsWithTotals);
-    } catch (err: any) {
-      return ReturnHelper.errorResponse(res, 500, 500, err.message);
+    } catch (err: unknown) {
+      return ReturnHelper.errorResponse(res, 500, 500, (err as Error).message);
     }
   }
 
@@ -127,8 +127,8 @@ export class CustomRecapController {
         
         return ReturnHelper.successResponseAny(res, 200, "Custom recap fetched successfully", recap);
 
-      } catch (err: any) {
-          return ReturnHelper.errorResponse(res, 500, 500, err.message);
+      } catch (err: unknown) {
+          return ReturnHelper.errorResponse(res, 500, 500, (err as Error).message);
       }
   }
 
@@ -180,8 +180,8 @@ export class CustomRecapController {
 
       const updatedRecap = await customRecapRepository.save(recap);
       return ReturnHelper.successResponseAny(res, 200, "Custom recap updated successfully", updatedRecap);
-    } catch (err: any) {
-      return ReturnHelper.errorResponse(res, 500, 500, err.message);
+    } catch (err: unknown) {
+      return ReturnHelper.errorResponse(res, 500, 500, (err as Error).message);
     }
   }
 
@@ -210,8 +210,8 @@ export class CustomRecapController {
 
       await customRecapRepository.softRemove(recap);
       return ReturnHelper.successResponseAny(res, 200, "Custom recap deleted successfully", null);
-    } catch (err: any) {
-      return ReturnHelper.errorResponse(res, 500, 500, err.message);
+    } catch (err: unknown) {
+      return ReturnHelper.errorResponse(res, 500, 500, (err as Error).message);
     }
   }
 }

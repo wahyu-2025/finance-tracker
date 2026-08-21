@@ -2,11 +2,11 @@ import { Response } from 'express';
 
 
 export class ReturnHelper {
-    static successResponseAny(
+    static successResponseAny<T>(
         res: Response,
         status_code: number,
         message: string,
-        data: any = null
+        data: T | null = null
     ): Response {
 
         return res.status(status_code || 200).json({
@@ -17,14 +17,14 @@ export class ReturnHelper {
         });
     };
 
-    static successResponselist(
+    static successResponselist<T>(
         res: Response,
         status_code: number,
         message: string,
         count_data: number = 0,
         current_page: number = 0,
         total_count_data: number = 0,
-        list_data: any = null
+        list_data: T | null = null
     ): Response {
 
         return res.status(status_code || 200).json({
@@ -45,7 +45,7 @@ export class ReturnHelper {
         status_code: number,
         error_code: number,
         message: string,
-        error: any = null
+        error: unknown = null
     ): Response {
 
         return res.status(status_code || 200).json({

@@ -34,6 +34,6 @@ export class OrmHelper {
             .then(() => {
                 log.info('Database connected')
             })
-            .catch((error: any) => log.error(error))
+            .catch((error: unknown) => log.error(error))
     }
 }

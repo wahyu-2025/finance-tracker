@@ -41,8 +41,8 @@ export class CategoryController {
 
       const savedCategory = await categoryRepository.save(newCategory);
       return ReturnHelper.successResponseAny(res, 201, "Category created successfully", savedCategory);
-    } catch (err: any) {
-      return ReturnHelper.errorResponse(res, 500, 500, err.message);
+    } catch (err: unknown) {
+      return ReturnHelper.errorResponse(res, 500, 500, (err as Error).message);
     }
   }
 
@@ -63,8 +63,8 @@ export class CategoryController {
         .getMany();
 
       return ReturnHelper.successResponseAny(res, 200, "Categories fetched successfully", categories);
-    } catch (err: any) {
-      return ReturnHelper.errorResponse(res, 500, 500, err.message);
+    } catch (err: unknown) {
+      return ReturnHelper.errorResponse(res, 500, 500, (err as Error).message);
     }
   }
 
@@ -114,8 +114,8 @@ export class CategoryController {
 
       const updatedCategory = await categoryRepository.save(category);
       return ReturnHelper.successResponseAny(res, 200, "Category updated successfully", updatedCategory);
-    } catch (err: any) {
-      return ReturnHelper.errorResponse(res, 500, 500, err.message);
+    } catch (err: unknown) {
+      return ReturnHelper.errorResponse(res, 500, 500, (err as Error).message);
     }
   }
 
@@ -144,8 +144,8 @@ export class CategoryController {
 
       await categoryRepository.softRemove(category);
       return ReturnHelper.successResponseAny(res, 200, "Category deleted successfully", null);
-    } catch (err: any) {
-      return ReturnHelper.errorResponse(res, 500, 500, err.message);
+    } catch (err: unknown) {
+      return ReturnHelper.errorResponse(res, 500, 500, (err as Error).message);
     }
   }
 }

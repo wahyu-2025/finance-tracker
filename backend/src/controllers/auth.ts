@@ -5,7 +5,7 @@ import { ReturnHelper } from "../helpers/express/return";
 import { User } from "../entities/index";
 import { Language } from "../langs/lang";
 import { ILogObj, Logger } from "tslog";
-import JwtHelper from "../helpers/jwt";
+import JwtHelper, { IJwtPayload } from "../helpers/jwt";
 import { OrmHelper } from "../helpers/orm";
 
 
@@ -93,23 +93,23 @@ export class AuthController {
         return ReturnHelper.errorResponse(res, 400, 401, String(Language.lang.failed), "Invalid email or password.");
       }
 
-      let payload: any = {
+      let payload: IJwtPayload = {
         id: user.id,
         name: user.name,  // Sesuaikan nama kolom
         email: user.email
       };
 
-      let payloadRefreshToken: any = {
+      let payloadRefreshToken: IJwtPayload = {
         id: user.id
       };
 
       const access_token = JwtHelper.signToken(payload, '15m');
       const refresh_token = JwtHelper.signToken(payloadRefreshToken, '1h');
 
-      let token: any = {
+      let token = {
         access_token,
         refresh_token
-      }
+      };
 
       let data = {
         token,
@@ -156,7 +156,7 @@ export class AuthController {
         return ReturnHelper.errorResponse(res, 400, 401, String(Language.lang.failed), "Email not found.");
       }
 
-      let payload: any = {
+      let payload: IJwtPayload = {
         id: user.id,
         email: user.email
       };
@@ -194,7 +194,11 @@ export class AuthController {
 
       const param = await schema.validateAsync(req.body);
 
-      const decoded: any = JwtHelper.verifyToken(param.token);
+      const decoded = JwtHelper.verifyToken(param.token);
+
+      if (!decoded || !decoded.id) {
+        return ReturnHelper.errorResponse(res, 400, 401, String(Language.lang.failed), "Invalid or expired token.");
+      }
 
       const userRepository = OrmHelper.DB.getRepository(User);
       const user = await userRepository.findOne({ where: { id: decoded.id } });
@@ -306,7 +310,11 @@ export class AuthController {
 
       const param = await schema.validateAsync(req.body);
 
-      const decoded: any = JwtHelper.verifyToken(param.refresh_token);
+      const decoded = JwtHelper.verifyToken(param.refresh_token);
+
+      if (!decoded || !decoded.id) {
+        return ReturnHelper.errorResponse(res, 400, 401, String(Language.lang.failed), "Invalid or expired refresh token");
+      }
 
       const userRepository = OrmHelper.DB.getRepository(User);
       const user = await userRepository.findOne({ where: { id: decoded.id } });
@@ -315,7 +323,7 @@ export class AuthController {
         return ReturnHelper.errorResponse(res, 400, 401, String(Language.lang.failed), "User Not Found");
       }
 
-      let payload: any = {
+      let payload: IJwtPayload = {
         id: user.id,
         name: user.name, 
         email: user.email

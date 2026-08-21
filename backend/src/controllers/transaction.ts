@@ -56,8 +56,8 @@ export class TransactionController {
 
       const savedTransaction = await transactionRepository.save(newTransaction);
       return ReturnHelper.successResponseAny(res, 201, "Transaction created successfully", savedTransaction);
-    } catch (err: any) {
-      return ReturnHelper.errorResponse(res, 500, 500, err.message);
+    } catch (err: unknown) {
+      return ReturnHelper.errorResponse(res, 500, 500, (err as Error).message);
     }
   }
 
@@ -120,8 +120,8 @@ export class TransactionController {
 
       const updatedTransaction = await transactionRepository.save(transaction);
       return ReturnHelper.successResponseAny(res, 200, "Transaction updated successfully", updatedTransaction);
-    } catch (err: any) {
-      return ReturnHelper.errorResponse(res, 500, 500, err.message);
+    } catch (err: unknown) {
+      return ReturnHelper.errorResponse(res, 500, 500, (err as Error).message);
     }
   }
 
@@ -150,8 +150,8 @@ export class TransactionController {
 
       await transactionRepository.softRemove(transaction);
       return ReturnHelper.successResponseAny(res, 200, "Transaction deleted successfully", null);
-    } catch (err: any) {
-      return ReturnHelper.errorResponse(res, 500, 500, err.message);
+    } catch (err: unknown) {
+      return ReturnHelper.errorResponse(res, 500, 500, (err as Error).message);
     }
   }
 
@@ -222,8 +222,8 @@ export class TransactionController {
       };
 
       return ReturnHelper.successResponseAny(res, 200, "History fetched successfully", responseData);
-    } catch (err: any) {
-      return ReturnHelper.errorResponse(res, 500, 500, err.message);
+    } catch (err: unknown) {
+      return ReturnHelper.errorResponse(res, 500, 500, (err as Error).message);
     }
   }
 }

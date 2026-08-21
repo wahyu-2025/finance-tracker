@@ -2,10 +2,17 @@ import { NextFunction, Response } from 'express';
 import { Logger, ILogObj } from 'tslog';
 import { Request, expressjwt } from "express-jwt";
 import fs from 'fs';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import { Language } from '../langs/lang';
 import { ReturnHelper } from './express/return';
 import express from 'express';
+
+export interface IJwtPayload extends JwtPayload {
+    id: number;
+    name?: string;
+    email?: string;
+}
+
 
 const log: Logger<ILogObj> = new Logger({ name: '[JwtHelper]', type: 'pretty' });
 
@@ -17,11 +24,11 @@ export default class JwtHelper {
         app.use(
             expressjwt({
                 secret: publicKey, algorithms: ["RS256"],
-                getToken: function fromHeaderOrQuerystring(req): any {
+                getToken: function fromHeaderOrQuerystring(req): string | null {
                     if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
                         return req.headers.authorization.split(' ')[1];
                     } else if (req.query && req.query.token) {
-                        return req.query.token;
+                        return req.query.token as string;
                     }
                     return null;
                 },
@@ -37,7 +44,7 @@ export default class JwtHelper {
             }
         )
 
-        app.use(function (err: any, req: Request, res: Response, next: NextFunction) {
+        app.use(function (err: Error, req: Request, res: Response, next: NextFunction) {
             if (err.name === 'UnauthorizedError') {
                 return ReturnHelper.errorResponse(res, 403, 666, Language.lang.failed_access);
             }
@@ -47,7 +54,7 @@ export default class JwtHelper {
 
     }
 
-    static signToken = (payload: any, expiresIn: any): string | null => {
+    static signToken = (payload: IJwtPayload, expiresIn: jwt.SignOptions['expiresIn']): string | null => {
         try {
             var privateKey = fs.readFileSync("src/helpers/key/private.key");
 
@@ -70,13 +77,13 @@ export default class JwtHelper {
         }
     };
 
-    static verifyToken = (token: string): any => {
+    static verifyToken = (token: string): IJwtPayload | null => {
         try {
             // Reading the public key for verification
             var publicKey = fs.readFileSync("src/helpers/key/public.key");
 
             // Verify the token using the public key and RS256 algorithm
-            const decoded = jwt.verify(token, publicKey, { algorithms: ['RS256'] });
+            const decoded = jwt.verify(token, publicKey, { algorithms: ['RS256'] }) as IJwtPayload;
 
             return decoded;  // Return the decoded payload if the token is valid
         } catch (error) {

@@ -46,7 +46,7 @@ export class Language {
     static lang: LanguageValue = {};
 
     static setup() {
-        const fileLang: any = fs.readFileSync(
+        const fileLang: Buffer = fs.readFileSync(
             path.join(__dirname, '../langs/json/en.json')
         );
         Language.lang_init['en'] = JSON.parse(fileLang.toString('utf8'));
