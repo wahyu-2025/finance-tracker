@@ -41,7 +41,7 @@ export function TransactionsPage() {
     useState<Transaction | null>(null);
 
   const [dateRange, setDateRange] = useState({
-    startDate: format(subDays(new Date(), 90), "yyyy-MM-dd"),
+    startDate: format(subDays(new Date(), 30), "yyyy-MM-dd"),
     endDate: format(new Date(), "yyyy-MM-dd"),
   });
 
@@ -89,7 +89,7 @@ export function TransactionsPage() {
   const openEditDialog = (tx: Transaction) => {
     setEditingTransaction(tx);
     setAmount(Number(tx.amount));
-    setDisplayValue(formatPrice(Number(tx.amount)))
+    setDisplayValue(formatPrice(Number(tx.amount)));
     setType(tx.type);
     setCategoryId(tx.category_id.toString());
     setTransactionDate(format(new Date(tx.transaction_date), "yyyy-MM-dd"));
@@ -111,8 +111,8 @@ export function TransactionsPage() {
 
   const updateMutation = useMutation({
     mutationFn: (data: TransactionData) => {
-      const {id, ...rest} = data
-      return TransactionService.update(id!, rest)
+      const { id, ...rest } = data;
+      return TransactionService.update(id!, rest);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
@@ -164,10 +164,10 @@ export function TransactionsPage() {
 
   useEffect(() => {
     if (!isDialogOpen) {
-      setAmount(null)
-      setDisplayValue("")
+      setAmount(null);
+      setDisplayValue("");
     }
-  }, [isDialogOpen])
+  }, [isDialogOpen]);
 
   return (
     <div className="container space-y-6">
