@@ -33,9 +33,11 @@ import { Edit2, Trash2, Plus, Search } from "lucide-react";
 import { toast } from "sonner";
 import { format, subDays } from "date-fns";
 import { formatPrice, parsePrice } from "@/lib/helpers";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function TransactionsPage() {
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] =
     useState<Transaction | null>(null);
@@ -185,8 +187,8 @@ export function TransactionsPage() {
         </ToolbarActions>
       </Toolbar>
 
-      <Card className=" p-4 flex gap-4 flex-wrap">
-        <div>
+      <Card className=" p-4 flex flex-col md:flex-row gap-4 flex-wrap">
+        <div className="w-full md:w-auto">
           <label className="text-xs font-medium mb-1 block">Start Date</label>
           <Input
             type="date"
@@ -196,7 +198,7 @@ export function TransactionsPage() {
             }
           />
         </div>
-        <div>
+        <div className="w-full md:w-auto">
           <label className="text-xs font-medium mb-1 block">End Date</label>
           <Input
             type="date"
@@ -208,6 +210,7 @@ export function TransactionsPage() {
         </div>
         <Button
           variant="outline"
+          className="w-full md:w-auto md:mt-auto"
           onClick={() =>
             queryClient.invalidateQueries({ queryKey: ["transactions"] })
           }
@@ -216,80 +219,136 @@ export function TransactionsPage() {
         </Button>
       </Card>
 
-      <Card className="glassmorphism p-0 overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead className="w-25">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoadingTx ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center h-24">
-                  Loading...
-                </TableCell>
-              </TableRow>
-            ) : transactions.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center h-24">
-                  No transactions found
-                </TableCell>
-              </TableRow>
-            ) : (
-              transactions.map((tx) => (
-                <TableRow key={tx.id}>
-                  <TableCell>
-                    {format(new Date(tx.transaction_date), "MMM dd, yyyy")}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {tx.description || "-"}
-                  </TableCell>
-                  <TableCell>
-                    <span className="px-2 py-1 rounded bg-secondary text-secondary-foreground text-xs">
-                      {tx.category?.name || "Unknown"}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={`font-semibold ${tx.type === "INCOME" ? "text-green-500" : "text-red-500"}`}
+      {isMobile ? (
+        <div className="grid grid-cols-1 gap-4">
+          {isLoadingTx ? (
+            <div className="text-center p-8 text-muted-foreground bg-muted/20 rounded-lg">
+              Loading...
+            </div>
+          ) : transactions.length === 0 ? (
+            <div className="text-center p-8 text-muted-foreground bg-muted/20 rounded-lg">
+              No transactions found
+            </div>
+          ) : (
+            transactions.map((tx) => (
+              <Card key={tx.id} className="p-4 flex flex-col gap-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="font-medium">{tx.description || "-"}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {format(new Date(tx.transaction_date), "MMM dd, yyyy")}
+                    </p>
+                  </div>
+                  <span
+                    className={`font-bold ${tx.type === "INCOME" ? "text-green-500" : "text-red-500"}`}
+                  >
+                    {tx.type === "INCOME" ? "+" : "-"}
+                    {formatPrice(Number(tx.amount))}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center mt-2">
+                  <span className="px-2 py-1 rounded bg-secondary text-secondary-foreground text-xs">
+                    {tx.category?.name || "Unknown"}
+                  </span>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => openEditDialog(tx)}
                     >
-                      {tx.type === "INCOME" ? "+" : "-"}
-                      {new Intl.NumberFormat("id-ID", {
-                        style: "currency",
-                        currency: "IDR",
-                        minimumFractionDigits: 2,
-                      }).format(Number(tx.amount))}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => openEditDialog(tx)}
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDelete(tx.id!)}
-                      >
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </div>
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => handleDelete(tx.id!)}
+                    >
+                      <Trash2 className="h-4 w-4 text-red-500" />
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            ))
+          )}
+        </div>
+      ) : (
+        <Card className="glassmorphism p-0 overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Date</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead className="w-25">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoadingTx ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center h-24">
+                    Loading...
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </Card>
+              ) : transactions.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center h-24">
+                    No transactions found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                transactions.map((tx) => (
+                  <TableRow key={tx.id}>
+                    <TableCell>
+                      {format(new Date(tx.transaction_date), "MMM dd, yyyy")}
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {tx.description || "-"}
+                    </TableCell>
+                    <TableCell>
+                      <span className="px-2 py-1 rounded bg-secondary text-secondary-foreground text-xs">
+                        {tx.category?.name || "Unknown"}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={`font-semibold ${tx.type === "INCOME" ? "text-green-500" : "text-red-500"}`}
+                      >
+                        {tx.type === "INCOME" ? "+" : "-"}
+                        {new Intl.NumberFormat("id-ID", {
+                          style: "currency",
+                          currency: "IDR",
+                          minimumFractionDigits: 2,
+                        }).format(Number(tx.amount))}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openEditDialog(tx)}
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(tx.id!)}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </Card>
+      )}
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>

@@ -1,38 +1,39 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import {
-  Bell,
-  LayoutGrid,
+  // Bell,
+  // LayoutGrid,
   Menu,
-  MessageCircleMore,
   Search,
-  SquareChevronRight,
-} from 'lucide-react';
-import { useLocation } from 'react-router';
-import { Link } from 'react-router-dom';
-import { toAbsoluteUrl } from '@/lib/helpers';
-import { cn } from '@/lib/utils';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { useScrollPosition } from '@/hooks/use-scroll-position';
-import { Button } from '@/components/ui/button';
+  // SquareChevronRight,
+} from "lucide-react";
+import { useLocation } from "react-router";
+import { Link } from "react-router-dom";
+import { toAbsoluteUrl } from "@/lib/helpers";
+import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useScrollPosition } from "@/hooks/use-scroll-position";
+import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetBody,
   SheetContent,
   SheetHeader,
   SheetTrigger,
-} from '@/components/ui/sheet';
-import { SearchDialog } from '@/components/layouts/layout-1/shared/dialogs/search/search-dialog';
-import { AppsDropdownMenu } from '@/components/layouts/layout-1/shared/topbar/apps-dropdown-menu';
-import { ChatSheet } from '@/components/layouts/layout-1/shared/topbar/chat-sheet';
-import { NotificationsSheet } from '@/components/layouts/layout-1/shared/topbar/notifications-sheet';
-import { UserDropdownMenu } from '@/components/layouts/layout-1/shared/topbar/user-dropdown-menu';
-import { MegaMenu } from './mega-menu';
-import { MegaMenuMobile } from './mega-menu-mobile';
-import { SidebarMenu } from './sidebar-menu';
+} from "@/components/ui/sheet";
+// import { SearchDialog } from "@/components/layouts/layout-1/shared/dialogs/search/search-dialog";
+// import { AppsDropdownMenu } from "@/components/layouts/layout-1/shared/topbar/apps-dropdown-menu";
+// import { ChatSheet } from "@/components/layouts/layout-1/shared/topbar/chat-sheet";
+// import { NotificationsSheet } from "@/components/layouts/layout-1/shared/topbar/notifications-sheet";
+import { UserDropdownMenu } from "@/components/layouts/layout-1/shared/topbar/user-dropdown-menu";
+// import { MegaMenu } from "./mega-menu";
+// import { MegaMenuMobile } from "./mega-menu-mobile";
+import { SidebarMenu } from "./sidebar-menu";
+import { Input } from "@/components/ui/input";
 
 export function Header() {
   const [isSidebarSheetOpen, setIsSidebarSheetOpen] = useState(false);
-  const [isMegaMenuSheetOpen, setIsMegaMenuSheetOpen] = useState(false);
+  // const [isMegaMenuSheetOpen, setIsMegaMenuSheetOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
 
   const { pathname } = useLocation();
   const mobileMode = useIsMobile();
@@ -40,25 +41,31 @@ export function Header() {
   const scrollPosition = useScrollPosition();
   const headerSticky: boolean = scrollPosition > 0;
 
+  const handleSearchClick = () => {
+    setIsSearchOpen((prev) => !prev);
+  };
+
   // Close sheet when route changes
   useEffect(() => {
     setIsSidebarSheetOpen(false);
-    setIsMegaMenuSheetOpen(false);
+    // setIsMegaMenuSheetOpen(false);
   }, [pathname]);
 
   return (
     <header
       className={cn(
-        'header fixed top-0 z-10 start-0 flex items-stretch shrink-0 border-b border-transparent bg-background end-0 pe-[var(--removed-body-scroll-bar-size,0px)]',
-        headerSticky && 'border-b border-border',
+        "header fixed top-0 z-10 start-0 flex items-stretch shrink-0 border-b border-transparent bg-background end-0 pe-[var(--removed-body-scroll-bar-size,0px)]",
+        headerSticky && "border-b border-border",
       )}
     >
-      <div className="container-fluid flex justify-between items-stretch lg:gap-4">
+      <div
+        className={`container-fluid flex ${mobileMode ? "justify-between" : "justify-end"} items-stretch lg:gap-4`}
+      >
         {/* HeaderLogo */}
         <div className="flex lg:hidden items-center gap-2.5">
           <Link to="/" className="shrink-0">
             <img
-              src={toAbsoluteUrl('/media/app/mini-logo.svg')}
+              src={toAbsoluteUrl("/media/app/mini-logo.svg")}
               className="h-[25px] w-full"
               alt="mini-logo"
             />
@@ -86,7 +93,7 @@ export function Header() {
                 </SheetContent>
               </Sheet>
             )}
-            {mobileMode && (
+            {/* {mobileMode && (
               <Sheet
                 open={isMegaMenuSheetOpen}
                 onOpenChange={setIsMegaMenuSheetOpen}
@@ -107,32 +114,38 @@ export function Header() {
                   </SheetBody>
                 </SheetContent>
               </Sheet>
-            )}
+            )} */}
           </div>
         </div>
 
         {/* Mega Menu */}
-        {!mobileMode && (
-          <MegaMenu />
-        )}
+        {/* {!mobileMode && <MegaMenu />} */}
 
         {/* HeaderTopbar */}
         <div className="flex items-center gap-3">
-          {!mobileMode && (
-            <SearchDialog
-              trigger={
-                <Button
-                  variant="ghost"
-                  mode="icon"
-                  shape="circle"
-                  className="size-9 hover:bg-primary/10 hover:[&_svg]:text-primary"
-                >
-                  <Search className="size-4.5!" />
-                </Button>
-              }
-            />
-          )}
-          <NotificationsSheet
+          {/* {!mobileMode && ( */}
+          {/* {isSearchOpen && ( */}
+          <Input
+            placeholder="Search..."
+            className={`bg-background rounded-md border border-border transition-all duration-150 ease-in-out ${
+              isSearchOpen
+                ? "translate-x-0 opacity-100"
+                : "translate-x-4 opacity-0"
+            } ${mobileMode ? "w-[100px]" : "w-[400px]"}`}
+          />
+          {/* )} */}
+
+          <Button
+            variant="ghost"
+            mode="icon"
+            shape="circle"
+            className="size-9 hover:bg-primary/10 hover:[&_svg]:text-primary"
+            onClick={handleSearchClick}
+          >
+            <Search className="size-4.5!" />
+          </Button>
+          {/* )} */}
+          {/* <NotificationsSheet
             trigger={
               <Button
                 variant="ghost"
@@ -167,12 +180,12 @@ export function Header() {
                 <LayoutGrid className="size-4.5!" />
               </Button>
             }
-          />
+          /> */}
           <UserDropdownMenu
             trigger={
               <img
                 className="size-9 rounded-full border-2 border-green-500 shrink-0 cursor-pointer"
-                src={toAbsoluteUrl('/media/avatars/300-2.png')}
+                src={toAbsoluteUrl("/media/avatars/300-2.png")}
                 alt="User Avatar"
               />
             }

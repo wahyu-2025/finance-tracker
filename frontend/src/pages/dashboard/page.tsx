@@ -111,7 +111,7 @@ export function DashboardPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <Card className="glassmorphism p-6 flex flex-col gap-4">
               <h3 className="text-lg font-semibold">Expenses by Category</h3>
-              <div className="h-75 w-full">
+              <div className="h-[350px] w-full mt-4">
                 {expenseByCategory.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -120,7 +120,7 @@ export function DashboardPage() {
                         dataKey="total"
                         nameKey="category"
                         cx="50%"
-                        cy="50%"
+                        cy="45%"
                         innerRadius={60}
                         outerRadius={80}
                         paddingAngle={5}
@@ -135,7 +135,12 @@ export function DashboardPage() {
                       <RechartsTooltip
                         formatter={(value: number) => formatPrice(value)}
                       />
-                      <Legend />
+                      <Legend 
+                        layout="horizontal" 
+                        verticalAlign="bottom" 
+                        align="center" 
+                        wrapperStyle={{ paddingTop: "20px" }}
+                      />
                     </PieChart>
                   </ResponsiveContainer>
                 ) : (

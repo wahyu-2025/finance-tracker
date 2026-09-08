@@ -30,9 +30,11 @@ import {
 } from "@/components/ui/dialog";
 import { Edit2, Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function CategoriesPage() {
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<CategoryData | null>(
     null,
@@ -133,65 +135,112 @@ export function CategoriesPage() {
         </ToolbarActions>
       </Toolbar>
 
-      <Card className="glassmorphism p-0 overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead className="w-25">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
+      {isMobile ? (
+        <div className="grid grid-cols-1 gap-4">
+          {isLoading ? (
+            <div className="text-center p-8 text-muted-foreground bg-muted/20 rounded-lg">
+              Loading...
+            </div>
+          ) : categories.length === 0 ? (
+            <div className="text-center p-8 text-muted-foreground bg-muted/20 rounded-lg">
+              No categories found
+            </div>
+          ) : (
+            categories.map((cat: CategoryData) => (
+              <Card key={cat.id} className="p-4 flex flex-col gap-3">
+                <div className="flex justify-between items-start">
+                  <p className="font-medium text-base">{cat.name}</p>
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${cat.type === "INCOME" ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100" : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"}`}
+                  >
+                    {cat.type}
+                  </span>
+                </div>
+                <div className="flex justify-end gap-2 mt-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => openEditDialog(cat)}
+                    disabled={cat.user_id === null}
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => handleDelete(cat.id!)}
+                    disabled={cat.user_id === null}
+                  >
+                    <Trash2 className="h-4 w-4 text-red-500" />
+                  </Button>
+                </div>
+              </Card>
+            ))
+          )}
+        </div>
+      ) : (
+        <Card className="glassmorphism p-0 overflow-hidden">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={3} className="text-center h-24">
-                  Loading...
-                </TableCell>
+                <TableHead>Name</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead className="w-25">Actions</TableHead>
               </TableRow>
-            ) : categories.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={3} className="text-center h-24">
-                  No categories found
-                </TableCell>
-              </TableRow>
-            ) : (
-              categories.map((cat: CategoryData) => (
-                <TableRow key={cat.id}>
-                  <TableCell className="font-medium">{cat.name}</TableCell>
-                  <TableCell>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-semibold ${cat.type === "INCOME" ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100" : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"}`}
-                    >
-                      {cat.type}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => openEditDialog(cat)}
-                        disabled={cat.user_id === null}
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDelete(cat.id!)}
-                        disabled={cat.user_id === null}
-                      >
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </div>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center h-24">
+                    Loading...
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </Card>
+              ) : categories.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center h-24">
+                    No categories found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                categories.map((cat: CategoryData) => (
+                  <TableRow key={cat.id}>
+                    <TableCell className="font-medium">{cat.name}</TableCell>
+                    <TableCell>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-semibold ${cat.type === "INCOME" ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100" : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"}`}
+                      >
+                        {cat.type}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openEditDialog(cat)}
+                          disabled={cat.user_id === null}
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(cat.id!)}
+                          disabled={cat.user_id === null}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </Card>
+      )}
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>

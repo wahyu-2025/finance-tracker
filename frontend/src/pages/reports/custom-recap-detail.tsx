@@ -143,8 +143,9 @@ export function CustomRecapDetailPage() {
             </div>
           </Card>
 
-          <div>
-            <h4 className="font-semibold text-center mb-4 text-muted-foreground">Pengeluaran per Kategori</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h4 className="font-semibold text-center mb-4 text-muted-foreground">Pengeluaran per Kategori</h4>
             <Card className="divide-y">
               {expenseByCategory.map((item: PerCategory) => (
                 <div 
@@ -181,6 +182,7 @@ export function CustomRecapDetailPage() {
               ))}
               {incomeByCategory.length === 0 && <div className="p-4 text-center text-sm text-muted-foreground">Tidak ada data</div>}
             </Card>
+            </div>
           </div>
         </TabsContent>
 

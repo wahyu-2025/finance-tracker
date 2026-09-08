@@ -179,6 +179,38 @@ The repository has both:
 
 The application pages analyzed use **`@tanstack/react-query`**. The presence of the legacy `react-query` dependency should be reviewed because it may be unused.
 
+### Responsive UI Pattern
+
+The application implements a mobile-first responsive strategy for data-heavy pages (like Transactions, Categories, and Reports).
+
+Instead of forcing HTML `<Table>` elements to scroll horizontally on small screens, we use the `useIsMobile` hook combined with Tailwind CSS breakpoints to render completely different structures:
+
+- **Desktop & Tablet (`>= 1024px`)**: Renders full data grids using the `<Table>` component for maximum information density.
+- **Mobile (`< 1024px`)**: Renders a vertical list of `<Card>` components, making the UI touch-friendly and easy to read without horizontal scrolling.
+
+**Example implementation:**
+```tsx
+import { useIsMobile } from "@/hooks/use-mobile";
+
+export function DataPage() {
+  const isMobile = useIsMobile();
+  
+  return (
+    <div>
+      {isMobile ? (
+        <div className="grid grid-cols-1 gap-4">
+           {/* Render data as Cards */}
+        </div>
+      ) : (
+        <Table>
+           {/* Render data as a standard Table */}
+        </Table>
+      )}
+    </div>
+  );
+}
+```
+
 ## 2.2 Backend
 
 | Technology | Purpose |

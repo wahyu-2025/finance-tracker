@@ -1,72 +1,72 @@
-import { ReactNode } from 'react';
+import { ReactNode } from "react";
 import {
-  BetweenHorizontalStart,
-  Coffee,
-  CreditCard,
-  FileText,
-  Globe,
-  IdCard,
+  // BetweenHorizontalStart,
+  // Coffee,
+  // CreditCard,
+  // FileText,
+  // Globe,
+  // IdCard,
   Moon,
-  Settings,
-  Shield,
-  SquareCode,
+  // Settings,
+  // Shield,
+  // SquareCode,
   UserCircle,
-  Users,
-} from 'lucide-react';
-import { useTheme } from 'next-themes';
-import { Link } from 'react-router';
-import { toAbsoluteUrl } from '@/lib/helpers';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+  // Users,
+} from "lucide-react";
+import { useTheme } from "next-themes";
+import { Link } from "react-router";
+import { toAbsoluteUrl } from "@/lib/helpers";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
+  // DropdownMenuRadioGroup,
+  // DropdownMenuRadioItem,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
+  // DropdownMenuSub,
+  // DropdownMenuSubContent,
+  // DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Switch } from '@/components/ui/switch';
-import { useAuth } from '@/contexts/AuthContext';
+} from "@/components/ui/dropdown-menu";
+import { Switch } from "@/components/ui/switch";
+import { useAuth } from "@/contexts/AuthContext";
 
-const I18N_LANGUAGES = [
-  {
-    label: 'English',
-    code: 'en',
-    direction: 'ltr',
-    flag: toAbsoluteUrl('/media/flags/united-states.svg'),
-  },
-  {
-    label: 'Arabic (Saudi)',
-    code: 'ar',
-    direction: 'rtl',
-    flag: toAbsoluteUrl('/media/flags/saudi-arabia.svg'),
-  },
-  {
-    label: 'French',
-    code: 'fr',
-    direction: 'ltr',
-    flag: toAbsoluteUrl('/media/flags/france.svg'),
-  },
-  {
-    label: 'Chinese',
-    code: 'zh',
-    direction: 'ltr',
-    flag: toAbsoluteUrl('/media/flags/china.svg'),
-  },
-];
+// const I18N_LANGUAGES = [
+//   {
+//     label: 'English',
+//     code: 'en',
+//     direction: 'ltr',
+//     flag: toAbsoluteUrl('/media/flags/united-states.svg'),
+//   },
+//   {
+//     label: 'Arabic (Saudi)',
+//     code: 'ar',
+//     direction: 'rtl',
+//     flag: toAbsoluteUrl('/media/flags/saudi-arabia.svg'),
+//   },
+//   {
+//     label: 'French',
+//     code: 'fr',
+//     direction: 'ltr',
+//     flag: toAbsoluteUrl('/media/flags/france.svg'),
+//   },
+//   {
+//     label: 'Chinese',
+//     code: 'zh',
+//     direction: 'ltr',
+//     flag: toAbsoluteUrl('/media/flags/china.svg'),
+//   },
+// ];
 
 export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
-  const currenLanguage = I18N_LANGUAGES[0];
+  // const currenLanguage = I18N_LANGUAGES[0];
   const { theme, setTheme } = useTheme();
   const { user, logout } = useAuth();
 
   const handleThemeToggle = (checked: boolean) => {
-    setTheme(checked ? 'dark' : 'light');
+    setTheme(checked ? "dark" : "light");
   };
 
   return (
@@ -78,7 +78,7 @@ export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
           <div className="flex items-center gap-2">
             <img
               className="size-9 rounded-full border-2 border-green-500"
-              src={toAbsoluteUrl('/media/avatars/300-2.png')}
+              src={toAbsoluteUrl("/media/avatars/300-2.png")}
               alt="User avatar"
             />
             <div className="flex flex-col">
@@ -86,13 +86,13 @@ export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
                 to="/profile"
                 className="text-sm text-mono hover:text-primary font-semibold"
               >
-                {user?.name || 'User'}
+                {user?.name || "User"}
               </Link>
               <a
-                href={`mailto:${user?.email || ''}`}
+                href={`mailto:${user?.email || ""}`}
                 className="text-xs text-muted-foreground hover:text-primary truncate max-w-[130px]"
               >
-                {user?.email || 'email@example.com'}
+                {user?.email || "email@example.com"}
               </a>
             </div>
           </div>
@@ -105,16 +105,13 @@ export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
 
         {/* Menu Items */}
         <DropdownMenuItem asChild>
-          <Link
-            to="/profile"
-            className="flex items-center gap-2"
-          >
+          <Link to="/profile" className="flex items-center gap-2">
             <UserCircle />
             My Profile
           </Link>
         </DropdownMenuItem>
 
-        <DropdownMenuItem asChild>
+        {/* <DropdownMenuItem asChild>
           <Link
             to="https://devs.keenthemes.com"
             className="flex items-center gap-2"
@@ -122,10 +119,10 @@ export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
             <SquareCode />
             Dev Forum
           </Link>
-        </DropdownMenuItem>
+        </DropdownMenuItem> */}
 
         {/* Language Submenu with Radio Group */}
-        <DropdownMenuSub>
+        {/* <DropdownMenuSub>
           <DropdownMenuSubTrigger className="flex items-center gap-2 [&_[data-slot=dropdown-menu-sub-trigger-indicator]]:hidden hover:[&_[data-slot=badge]]:border-input data-[state=open]:[&_[data-slot=badge]]:border-input">
             <Globe />
             <span className="flex items-center justify-between gap-2 grow relative">
@@ -161,7 +158,7 @@ export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
               ))}
             </DropdownMenuRadioGroup>
           </DropdownMenuSubContent>
-        </DropdownMenuSub>
+        </DropdownMenuSub> */}
 
         <DropdownMenuSeparator />
 
@@ -175,13 +172,18 @@ export function UserDropdownMenu({ trigger }: { trigger: ReactNode }) {
             Dark Mode
             <Switch
               size="sm"
-              checked={theme === 'dark'}
+              checked={theme === "dark"}
               onCheckedChange={handleThemeToggle}
             />
           </div>
         </DropdownMenuItem>
         <div className="p-2 mt-1">
-          <Button variant="outline" size="sm" className="w-full" onClick={logout}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full"
+            onClick={logout}
+          >
             Logout
           </Button>
         </div>

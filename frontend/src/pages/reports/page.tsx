@@ -91,7 +91,7 @@ export function ReportsPage() {
                       required
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-medium mb-1 block">Mulai Tanggal</label>
                       <Input 
@@ -126,7 +126,7 @@ export function ReportsPage() {
               Belum ada rekap custom. Silakan buat baru.
             </div>
           ) : (
-            <div className="grid gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {recaps.map((recap: CustomRecapItem) => (
                 <Card 
                   key={recap.id} 
