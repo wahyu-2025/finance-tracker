@@ -64,6 +64,7 @@ export class CustomRecapController {
     try {
       const userId = req.auth?.id;
       const customRecapRepository = OrmHelper.DB.getRepository(CustomRecap);
+      console.log("custom recap repository", customRecapRepository);
       const transactionRepository = OrmHelper.DB.getRepository(Transaction);
 
       const recaps = await customRecapRepository.find({
