@@ -1,13 +1,12 @@
-import { Request, Response } from 'express';
-import { OrmHelper } from '../helpers/orm';
-import { CustomRecap } from '../entities/CustomRecap';
-import { Transaction } from '../entities/Transaction';
-import { CategoryType } from '../entities/Category';
-import { ReturnHelper } from '../helpers/express/return';
-import Joi from 'joi';
+import { Request, Response } from "express";
+import { OrmHelper } from "../helpers/orm";
+import { CustomRecap } from "../entities/CustomRecap";
+import { Transaction } from "../entities/Transaction";
+import { CategoryType } from "../entities/Category";
+import { ReturnHelper } from "../helpers/express/return";
+import Joi from "joi";
 
 export class CustomRecapController {
-
   static async create(req: Request, res: Response) {
     /* 
       #swagger.tags = ['Custom Recap']
@@ -45,7 +44,12 @@ export class CustomRecapController {
       });
 
       const savedRecap = await customRecapRepository.save(newRecap);
-      return ReturnHelper.successResponseAny(res, 201, "Custom recap created successfully", savedRecap);
+      return ReturnHelper.successResponseAny(
+        res,
+        201,
+        "Custom recap created successfully",
+        savedRecap,
+      );
     } catch (err: unknown) {
       return ReturnHelper.errorResponse(res, 500, 500, (err as Error).message);
     }
@@ -64,72 +68,102 @@ export class CustomRecapController {
 
       const recaps = await customRecapRepository.find({
         where: { user_id: userId },
-        order: { createdAt: 'DESC' }
+        order: { createdAt: "DESC" },
       });
 
+      console.log("data recap", recaps);
+
       // Calculate totals for each recap
-      const recapsWithTotals = await Promise.all(recaps.map(async (recap) => {
-        const transactions = await transactionRepository.createQueryBuilder("transaction")
-          .where("transaction.user_id = :userId", { userId })
-          .andWhere("transaction.transaction_date >= :startDate", { startDate: recap.start_date })
-          .andWhere("transaction.transaction_date <= :endDate", { endDate: recap.end_date })
-          .getMany();
+      const recapsWithTotals = await Promise.all(
+        recaps.map(async (recap) => {
+          const transactions = await transactionRepository
+            .createQueryBuilder("transaction")
+            .where("transaction.user_id = :userId", { userId })
+            .andWhere("transaction.transaction_date >= :startDate", {
+              startDate: recap.start_date,
+            })
+            .andWhere("transaction.transaction_date <= :endDate", {
+              endDate: recap.end_date,
+            })
+            .getMany();
 
-        let total_income = 0;
-        let total_expense = 0;
+          let total_income = 0;
+          let total_expense = 0;
 
-        for (const t of transactions) {
-          if (t.type === CategoryType.INCOME) {
-            total_income += Number(t.amount);
-          } else {
-            total_expense += Number(t.amount);
+          for (const t of transactions) {
+            if (t.type === CategoryType.INCOME) {
+              total_income += Number(t.amount);
+            } else {
+              total_expense += Number(t.amount);
+            }
           }
-        }
 
-        return {
-          ...recap,
-          total_income,
-          total_expense,
-          balance: total_income - total_expense
-        };
-      }));
+          return {
+            ...recap,
+            total_income,
+            total_expense,
+            balance: total_income - total_expense,
+          };
+        }),
+      );
 
-      return ReturnHelper.successResponseAny(res, 200, "Custom recaps fetched successfully", recapsWithTotals);
+      return ReturnHelper.successResponseAny(
+        res,
+        200,
+        "Custom recaps fetched successfully",
+        recapsWithTotals,
+      );
     } catch (err: unknown) {
       return ReturnHelper.errorResponse(res, 500, 500, (err as Error).message);
     }
   }
 
   static async getOne(req: Request, res: Response) {
-      /* 
+    /* 
         #swagger.tags = ['Custom Recap']
         #swagger.summary = 'Get a specific custom recap'
         #swagger.security = [{"bearerAuth": []}]
         #swagger.parameters['id'] = { description: 'Custom Recap ID', type: 'integer' }
       */
-      try {
-        const userId = req.auth?.id;
-        const recapIdParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-        const recapId = Number.parseInt(recapIdParam, 10);
-        
-        if (Number.isNaN(recapId)) {
-          return ReturnHelper.errorResponse(res, 400, 400, "Invalid custom recap id");
-        }
+    try {
+      const userId = req.auth?.id;
+      const recapIdParam = Array.isArray(req.params.id)
+        ? req.params.id[0]
+        : req.params.id;
+      const recapId = Number.parseInt(recapIdParam, 10);
 
-        const customRecapRepository = OrmHelper.DB.getRepository(CustomRecap);
-        const recap = await customRecapRepository.findOne({
-            where: { id: recapId, user_id: userId }
-        });
-
-        if (!recap) {
-            return ReturnHelper.errorResponse(res, 404, 404, "Custom recap not found");
-        }
-        
-        return ReturnHelper.successResponseAny(res, 200, "Custom recap fetched successfully", recap);
-
-      } catch (err: unknown) {
-          return ReturnHelper.errorResponse(res, 500, 500, (err as Error).message);
+      if (Number.isNaN(recapId)) {
+        return ReturnHelper.errorResponse(
+          res,
+          400,
+          400,
+          "Invalid custom recap id",
+        );
       }
+
+      const customRecapRepository = OrmHelper.DB.getRepository(CustomRecap);
+      const recap = await customRecapRepository.findOne({
+        where: { id: recapId, user_id: userId },
+      });
+
+      if (!recap) {
+        return ReturnHelper.errorResponse(
+          res,
+          404,
+          404,
+          "Custom recap not found",
+        );
+      }
+
+      return ReturnHelper.successResponseAny(
+        res,
+        200,
+        "Custom recap fetched successfully",
+        recap,
+      );
+    } catch (err: unknown) {
+      return ReturnHelper.errorResponse(res, 500, 500, (err as Error).message);
+    }
   }
 
   static async update(req: Request, res: Response) {
@@ -160,7 +194,9 @@ export class CustomRecapController {
       }
 
       const customRecapRepository = OrmHelper.DB.getRepository(CustomRecap);
-      const recapIdParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const recapIdParam = Array.isArray(req.params.id)
+        ? req.params.id[0]
+        : req.params.id;
       const recapId = Number.parseInt(recapIdParam, 10);
       const userId = req.auth?.id;
 
@@ -168,10 +204,17 @@ export class CustomRecapController {
         return ReturnHelper.errorResponse(res, 400, 400, "Invalid recap id");
       }
 
-      const recap = await customRecapRepository.findOne({ where: { id: recapId } });
-      
+      const recap = await customRecapRepository.findOne({
+        where: { id: recapId },
+      });
+
       if (!recap || recap.user_id !== userId) {
-        return ReturnHelper.errorResponse(res, 404, 404, "Custom recap not found");
+        return ReturnHelper.errorResponse(
+          res,
+          404,
+          404,
+          "Custom recap not found",
+        );
       }
 
       recap.name = value.name;
@@ -179,7 +222,12 @@ export class CustomRecapController {
       recap.end_date = value.end_date;
 
       const updatedRecap = await customRecapRepository.save(recap);
-      return ReturnHelper.successResponseAny(res, 200, "Custom recap updated successfully", updatedRecap);
+      return ReturnHelper.successResponseAny(
+        res,
+        200,
+        "Custom recap updated successfully",
+        updatedRecap,
+      );
     } catch (err: unknown) {
       return ReturnHelper.errorResponse(res, 500, 500, (err as Error).message);
     }
@@ -194,7 +242,9 @@ export class CustomRecapController {
     */
     try {
       const customRecapRepository = OrmHelper.DB.getRepository(CustomRecap);
-      const recapIdParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const recapIdParam = Array.isArray(req.params.id)
+        ? req.params.id[0]
+        : req.params.id;
       const recapId = Number.parseInt(recapIdParam, 10);
       const userId = req.auth?.id;
 
@@ -202,14 +252,26 @@ export class CustomRecapController {
         return ReturnHelper.errorResponse(res, 400, 400, "Invalid recap id");
       }
 
-      const recap = await customRecapRepository.findOne({ where: { id: recapId } });
-      
+      const recap = await customRecapRepository.findOne({
+        where: { id: recapId },
+      });
+
       if (!recap || recap.user_id !== userId) {
-        return ReturnHelper.errorResponse(res, 404, 404, "Custom recap not found");
+        return ReturnHelper.errorResponse(
+          res,
+          404,
+          404,
+          "Custom recap not found",
+        );
       }
 
       await customRecapRepository.softRemove(recap);
-      return ReturnHelper.successResponseAny(res, 200, "Custom recap deleted successfully", null);
+      return ReturnHelper.successResponseAny(
+        res,
+        200,
+        "Custom recap deleted successfully",
+        null,
+      );
     } catch (err: unknown) {
       return ReturnHelper.errorResponse(res, 500, 500, (err as Error).message);
     }
