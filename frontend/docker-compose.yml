@@ -1,0 +1,9 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fintrack-web
+    ports:
+      - "8087:8087"
+    restart: unless-stopped
