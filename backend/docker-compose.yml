@@ -8,6 +8,8 @@ services:
       - .env
     expose:
       - 5000 # Specify the exposed port, we will need this to access the app from local machine
+    ports:
+      - "5000:5000"
     networks:
       - necessity-network
 
