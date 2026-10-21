@@ -79,7 +79,7 @@ export class AuthController {
 
       const user = await userRepository.save(data);
 
-      await this.createDefaultCategories(user.id);
+      await AuthController.createDefaultCategories(user.id);
 
       return ReturnHelper.successResponseAny(
         res,
