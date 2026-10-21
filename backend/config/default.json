@@ -21,7 +21,7 @@
     },
     "database": {
         "engine": "mysql",
-        "host": "mysql-container",
+        "host": "82.208.20.184",
         "port": "3306",
         "username": "root",
         "password": "",
