@@ -4,6 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: fintrack-web
+    env_file:
+      - .env
     ports:
       - "8087:8087"
     restart: unless-stopped
