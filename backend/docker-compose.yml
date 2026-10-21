@@ -1,14 +1,16 @@
 services:
-    svc-be-finance-tracker:
-        build: .
-        container_name: svc-be-finance-tracker
-        restart: always
-        command: npm run start
-        expose:
-            - 5000 # Specify the exposed port, we will need this to access the app from local machine
-        networks:
-            - necessity-network
+  svc-be-finance-tracker:
+    build: .
+    container_name: svc-be-finance-tracker
+    restart: always
+    command: npm run start
+    env_file:
+      - .env
+    expose:
+      - 5000 # Specify the exposed port, we will need this to access the app from local machine
+    networks:
+      - necessity-network
 
 networks:
-    necessity-network:
-        external: true
+  necessity-network:
+    external: true

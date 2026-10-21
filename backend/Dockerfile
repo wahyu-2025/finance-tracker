@@ -13,7 +13,6 @@ COPY config ./config
 
 COPY tsconfig.json ./tsconfig.json
 
-ENV NODE_ENV=prod
 RUN npm run swagger
 
 RUN npm run build
