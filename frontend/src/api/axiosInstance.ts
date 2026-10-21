@@ -1,23 +1,27 @@
-import axios, { InternalAxiosRequestConfig } from 'axios';
-import { AuthService } from './auth.service';
-import { TokenService } from './token';
+import axios, { InternalAxiosRequestConfig } from "axios";
+import { AuthService } from "./auth.service";
+import { TokenService } from "./token";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000",
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 let isRefreshing = false;
-let failedQueue: Array<{ resolve: (value?: unknown) => void; reject: (error: unknown) => void; config: InternalAxiosRequestConfig }> = [];
+let failedQueue: Array<{
+  resolve: (value?: unknown) => void;
+  reject: (error: unknown) => void;
+  config: InternalAxiosRequestConfig;
+}> = [];
 
 const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);
     } else {
-      prom.config.headers['Authorization'] = `Bearer ${token}`;
+      prom.config.headers["Authorization"] = `Bearer ${token}`;
       prom.resolve(api(prom.config));
     }
   });
@@ -26,13 +30,14 @@ const processQueue = (error: unknown, token: string | null = null) => {
 
 api.interceptors.request.use(
   (config) => {
+    console.log("AXIOS REQUEST:", config.method, config.baseURL, config.url);
     const token = TokenService.getAccessToken();
     if (token && config.headers) {
-      config.headers['Authorization'] = `Bearer ${token}`;
+      config.headers["Authorization"] = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 api.interceptors.response.use(
@@ -69,9 +74,10 @@ api.interceptors.response.use(
         const response = await AuthService.refreshToken(refreshToken);
         const newAccessToken = response.data.access_token;
         TokenService.setAccessToken(newAccessToken);
-        api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+        api.defaults.headers.common["Authorization"] =
+          `Bearer ${newAccessToken}`;
         processQueue(null, newAccessToken);
-        originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+        originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
@@ -83,7 +89,7 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;
