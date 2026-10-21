@@ -8,6 +8,7 @@ export default defineConfig({
   base: process.env.VITE_BASE_URL || "/",
   server: {
     port: 8087,
+    host: "0.0.0.0",
     strictPort: true,
   },
   resolve: {

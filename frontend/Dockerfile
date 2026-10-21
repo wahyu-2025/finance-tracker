@@ -6,7 +6,5 @@ RUN npm ci
 
 COPY . .
 
-RUN npm run build
-
 EXPOSE 8087
 CMD ["npm", "run", "dev"]
