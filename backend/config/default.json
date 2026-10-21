@@ -21,11 +21,11 @@
     },
     "database": {
         "engine": "mysql",
-        "host": "localhost",
+        "host": "mysql-container",
         "port": "3306",
         "username": "root",
         "password": "",
-        "database": "db_finance_tracker",
+        "database": "fintrack_db",
         "logging": true,
         "sync": true
     },
