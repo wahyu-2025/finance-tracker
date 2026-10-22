@@ -1,101 +1,102 @@
-require('dotenv').config();
-const swaggerAutogen = require('swagger-autogen')({ openapi: '3.0.0' });
-const config = require('config');
+require("dotenv").config();
+const swaggerAutogen = require("swagger-autogen")({ openapi: "3.0.0" });
+const config = require("config");
 
 const doc = {
   info: {
-    title: config.get('app.name'),
-    description: config.get('app.description'),
-    version: config.get('app.version'),
+    title: config.get("app.name"),
+    description: config.get("app.description"),
+    version: config.get("app.version"),
   },
   servers: [
     {
-      url: config.get('server.host_swagger'),
-      description: 'Environment ' + config.get('app.env'),
+      url: config.get("server.host_swagger"),
+      description: "Environment " + config.get("app.env"),
     },
   ],
   components: {
     schemas: {
       // Skema untuk request body pada registrasi user
       RegisterRequest: {
-          email: "email@example.com",
-          password: "123456",
-          fullname: "your-fullname",
+        email: "email@example.com",
+        password: "123456",
+        fullname: "your-fullname",
       },
       LoginRequest: {
-          email: "email@example.com",
-          password: "123456",
+        email: "email@example.com",
+        password: "123456",
       },
       RefreshTokenRequest: {
-          refresh_token: "your-refresh-token"
+        refresh_token: "your-refresh-token",
       },
       UpdateRequest: {
-          id: "1",
-          email: "email@example.com",
-          fullname: "your-fullname"
+        id: "1",
+        email: "email@example.com",
+        fullname: "your-fullname",
       },
       ForgotPasswordRequest: {
-          email: "email@example.com"
+        email: "email@example.com",
       },
       ChangePasswordRequest: {
-          token: "reset-token",
-          newPassword: "12345567"
+        token: "reset-token",
+        newPassword: "12345567",
       },
       ProductCreate: {
-          name: "Product 1",
-          desc: "Description of Product 1",
-          price: "5.00",
+        name: "Product 1",
+        desc: "Description of Product 1",
+        price: "5.00",
       },
       ProductUpdate: {
-          product_id: 1,
-          name: "Product 1",
-          desc: "Description of Product 1",
-          price: 5.00,
+        product_id: 1,
+        name: "Product 1",
+        desc: "Description of Product 1",
+        price: 5.0,
       },
       Paging: {
-          filter: { any: "Product 1"},
-          page: 1,
-          limit: 25,
-          with_deleted: true,
-          order_field: 'name',
-          order_direction: 'desc'
+        filter: { any: "Product 1" },
+        page: 1,
+        limit: 25,
+        with_deleted: true,
+        order_field: "name",
+        order_direction: "desc",
       },
       CreateCategoryRequest: {
-          name: "Food",
-          type: "expense"
+        name: "Food",
+        type: "expense",
       },
       UpdateCategoryRequest: {
-          name: "Food",
-          type: "expense"
+        name: "Food",
+        type: "expense",
       },
       CreateTransactionRequest: {
-          category_id: 1,
-          type: "expense",
-          amount: 50000,
-          transaction_date: "2024-01-01",
-          description: "Makan siang"
+        category_id: 1,
+        type: "expense",
+        amount: 50000,
+        transaction_date: "2024-01-01",
+        description: "Makan siang",
       },
       UpdateTransactionRequest: {
-          category_id: 1,
-          type: "expense",
-          amount: 50000,
-          transaction_date: "2024-01-01",
-          description: "Makan siang"
+        category_id: 1,
+        type: "expense",
+        amount: 50000,
+        transaction_date: "2024-01-01",
+        description: "Makan siang",
       },
       CreateCustomRecapRequest: {
-          name: "Rekap Januari 2024",
-          start_date: "2024-01-01",
-          end_date: "2024-01-31"
+        name: "Rekap Januari 2024",
+        start_date: "2024-01-01",
+        end_date: "2024-01-31",
       },
       UpdateCustomRecapRequest: {
-          name: "Rekap Januari 2024",
-          start_date: "2024-01-01",
-          end_date: "2024-01-31"
+        name: "Rekap Januari 2024",
+        start_date: "2024-01-01",
+        end_date: "2024-01-31",
       },
       CreateWalletRequest: {
-          name: "dompet",
-          type: "cash",
-          initial_balance: "0",
+        name: "dompet",
+        type: "cash",
+        initial_balance: "0",
+        balance: "0",
       },
     },
     parameters: {
@@ -103,31 +104,31 @@ const doc = {
     },
     securitySchemes: {
       bearerAuth: {
-        type: 'http',
-        scheme: 'bearer',
+        type: "http",
+        scheme: "bearer",
       },
     },
   },
   paths: {
-    '/api/auth/register': {
+    "/api/auth/register": {
       post: {
-        summary: 'Register a new user',
-        description: 'Endpoint for user registration',
-        operationId: 'register',
+        summary: "Register a new user",
+        description: "Endpoint for user registration",
+        operationId: "register",
         requestBody: {
           required: true,
           content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/RegisterRequest' },
+            "application/json": {
+              schema: { $ref: "#/components/schemas/RegisterRequest" },
             },
           },
         },
         responses: {
           201: {
-            description: 'User registered successfully',
+            description: "User registered successfully",
           },
           400: {
-            description: 'Invalid input data',
+            description: "Invalid input data",
           },
         },
       },
@@ -135,9 +136,7 @@ const doc = {
   },
 };
 
-const outputFile = './swagger.json';
-const routes = ['../routes/private.ts', '../routes/public.ts'];
+const outputFile = "./swagger.json";
+const routes = ["../routes/private.ts", "../routes/public.ts"];
 
 swaggerAutogen(outputFile, routes, doc);
-
-
