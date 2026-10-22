@@ -7,7 +7,8 @@ import { Language } from "../langs/lang";
 import { ILogObj, Logger } from "tslog";
 import JwtHelper, { IJwtPayload } from "../helpers/jwt";
 import { OrmHelper } from "../helpers/orm";
-import { defaultCategory } from "../utils/default-category";
+import { defaultCategory, defaultWallet } from "../utils/default-category";
+import { Wallet } from "../entities/wallet";
 
 const log: Logger<ILogObj> = new Logger({
   name: "[AuthController]",
@@ -26,6 +27,19 @@ export class AuthController {
     );
 
     return categoryRepository.save(categories);
+  }
+
+  static async createDefaultWallets(user_id: number) {
+    const walletRepository = OrmHelper.DB.getRepository(Wallet);
+
+    const wallets = defaultWallet.map((item) =>
+      walletRepository.create({
+        ...item,
+        user_id: user_id,
+      }),
+    );
+
+    return walletRepository.save(wallets);
   }
 
   static async register(
@@ -80,6 +94,8 @@ export class AuthController {
       const user = await userRepository.save(data);
 
       await AuthController.createDefaultCategories(user.id);
+
+      await AuthController.createDefaultWallets(user.id);
 
       return ReturnHelper.successResponseAny(
         res,

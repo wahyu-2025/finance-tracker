@@ -1,8 +1,15 @@
 import { CategoryType } from "../entities/Category";
+import { WalletType } from "../entities/wallet";
 
 interface defaultCategoryProps {
   name: string;
   type: CategoryType;
+}
+
+interface defaultWalletProps {
+  name: string;
+  type: WalletType;
+  initial_balance: number;
 }
 
 export const defaultCategory: defaultCategoryProps[] = [
@@ -13,4 +20,8 @@ export const defaultCategory: defaultCategoryProps[] = [
   { name: "Tagihan", type: CategoryType.EXPENSE },
   { name: "Hiburan", type: CategoryType.EXPENSE },
   { name: "Lain-lain", type: CategoryType.EXPENSE },
+];
+
+export const defaultWallet: defaultWalletProps[] = [
+  { name: "Cash", type: WalletType.CASH, initial_balance: 0 },
 ];

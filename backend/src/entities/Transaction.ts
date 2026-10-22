@@ -1,6 +1,16 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, JoinColumn } from 'typeorm';
-import { User } from './User';
-import { Category, CategoryType } from './Category';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+  JoinColumn,
+} from "typeorm";
+import { User } from "./User";
+import { Category, CategoryType } from "./Category";
+import { Wallet } from "./wallet";
 
 @Entity()
 export class Transaction {
@@ -10,30 +20,37 @@ export class Transaction {
   @Column()
   user_id!: number;
 
-  @ManyToOne(() => User, user => user.transactions)
-  @JoinColumn({ name: 'user_id' })
+  @ManyToOne(() => User, (user) => user.transactions)
+  @JoinColumn({ name: "user_id" })
   user!: User;
 
   @Column()
   category_id!: number;
 
   @ManyToOne(() => Category)
-  @JoinColumn({ name: 'category_id' })
+  @JoinColumn({ name: "category_id" })
   category!: Category;
 
+  @Column()
+  wallet_id!: number;
+
+  @ManyToOne(() => Wallet, (wallet) => wallet.transactions)
+  @JoinColumn({ name: "wallet_id" })
+  wallet!: Wallet;
+
   @Column({
-    type: 'enum',
-    enum: CategoryType
+    type: "enum",
+    enum: CategoryType,
   })
   type!: CategoryType;
 
-  @Column('decimal', { precision: 15, scale: 2 })
+  @Column("decimal", { precision: 15, scale: 2 })
   amount!: number;
 
-  @Column('date')
+  @Column("date")
   transaction_date!: Date;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: "text", nullable: true })
   description!: string;
 
   @CreateDateColumn()

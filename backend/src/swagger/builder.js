@@ -92,6 +92,11 @@ const doc = {
           start_date: "2024-01-01",
           end_date: "2024-01-31"
       },
+      CreateWalletRequest: {
+          name: "dompet",
+          type: "cash",
+          initial_balance: "0",
+      },
     },
     parameters: {
       // Anda dapat mendefinisikan parameter lainnya di sini jika diperlukan
