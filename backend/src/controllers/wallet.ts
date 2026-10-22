@@ -40,6 +40,8 @@ export class WalletController {
       }
 
       const userId = req.auth?.id;
+      console.log("User ID:", userId);
+      
       if (!userId) {
         return ReturnHelper.errorResponse(res, 401, 401, "Unauthorized");
       }
