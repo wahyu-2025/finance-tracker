@@ -39,12 +39,19 @@ export class WalletController {
         return ReturnHelper.errorResponse(res, 400, 400, error.message);
       }
 
+      const userId = req.auth?.id;
+      if (!userId) {
+        return ReturnHelper.errorResponse(res, 401, 401, "Unauthorized");
+      }
+
       const walletRepository = OrmHelper.DB.getRepository(Wallet);
 
       const newWallet = walletRepository.create({
         name: value.name,
         type: value.type,
-        user_id: req.auth?.id,
+        initial_balance: value.initial_balance,
+        balance: value.initial_balance,
+        user_id: userId,
       });
 
       const savedWallet = await walletRepository.save(newWallet);
@@ -68,6 +75,10 @@ export class WalletController {
     try {
       const walletRepository = OrmHelper.DB.getRepository(Wallet);
       const userId = req.auth?.id;
+
+      if (!userId) {
+        return ReturnHelper.errorResponse(res, 401, 401, "Unauthorized");
+      }
 
       // Ambil kategori global (user_id IS NULL) dan private milik user
       const wallets = await walletRepository
