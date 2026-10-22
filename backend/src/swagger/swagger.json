@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://finance-tracker-production-b2fd.up.railway.app",
+      "url": "http://82.208.20.184:5000",
       "description": "Environment Production"
     }
   ],
@@ -448,6 +448,52 @@
         ]
       }
     },
+    "/api/wallet": {
+      "post": {
+        "tags": [
+          "Wallet"
+        ],
+        "summary": "Create a new private wallet",
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWalletRequest"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Wallet"
+        ],
+        "summary": "Get all wallets (Global & Private)",
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/auth/register": {
       "post": {
         "tags": [
@@ -828,6 +874,27 @@
           "end_date": {
             "type": "string",
             "example": "2024-01-31"
+          }
+        }
+      },
+      "CreateWalletRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "dompet"
+          },
+          "type": {
+            "type": "string",
+            "example": "cash"
+          },
+          "initial_balance": {
+            "type": "string",
+            "example": "0"
+          },
+          "balance": {
+            "type": "string",
+            "example": "0"
           }
         }
       }
