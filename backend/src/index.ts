@@ -1,4 +1,12 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+import path from 'path';
+
+const env = process.env.NODE_ENV || 'development';
+dotenv.config({
+    path: path.resolve(process.cwd(), `.env.${env}`)
+});
+dotenv.config(); // fallback ke .env jika ada
+
 import { Logger, ILogObj } from "tslog";
 import { app } from "./server";
 import https from 'https';

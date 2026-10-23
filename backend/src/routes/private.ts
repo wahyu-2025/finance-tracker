@@ -43,6 +43,6 @@ export class RoutePrivate {
 
     // Wallet Routes
     app.post("/api/wallet", WalletController.create);
-    app.get("/api/wallet", WalletController.getAll);
+    app.get("/api/wallet", WalletController.getWallet);
   }
 }

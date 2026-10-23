@@ -93,9 +93,8 @@ const doc = {
       },
       CreateWalletRequest: {
         name: "dompet",
-        type: "cash",
-        initial_balance: "0",
-        balance: "0",
+        type: "CASH",
+        initial_balance: 0,
       },
     },
     parameters: {

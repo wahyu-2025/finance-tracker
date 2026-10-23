@@ -7,8 +7,8 @@
   },
   "servers": [
     {
-      "url": "http://82.208.20.184:5000",
-      "description": "Environment Production"
+      "url": "http://127.0.0.1:5000",
+      "description": "Environment Development"
     }
   ],
   "paths": {
@@ -453,7 +453,6 @@
         "tags": [
           "Wallet"
         ],
-        "summary": "Create a new private wallet",
         "description": "",
         "responses": {
           "default": {
@@ -480,8 +479,18 @@
         "tags": [
           "Wallet"
         ],
-        "summary": "Get all wallets (Global & Private)",
         "description": "",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "description": "User ID",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
         "responses": {
           "default": {
             "description": ""
@@ -886,15 +895,11 @@
           },
           "type": {
             "type": "string",
-            "example": "cash"
+            "example": "CASH"
           },
           "initial_balance": {
-            "type": "string",
-            "example": "0"
-          },
-          "balance": {
-            "type": "string",
-            "example": "0"
+            "type": "number",
+            "example": 0
           }
         }
       }
