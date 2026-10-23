@@ -3,7 +3,7 @@
 // ============================================================
 
 // --------------- Category ---------------
-export type CategoryType = 'INCOME' | 'EXPENSE';
+export type CategoryType = "INCOME" | "EXPENSE";
 
 export interface Category {
   id: number;
@@ -101,4 +101,18 @@ export interface AxiosErrorResponse {
     };
   };
   message: string;
+}
+
+// Wallets
+
+export interface Wallets {
+  id: number;
+  user_id: number;
+  name: string;
+  initial_balance: number;
+  balance: number;
+  type: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
 }

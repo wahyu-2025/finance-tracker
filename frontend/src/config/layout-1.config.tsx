@@ -43,6 +43,7 @@ import {
   UserCheck,
   UserCircle,
   Users,
+  Wallet,
   Briefcase as WorkIcon,
   Zap,
 } from 'lucide-react';
@@ -70,6 +71,11 @@ export const MENU_SIDEBAR: MenuConfig = [
     title: 'Categories',
     icon: Grid,
     path: '/categories'
+  },
+  {
+    title: 'Wallets',
+    icon: Wallet,
+    path: '/wallets'
   },
   { heading: 'Settings' },
   {
