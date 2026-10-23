@@ -8,7 +8,16 @@ import {
   DialogBody,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Wallets } from "@/types";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Wallets, WalletType } from "@/types";
+import { useState } from "react";
 
 interface WalletsDialogProps {
   isDialogOpen: boolean;
@@ -17,12 +26,26 @@ interface WalletsDialogProps {
   actionType: "add" | "edit";
 }
 
+interface FormWallet {
+  name: string;
+  type: WalletType;
+  initial_balance: number;
+  balance: number;
+}
+
 const WalletsDialog = ({
   isDialogOpen,
   setIsDialogOpen,
   selectedWallet,
   actionType,
 }: WalletsDialogProps) => {
+  const initialForm: FormWallet = {
+    name: "",
+    type: "CASH",
+    initial_balance: 0,
+    balance: 0,
+  };
+  const [form, setForm] = useState<FormWallet>(initialForm);
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle form submission
@@ -38,45 +61,62 @@ const WalletsDialog = ({
         <form onSubmit={handleSubmit}>
           <DialogBody className="space-y-4 py-4">
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium mb-1 block">Type</label>
-                <select
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  //   value={type}
-                  //   onChange={(e) => {
-                  //     setType(e.target.value as "INCOME" | "EXPENSE");
-                  //     setCategoryId(""); // reset category on type change
-                  //   }}
-                >
-                  <option value="EXPENSE">Expense</option>
-                  <option value="INCOME">Income</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-1 block">Amount</label>
+              <div className="col-span-2">
+                <Label className="text-sm font-medium mb-1 block">Name</Label>
                 <Input
-                //   type="text"
-                //   value={displayValue}
-                //   placeholder="Rp. 0,00"
-                //   required
-                //   onChange={(e) => {
-                //     const raw = e.target.value;
-
-                //     setDisplayValue(raw);
-
-                //     setAmount(parsePrice(raw));
-                //   }}
-                //   onBlur={() => {
-                //     if (amount !== null) {
-                //       setDisplayValue(formatPrice(amount));
-                //     }
-                //   }}
+                  placeholder="Name"
+                  type="text"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
                 />
               </div>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium mb-1 block">Category</label>
+              <div className="col-span-2">
+                <Label className="text-sm font-medium mb-1 block">Type</Label>
+                <Select
+                  value={form.type}
+                  onValueChange={(value) =>
+                    setForm({ ...form, type: value as WalletType })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="CASH">Cash</SelectItem>
+                    <SelectItem value="BANK">Bank</SelectItem>
+                    <SelectItem value="EWALLET">E-Wallet</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="">
+                <Label className="text-sm font-medium mb-1 block">
+                  Initial Balance
+                </Label>
+                <Input
+                  placeholder="Initial Balance"
+                  type="number"
+                  value={form.initial_balance}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      initial_balance: Number(e.target.value),
+                    })
+                  }
+                />
+              </div>
+              <div className="">
+                <Label className="text-sm font-medium mb-1 block">
+                  Balance
+                </Label>
+                <Input
+                  placeholder="Balance"
+                  type="number"
+                  value={form.balance}
+                  onChange={(e) =>
+                    setForm({ ...form, balance: Number(e.target.value) })
+                  }
+                />
+              </div>
             </div>
           </DialogBody>
           <DialogFooter>
