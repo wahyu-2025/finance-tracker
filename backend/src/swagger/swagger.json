@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Backend",
-    "description": "Financial Tracking API - Production",
+    "description": "Purpose of this service is to Authentication",
     "version": "1.0.0"
   },
   "servers": [
@@ -898,6 +898,10 @@
             "example": "CASH"
           },
           "initial_balance": {
+            "type": "number",
+            "example": 0
+          },
+          "balance": {
             "type": "number",
             "example": 0
           }

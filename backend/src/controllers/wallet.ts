@@ -30,6 +30,7 @@ export class WalletController {
           WalletType.CASH,
         ),
         initial_balance: Joi.number().required(),
+        balance: Joi.number().required(),
       });
 
       const { error, value } = schema.validate(req.body);
@@ -63,7 +64,7 @@ export class WalletController {
         name: value.name,
         type: value.type,
         initial_balance: value.initial_balance,
-        balance: value.initial_balance,
+        balance: value.balance ? value.balance : value.initial_balance,
         user_id: userId,
       });
 

@@ -4,7 +4,9 @@ const swaggerAutogen = require("swagger-autogen")({ openapi: "3.0.0" });
 const doc = {
   info: {
     title: process.env.APP_NAME || "Backend",
-    description: process.env.APP_DESCRIPTION || "Purpose of this service is to Authentication",
+    description:
+      process.env.APP_DESCRIPTION ||
+      "Purpose of this service is to Authentication",
     version: process.env.APP_VERSION || "1.0.0",
   },
   servers: [
@@ -95,6 +97,7 @@ const doc = {
         name: "dompet",
         type: "CASH",
         initial_balance: 0,
+        balance: 0,
       },
     },
     parameters: {
