@@ -1,10 +1,9 @@
-import config from "config";
 import cors from "cors";
 import express from "express";
 
 export class CorsHelper {
   static setup(app: express.Application) {
-    const rawOrigins = config.get<string>("server.cors");
+    const rawOrigins = process.env.CORS_ORIGIN || "*";
 
     console.log("CORS config:", rawOrigins);
 
