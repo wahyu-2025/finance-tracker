@@ -101,6 +101,19 @@ export class WalletController {
 
       const wallets = await query.getMany();
 
+      if (userId != null) {
+        const total_balance_wallet = wallets.reduce(
+          (sum, w) => sum + Number(w.balance),
+          0,
+        );
+        return ReturnHelper.successResponseAny(
+          res,
+          200,
+          "Wallets fetched successfully",
+          { wallets, total_balance_wallet },
+        );
+      }
+
       return ReturnHelper.successResponseAny(
         res,
         200,
