@@ -101,7 +101,13 @@ export class AuthController {
         res,
         201,
         String(Language.lang.success_insert ?? ""),
-        data,
+        {
+          email: user.email,
+          name: user.name,
+          id: user.id,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+        },
       );
     } catch (e) {
       log.error(e);

@@ -1,17 +1,18 @@
 require("dotenv").config();
 const swaggerAutogen = require("swagger-autogen")({ openapi: "3.0.0" });
-const config = require("config");
 
 const doc = {
   info: {
-    title: config.get("app.name"),
-    description: config.get("app.description"),
-    version: config.get("app.version"),
+    title: process.env.APP_NAME || "Backend",
+    description:
+      process.env.APP_DESCRIPTION ||
+      "Purpose of this service is to Authentication",
+    version: process.env.APP_VERSION || "1.0.0",
   },
   servers: [
     {
-      url: config.get("server.host_swagger"),
-      description: "Environment " + config.get("app.env"),
+      url: process.env.HOST_SWAGGER || "http://127.0.0.1:5000",
+      description: "Environment " + (process.env.APP_ENV || "Development"),
     },
   ],
   components: {
@@ -94,9 +95,9 @@ const doc = {
       },
       CreateWalletRequest: {
         name: "dompet",
-        type: "cash",
-        initial_balance: "0",
-        balance: "0",
+        type: "CASH",
+        initial_balance: 0,
+        balance: 0,
       },
     },
     parameters: {

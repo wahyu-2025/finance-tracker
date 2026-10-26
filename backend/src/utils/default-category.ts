@@ -10,6 +10,7 @@ interface defaultWalletProps {
   name: string;
   type: WalletType;
   initial_balance: number;
+  balance: number;
 }
 
 export const defaultCategory: defaultCategoryProps[] = [
@@ -23,5 +24,5 @@ export const defaultCategory: defaultCategoryProps[] = [
 ];
 
 export const defaultWallet: defaultWalletProps[] = [
-  { name: "Cash", type: WalletType.CASH, initial_balance: 0 },
+  { name: "Cash", type: WalletType.CASH, initial_balance: 0, balance: 0 },
 ];

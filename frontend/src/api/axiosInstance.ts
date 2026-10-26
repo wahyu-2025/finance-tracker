@@ -9,6 +9,10 @@ const api = axios.create({
   },
 });
 
+console.log("MODE:", import.meta.env.MODE);
+console.log("API URL ENV:", import.meta.env.VITE_API_URL);
+console.log("BASE URL AXIOS:", api.defaults.baseURL);
+
 let isRefreshing = false;
 let failedQueue: Array<{
   resolve: (value?: unknown) => void;

@@ -9,7 +9,6 @@ RUN npm install typescript -g
 
 # add folder if needs more
 COPY src ./src
-COPY config ./config
 
 COPY tsconfig.json ./tsconfig.json
 
@@ -23,8 +22,6 @@ FROM node:22-alpine
 COPY --from=base ./node_modules ./node_modules
 COPY --from=base ./package.json ./package.json
 COPY --from=base /dist /dist
-COPY --from=base /config /config
-COPY --from=base /config /dist/config
 COPY --from=base /src /src
 
 #run

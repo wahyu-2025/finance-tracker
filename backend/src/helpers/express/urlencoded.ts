@@ -1,4 +1,3 @@
-import config from 'config';
 import express from 'express';
 
 export class UrlencodedHelper {
@@ -6,7 +5,7 @@ export class UrlencodedHelper {
         app.use(
             express.urlencoded({
                 extended: true,
-                limit: config.get('server.max_body'),
+                limit: process.env.MAX_BODY || '50mb',
             })
         );
     }

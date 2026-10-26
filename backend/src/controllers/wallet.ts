@@ -11,7 +11,6 @@ export class WalletController {
   static async create(req: Request, res: Response) {
     /* 
       #swagger.tags = ['Wallet']
-      #swagger.summary = 'Create a new private wallet'
       #swagger.security = [{"bearerAuth": []}]
       #swagger.requestBody = {
           required: true,
@@ -31,28 +30,41 @@ export class WalletController {
           WalletType.CASH,
         ),
         initial_balance: Joi.number().required(),
+        balance: Joi.number().required(),
       });
 
       const { error, value } = schema.validate(req.body);
+
+      const walletRepository = OrmHelper.DB.getRepository(Wallet);
+
+      const userId = req.auth?.id;
+
+      if (!userId) {
+        return ReturnHelper.errorResponse(res, 401, 401, "Unauthorized");
+      }
+
+      const isExisting = await walletRepository.findOne({
+        where: { name: value.name, type: value.type, user_id: userId },
+      });
+
+      if (isExisting) {
+        return ReturnHelper.errorResponse(
+          res,
+          400,
+          400,
+          "Wallet already exists",
+        );
+      }
 
       if (error) {
         return ReturnHelper.errorResponse(res, 400, 400, error.message);
       }
 
-      const userId = req.auth?.id;
-      console.log("User ID:", userId);
-      
-      if (!userId) {
-        return ReturnHelper.errorResponse(res, 401, 401, "Unauthorized");
-      }
-
-      const walletRepository = OrmHelper.DB.getRepository(Wallet);
-
       const newWallet = walletRepository.create({
         name: value.name,
         type: value.type,
         initial_balance: value.initial_balance,
-        balance: value.initial_balance,
+        balance: value.balance ? value.balance : value.initial_balance,
         user_id: userId,
       });
 
@@ -68,26 +80,26 @@ export class WalletController {
     }
   }
 
-  static async getAll(req: Request, res: Response) {
+  static async getWallet(req: Request, res: Response) {
     /* 
       #swagger.tags = ['Wallet']
-      #swagger.summary = 'Get all wallets (Global & Private)'
       #swagger.security = [{"bearerAuth": []}]
+      #swagger.parameters['user_id'] = { in: 'query', type: 'integer', required: false, description: 'User ID' }
     */
     try {
       const walletRepository = OrmHelper.DB.getRepository(Wallet);
-      const userId = req.auth?.id;
-
-      if (!userId) {
-        return ReturnHelper.errorResponse(res, 401, 401, "Unauthorized");
-      }
+      const userId = req.query.user_id ? Number(req.query.user_id) : null;
 
       // Ambil kategori global (user_id IS NULL) dan private milik user
-      const wallets = await walletRepository
-        .createQueryBuilder("wallet")
-        .where("wallet.user_id IS NULL")
-        .orWhere("wallet.user_id = :userId", { userId })
-        .getMany();
+      const query = walletRepository.createQueryBuilder("wallet");
+
+      if (userId != null) {
+        query
+          .where("wallet.user_id IS NULL")
+          .orWhere("wallet.user_id = :userId", { userId });
+      }
+
+      const wallets = await query.getMany();
 
       return ReturnHelper.successResponseAny(
         res,
