@@ -503,6 +503,84 @@
         ]
       }
     },
+    "/api/monthly-reports": {
+      "get": {
+        "tags": [
+          "Monthly Report"
+        ],
+        "summary": "Get all monthly reports",
+        "description": "",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "description": "Filter by year (e.g. 2026)",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/monthly-reports/sync": {
+      "get": {
+        "tags": [
+          "Monthly Report"
+        ],
+        "summary": "Sync Year-To-Date monthly reports for current user",
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/monthly-reports/{id}": {
+      "get": {
+        "tags": [
+          "Monthly Report"
+        ],
+        "summary": "Get monthly report detail",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Monthly Report ID"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/auth/register": {
       "post": {
         "tags": [

@@ -5,6 +5,7 @@ import { Category, CategoryType } from "../entities/Category";
 import { ReturnHelper } from "../helpers/express/return";
 import Joi from "joi";
 import { Wallet } from "../entities";
+import { MonthlyReportService } from "../services/monthly-report";
 
 export class TransactionController {
   static async create(req: Request, res: Response) {
@@ -97,6 +98,10 @@ export class TransactionController {
         });
 
         const savedTransaction = await transactionRepository.save(newTransaction);
+        
+        // Sync monthly report secara asynchronous
+        MonthlyReportService.syncMonth(userId, savedTransaction.transaction_date).catch(() => {});
+
         return ReturnHelper.successResponseAny(
           res,
           201,
@@ -174,6 +179,8 @@ export class TransactionController {
           );
         }
 
+        const oldTransactionDate = transaction.transaction_date;
+
         // 1. Validasi Kategori Baru
         const category = await categoryRepository.findOne({
           where: { id: value.category_id },
@@ -245,6 +252,13 @@ export class TransactionController {
         transaction.description = value.description;
 
         const updatedTransaction = await transactionRepository.save(transaction);
+        
+        // Sync monthly report secara asynchronous (lama & baru jika ada pergantian bulan)
+        MonthlyReportService.syncMonth(userId, updatedTransaction.transaction_date).catch(() => {});
+        if (oldTransactionDate && String(oldTransactionDate) !== String(updatedTransaction.transaction_date)) {
+          MonthlyReportService.syncMonth(userId, oldTransactionDate).catch(() => {});
+        }
+
         return ReturnHelper.successResponseAny(
           res,
           200,
@@ -314,7 +328,11 @@ export class TransactionController {
           await walletRepository.save(wallet);
         }
 
+        const deletedDate = transaction.transaction_date;
         await transactionRepository.softRemove(transaction);
+
+        // Sync monthly report secara asynchronous
+        MonthlyReportService.syncMonth(userId, deletedDate).catch(() => {});
 
         return ReturnHelper.successResponseAny(
           res,

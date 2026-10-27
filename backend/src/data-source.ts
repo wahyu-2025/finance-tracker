@@ -1,4 +1,11 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+import path from 'path';
+
+const env = process.env.NODE_ENV || 'development';
+dotenv.config({
+    path: path.resolve(process.cwd(), `.env.${env}`)
+});
+dotenv.config();
 import { DataSource } from "typeorm";
 import { entities } from "./entities/index";
 
