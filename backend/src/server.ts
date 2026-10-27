@@ -10,6 +10,7 @@ import { RoutePublic } from './routes/public';
 import { Language } from './langs/lang';
 import { SwaggerHelper } from './helpers/express/swagger';
 import { TrustProxyHelper } from './helpers/express/trust_proxy';
+import { MonthlyReportCron } from './crons/monthly-report';
 
 const app = express();
 
@@ -24,5 +25,6 @@ TrustProxyHelper.setup(app);
 SwaggerHelper.setup(app);
 RoutePublic.setup(app);
 RoutePrivate.setup(app);
+MonthlyReportCron.init();
 
 export { app };

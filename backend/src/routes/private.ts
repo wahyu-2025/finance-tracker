@@ -7,6 +7,7 @@ import { CategoryController } from "../controllers/category";
 import { TransactionController } from "../controllers/transaction";
 import { CustomRecapController } from "../controllers/custom-recap";
 import { WalletController } from "../controllers/wallet";
+import { MonthlyReportController } from "../controllers/monthly-report";
 
 const guard = guardPre({
   requestProperty: "auth",
@@ -44,5 +45,10 @@ export class RoutePrivate {
     // Wallet Routes
     app.post("/api/wallet", WalletController.create);
     app.get("/api/wallet", WalletController.getWallet);
+
+    // Monthly Report Routes
+    app.get("/api/monthly-reports", MonthlyReportController.getAll);
+    app.get("/api/monthly-reports/sync", MonthlyReportController.sync);
+    // app.get("/api/monthly-reports/:id", MonthlyReportController.getById);
   }
 }
