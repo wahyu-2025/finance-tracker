@@ -459,7 +459,13 @@ export class AuthController {
         res,
         200,
         String(Language.lang.success_view),
-        user,
+        {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+        },
       );
     } catch (e) {
       log.error(e);
