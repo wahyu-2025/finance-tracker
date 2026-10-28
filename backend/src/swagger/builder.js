@@ -101,6 +101,13 @@ const doc = {
         initial_balance: 1000000,
         balance: 1000000,
       },
+      CreateTransferBalance: {
+        from_wallet_id: 1,
+        to_wallet_id: 2,
+        amount: 50000,
+        transfer_date: "2026-10-26",
+        description: "Transfer antar wallet",
+      },
     },
     parameters: {
       // Anda dapat mendefinisikan parameter lainnya di sini jika diperlukan

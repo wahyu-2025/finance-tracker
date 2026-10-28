@@ -4,6 +4,7 @@ import { Transaction } from './Transaction';
 import { CustomRecap } from './CustomRecap';
 import { Wallet } from './wallet';
 import { MonthlyReport } from './MonthlyReport';
+import { Transfer } from './Transfer';
 
 const entities = [
     User, 
@@ -11,7 +12,8 @@ const entities = [
     Transaction, 
     CustomRecap,
     Wallet,
-    MonthlyReport
+    MonthlyReport,
+    Transfer
 ];
 
 export { 
@@ -21,5 +23,7 @@ export {
     CustomRecap,
     Wallet,
     MonthlyReport,
+    Transfer,
     entities 
 };
+

@@ -503,6 +503,34 @@
         ]
       }
     },
+    "/api/wallet/transfer-balance": {
+      "post": {
+        "tags": [
+          "Wallet"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTransferBalance"
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/monthly-reports": {
       "get": {
         "tags": [
@@ -960,6 +988,31 @@
           "balance": {
             "type": "number",
             "example": 1000000
+          }
+        }
+      },
+      "CreateTransferBalance": {
+        "type": "object",
+        "properties": {
+          "from_wallet_id": {
+            "type": "number",
+            "example": 1
+          },
+          "to_wallet_id": {
+            "type": "number",
+            "example": 2
+          },
+          "amount": {
+            "type": "number",
+            "example": 50000
+          },
+          "transfer_date": {
+            "type": "string",
+            "example": "2026-10-26"
+          },
+          "description": {
+            "type": "string",
+            "example": "Transfer antar wallet"
           }
         }
       }
