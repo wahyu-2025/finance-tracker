@@ -551,36 +551,6 @@
         ]
       }
     },
-    "/api/monthly-reports/{id}": {
-      "get": {
-        "tags": [
-          "Monthly Report"
-        ],
-        "summary": "Get monthly report detail",
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Monthly Report ID"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
     "/api/auth/register": {
       "post": {
         "tags": [
