@@ -11,6 +11,7 @@ import {
 } from "typeorm";
 import { User } from "./User";
 import { Transaction } from "./Transaction";
+import { Transfer } from "./Transfer";
 
 export enum WalletType {
   BANK = "BANK",
@@ -64,4 +65,10 @@ export class Wallet {
 
   @OneToMany(() => Transaction, (transaction) => transaction.wallet)
   transactions!: Transaction[];
+
+  @OneToMany(() => Transfer, (transfer) => transfer.from_wallet)
+  transfers_out!: Transfer[];
+
+  @OneToMany(() => Transfer, (transfer) => transfer.to_wallet)
+  transfers_in!: Transfer[];
 }

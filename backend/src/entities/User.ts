@@ -9,6 +9,7 @@ import {
 import { Transaction } from "./Transaction";
 import { Category } from "./Category";
 import { Wallet } from "./wallet";
+import { Transfer } from "./Transfer";
 
 @Entity()
 export class User {
@@ -32,6 +33,9 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt!: Date;
+
+  @OneToMany(() => Transfer, (transfer) => transfer.user)
+  transfers!: Transfer[];
 
   @OneToMany(() => Transaction, (transaction) => transaction.user)
   transactions!: Transaction[];

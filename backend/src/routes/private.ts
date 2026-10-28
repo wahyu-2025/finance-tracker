@@ -45,6 +45,7 @@ export class RoutePrivate {
     // Wallet Routes
     app.post("/api/wallet", WalletController.create);
     app.get("/api/wallet", WalletController.getWallet);
+    app.post("/api/wallet/transfer-balance", WalletController.transferBalance);
 
     // Monthly Report Routes
     app.get("/api/monthly-reports", MonthlyReportController.getAll);

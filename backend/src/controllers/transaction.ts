@@ -97,10 +97,14 @@ export class TransactionController {
           description: value.description,
         });
 
-        const savedTransaction = await transactionRepository.save(newTransaction);
-        
+        const savedTransaction =
+          await transactionRepository.save(newTransaction);
+
         // Sync monthly report secara asynchronous
-        MonthlyReportService.syncMonth(userId, savedTransaction.transaction_date).catch(() => {});
+        MonthlyReportService.syncMonth(
+          userId,
+          savedTransaction.transaction_date,
+        ).catch(() => {});
 
         return ReturnHelper.successResponseAny(
           res,
@@ -198,7 +202,12 @@ export class TransactionController {
         });
 
         if (!oldWallet) {
-          return ReturnHelper.errorResponse(res, 404, 404, "Original wallet not found");
+          return ReturnHelper.errorResponse(
+            res,
+            404,
+            404,
+            "Original wallet not found",
+          );
         }
 
         // 2. Revert Saldo dari Transaksi Lama
@@ -221,7 +230,12 @@ export class TransactionController {
             where: { id: targetWalletId },
           });
           if (!newWallet || newWallet.user_id !== userId) {
-            return ReturnHelper.errorResponse(res, 400, 400, "Invalid new wallet");
+            return ReturnHelper.errorResponse(
+              res,
+              400,
+              400,
+              "Invalid new wallet",
+            );
           }
           targetWallet = newWallet;
         }
@@ -251,12 +265,22 @@ export class TransactionController {
         transaction.transaction_date = value.transaction_date;
         transaction.description = value.description;
 
-        const updatedTransaction = await transactionRepository.save(transaction);
-        
+        const updatedTransaction =
+          await transactionRepository.save(transaction);
+
         // Sync monthly report secara asynchronous (lama & baru jika ada pergantian bulan)
-        MonthlyReportService.syncMonth(userId, updatedTransaction.transaction_date).catch(() => {});
-        if (oldTransactionDate && String(oldTransactionDate) !== String(updatedTransaction.transaction_date)) {
-          MonthlyReportService.syncMonth(userId, oldTransactionDate).catch(() => {});
+        MonthlyReportService.syncMonth(
+          userId,
+          updatedTransaction.transaction_date,
+        ).catch(() => {});
+        if (
+          oldTransactionDate &&
+          String(oldTransactionDate) !==
+            String(updatedTransaction.transaction_date)
+        ) {
+          MonthlyReportService.syncMonth(userId, oldTransactionDate).catch(
+            () => {},
+          );
         }
 
         return ReturnHelper.successResponseAny(
