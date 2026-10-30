@@ -503,6 +503,82 @@
         ]
       }
     },
+    "/api/wallet/transfer-balance": {
+      "post": {
+        "tags": [
+          "Wallet"
+        ],
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTransferBalance"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/monthly-reports": {
+      "get": {
+        "tags": [
+          "Monthly Report"
+        ],
+        "summary": "Get all monthly reports",
+        "description": "",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "description": "Filter by year (e.g. 2026)",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/monthly-reports/sync": {
+      "get": {
+        "tags": [
+          "Monthly Report"
+        ],
+        "summary": "Sync Year-To-Date monthly reports for current user",
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/auth/register": {
       "post": {
         "tags": [
@@ -781,11 +857,11 @@
         "properties": {
           "name": {
             "type": "string",
-            "example": "Food"
+            "example": "Food & Beverage"
           },
           "type": {
             "type": "string",
-            "example": "expense"
+            "example": "EXPENSE"
           }
         }
       },
@@ -794,24 +870,28 @@
         "properties": {
           "name": {
             "type": "string",
-            "example": "Food"
+            "example": "Food & Beverage"
           },
           "type": {
             "type": "string",
-            "example": "expense"
+            "example": "EXPENSE"
           }
         }
       },
       "CreateTransactionRequest": {
         "type": "object",
         "properties": {
+          "wallet_id": {
+            "type": "number",
+            "example": 1
+          },
           "category_id": {
             "type": "number",
             "example": 1
           },
           "type": {
             "type": "string",
-            "example": "expense"
+            "example": "EXPENSE"
           },
           "amount": {
             "type": "number",
@@ -819,7 +899,7 @@
           },
           "transaction_date": {
             "type": "string",
-            "example": "2024-01-01"
+            "example": "2026-10-26"
           },
           "description": {
             "type": "string",
@@ -830,13 +910,17 @@
       "UpdateTransactionRequest": {
         "type": "object",
         "properties": {
+          "wallet_id": {
+            "type": "number",
+            "example": 1
+          },
           "category_id": {
             "type": "number",
             "example": 1
           },
           "type": {
             "type": "string",
-            "example": "expense"
+            "example": "EXPENSE"
           },
           "amount": {
             "type": "number",
@@ -844,7 +928,7 @@
           },
           "transaction_date": {
             "type": "string",
-            "example": "2024-01-01"
+            "example": "2026-10-26"
           },
           "description": {
             "type": "string",
@@ -857,15 +941,15 @@
         "properties": {
           "name": {
             "type": "string",
-            "example": "Rekap Januari 2024"
+            "example": "Rekap Oktober 2026"
           },
           "start_date": {
             "type": "string",
-            "example": "2024-01-01"
+            "example": "2026-10-01"
           },
           "end_date": {
             "type": "string",
-            "example": "2024-01-31"
+            "example": "2026-10-31"
           }
         }
       },
@@ -874,15 +958,15 @@
         "properties": {
           "name": {
             "type": "string",
-            "example": "Rekap Januari 2024"
+            "example": "Rekap Oktober 2026"
           },
           "start_date": {
             "type": "string",
-            "example": "2024-01-01"
+            "example": "2026-10-01"
           },
           "end_date": {
             "type": "string",
-            "example": "2024-01-31"
+            "example": "2026-10-31"
           }
         }
       },
@@ -891,19 +975,44 @@
         "properties": {
           "name": {
             "type": "string",
-            "example": "dompet"
+            "example": "BCA Utama"
           },
           "type": {
             "type": "string",
-            "example": "CASH"
+            "example": "BANK"
           },
           "initial_balance": {
             "type": "number",
-            "example": 0
+            "example": 1000000
           },
           "balance": {
             "type": "number",
-            "example": 0
+            "example": 1000000
+          }
+        }
+      },
+      "CreateTransferBalance": {
+        "type": "object",
+        "properties": {
+          "from_wallet_id": {
+            "type": "number",
+            "example": 1
+          },
+          "to_wallet_id": {
+            "type": "number",
+            "example": 2
+          },
+          "amount": {
+            "type": "number",
+            "example": 50000
+          },
+          "transfer_date": {
+            "type": "string",
+            "example": "2026-10-26"
+          },
+          "description": {
+            "type": "string",
+            "example": "Transfer antar wallet"
           }
         }
       }

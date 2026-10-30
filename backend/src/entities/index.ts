@@ -3,13 +3,17 @@ import { Category } from './Category';
 import { Transaction } from './Transaction';
 import { CustomRecap } from './CustomRecap';
 import { Wallet } from './wallet';
+import { MonthlyReport } from './MonthlyReport';
+import { Transfer } from './Transfer';
 
 const entities = [
     User, 
     Category,
-    Transaction,
+    Transaction, 
     CustomRecap,
-    Wallet
+    Wallet,
+    MonthlyReport,
+    Transfer
 ];
 
 export { 
@@ -18,5 +22,8 @@ export {
     Transaction, 
     CustomRecap,
     Wallet,
+    MonthlyReport,
+    Transfer,
     entities 
 };
+

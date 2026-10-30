@@ -184,7 +184,7 @@ export function DashboardPage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="flex h-40 items-center justify-center text-muted-foreground p-6">
+                  <div className="flex h-full items-center justify-center text-muted-foreground">
                     No recent transactions
                   </div>
                 )}
