@@ -16,31 +16,101 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Wallets } from "@/types";
+import { WalletList } from "@/types";
 import { Edit2, Plus, Search, Trash2 } from "lucide-react";
 import WalletsDialog from "./WalletDialog";
 import { WalletService } from "@/api/wallet.services";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatPrice } from "@/lib/helpers";
+import { useWalletsApi } from "./api/useWalletsApi";
+import { toast } from "sonner";
 
 const WalletsPage = () => {
+  const { getWalletList, postWallet } = useWalletsApi();
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const { user } = useAuth();
+  const [dataWallets, setDataWallets] = useState<WalletList[]>([]);
+  const [addWallet, setAddWallet] = useState<WalletList[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedWallet, setSelectedWallet] = useState<Wallets | null>(null);
+  const [selectedWallet, setSelectedWallet] = useState<WalletList | null>(null);
   const [actionType, setActionType] = useState<"add" | "edit">("add");
 
-  const { data: walletsResponse, isLoading: isLoadingTx } = useQuery({
-    queryKey: ["wallets", "getWallet"],
-    queryFn: () => WalletService.getWallet(user?.id),
-  });
+  // const { data: walletsResponse, isLoading: isLoadingTx } = useQuery({
+  //   queryKey: ["wallets", "getWallet"],
+  //   queryFn: () => WalletService.getWallet(user?.id),
+  // });
+  // const walletsData = walletsResponse?.data || [];
 
-  const walletsData = walletsResponse?.data || [];
+ const fetchWalletList = async () => {
+    setIsLoading(true);
+    try {
+      if (!user?.id) {
+        return;
+      } else {
+        const response = await getWalletList(user.id);
+        if (response?.status) {
+          setDataWallets(response.data);
+          toast.success("Success");
+        } else {
+          toast.error("Table Gagal dimuat");
+        }
+      }
+    } catch {
+      toast.error("Error Get Type Data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  const handleShowModal = (type: "add" | "edit", wallet?: Wallets) => {
+  useEffect(() => {
+    fetchWalletList();
+  }, [user?.id]);
+
+  // const fetchAddWallet = async (data: WalletList) => {
+  //   setIsLoading(true);
+  //   try {
+  //     const response = await postWallet(data);
+  //     if (response?.status) {
+  //       setAddWallet(response.data);
+  //       toast.success("Add berhasil ditambahkan di tabel");
+  //     } else {
+  //       toast.error("Coba lagi");
+  //     }
+  //   } catch {
+  //     toast.error("Error");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   fetchAddWallet();
+  // },[]);
+
+  const handleAddWallet = async (data: WalletList) => {
+  setIsSubmitting(true);
+  try {
+    const response = await postWallet(data);
+    if (response.status) {
+      toast.success("Wallet berhasil ditambahkan");
+      setIsDialogOpen(false);   
+      fetchWalletList();        
+    } else {
+      toast.error(response.message || "Gagal menambahkan wallet");
+    }
+  } catch {
+    toast.error("Terjadi kesalahan");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
+  const handleShowModal = (type: "add" | "edit", wallet?: WalletList) => {
     setActionType(type);
     setSelectedWallet(wallet || null);
     setIsDialogOpen(true);
@@ -67,16 +137,16 @@ const WalletsPage = () => {
 
       {isMobile ? (
         <div className="grid grid-cols-1 gap-4">
-          {isLoadingTx ? (
+          {isLoading ? (
             <div className="text-center p-8 text-muted-foreground bg-muted/20 rounded-lg">
               Loading...
             </div>
-          ) : walletsData?.length === 0 ? (
+          ) : dataWallets?.length === 0 ? (
             <div className="text-center p-8 text-muted-foreground bg-muted/20 rounded-lg">
               No transactions found
             </div>
           ) : (
-            walletsData.map((wallet) => (
+            dataWallets.map((wallet) => (
               <Card key={wallet.id} className="p-4 flex flex-col gap-3">
                 <div className="flex justify-between items-start">
                   <div>
@@ -134,7 +204,7 @@ const WalletsPage = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
+                <TableHead>Bank Name</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Initial Balance</TableHead>
                 <TableHead>Balance</TableHead>
@@ -142,20 +212,20 @@ const WalletsPage = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoadingTx ? (
+              {isLoading ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center h-24">
                     Loading...
                   </TableCell>
                 </TableRow>
-              ) : walletsData?.length === 0 ? (
+              ) : dataWallets?.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center h-24">
                     No transactions found
                   </TableCell>
                 </TableRow>
               ) : (
-                walletsData?.map((wallet) => (
+                dataWallets?.map((wallet) => (
                   <TableRow
                     key={wallet.id}
                     onClick={() => setSelectedWallet(wallet)}
@@ -208,6 +278,7 @@ const WalletsPage = () => {
         setIsDialogOpen={setIsDialogOpen}
         selectedWallet={selectedWallet}
         actionType={actionType}
+        onSuccess={fetchWalletList}
       />
     </div>
   );

@@ -16,14 +16,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Wallets, WalletType } from "@/types";
+import { WalletList, WalletType } from "@/types";
 import { useState } from "react";
+import { useCallApi } from "@/hooks/useCallApi";
+import { useWalletsApi } from "./api/useWalletsApi";
+import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface WalletsDialogProps {
   isDialogOpen: boolean;
   setIsDialogOpen: (value: boolean) => void;
-  selectedWallet: Wallets | null;
+  selectedWallet: WalletList | null;
   actionType: "add" | "edit";
+  onSuccess: () => void;
 }
 
 interface FormWallet {
@@ -38,7 +43,12 @@ const WalletsDialog = ({
   setIsDialogOpen,
   selectedWallet,
   actionType,
+  onSuccess,
 }: WalletsDialogProps) => {
+  const { postWallet } = useWalletsApi();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useAuth();
+
   const initialForm: FormWallet = {
     name: "",
     type: "CASH",
@@ -46,10 +56,39 @@ const WalletsDialog = ({
     balance: 0,
   };
   const [form, setForm] = useState<FormWallet>(initialForm);
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const handleAddWallet = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
+
+    if (!form.name.trim()) {
+      toast.error("Nama wallet wajib diisi");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const response = await postWallet({
+        name: form.name.trim(),
+        type: form.type,
+        initial_balance: form.initial_balance,
+        balance: form.balance,
+      });
+
+      if (response.status) {
+        toast.success("Wallet berhasil ditambahkan");
+        setForm(initialForm);
+        setIsDialogOpen(false);
+        onSuccess();
+      } else {
+        toast.error(response.message || "Gagal menambahkan wallet");
+      }
+    } catch {
+      toast.error("Terjadi kesalahan");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogContent>
@@ -58,11 +97,13 @@ const WalletsDialog = ({
             {actionType === "edit" ? "Edit Wallet" : "Add Wallet"}
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleAddWallet}>
           <DialogBody className="space-y-4 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
-                <Label className="text-sm font-medium mb-1 block">Name</Label>
+                <Label className="text-sm font-medium mb-1 block">
+                  Bank Name
+                </Label>
                 <Input
                   placeholder="Name"
                   type="text"
@@ -127,15 +168,8 @@ const WalletsDialog = ({
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              //   disabled={
-              //     createMutation.isPending ||
-              //     updateMutation.isPending ||
-              //     !categoryId
-              //   }
-            >
-              Save
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Saving..." : "Save"}
             </Button>
           </DialogFooter>
         </form>

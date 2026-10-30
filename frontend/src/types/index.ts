@@ -107,7 +107,8 @@ export interface AxiosErrorResponse {
 
 export type WalletType = "CASH" | "BANK" | "EWALLET";
 
-export interface Wallets {
+
+export interface WalletList {
   id: number;
   user_id: number;
   name: string;
@@ -118,3 +119,5 @@ export interface Wallets {
   updatedAt: string;
   deletedAt: string | null;
 }
+
+
