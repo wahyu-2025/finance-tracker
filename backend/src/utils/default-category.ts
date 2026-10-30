@@ -1,17 +1,4 @@
-import { CategoryType } from "../entities/Category";
-import { WalletType } from "../entities/wallet";
-
-interface defaultCategoryProps {
-  name: string;
-  type: CategoryType;
-}
-
-interface defaultWalletProps {
-  name: string;
-  type: WalletType;
-  initial_balance: number;
-  balance: number;
-}
+import { CategoryType, defaultCategoryProps, defaultWalletProps, WalletType } from "../types/types";
 
 export const defaultCategory: defaultCategoryProps[] = [
   { name: "Gaji", type: CategoryType.INCOME },

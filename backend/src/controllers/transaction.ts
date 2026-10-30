@@ -1,11 +1,13 @@
 import { Request, Response } from "express";
 import { OrmHelper } from "../helpers/orm";
 import { Transaction } from "../entities/Transaction";
-import { Category, CategoryType } from "../entities/Category";
+import { Category } from "../entities/Category";
 import { ReturnHelper } from "../helpers/express/return";
 import Joi from "joi";
 import { Wallet } from "../entities";
+import { CategoryType, IsPendingType } from "../types/types";
 import { MonthlyReportService } from "../services/monthly-report";
+import { WalletHelper } from "../helpers/wallet";
 
 export class TransactionController {
   static async create(req: Request, res: Response) {
@@ -30,6 +32,9 @@ export class TransactionController {
           .required(),
         amount: Joi.number().positive().required(),
         transaction_date: Joi.date().iso().required(),
+        is_pending: Joi.string()
+          .valid(IsPendingType.Y, IsPendingType.N)
+          .default(IsPendingType.N),
         wallet_id: Joi.number().required(),
         description: Joi.string().allow("", null).optional(),
       });
@@ -45,7 +50,6 @@ export class TransactionController {
       return await OrmHelper.DB.transaction(async (manager) => {
         const categoryRepository = manager.getRepository(Category);
         const transactionRepository = manager.getRepository(Transaction);
-        const walletRepository = manager.getRepository(Wallet);
 
         // 1. Validasi Kategori
         const category = await categoryRepository.findOne({
@@ -58,40 +62,40 @@ export class TransactionController {
           return ReturnHelper.errorResponse(res, 400, 400, "Invalid category");
         }
 
-        // 2. Validasi Wallet
-        const wallet = await walletRepository.findOne({
-          where: { id: value.wallet_id },
-        });
-        if (!wallet || wallet.user_id !== userId) {
-          return ReturnHelper.errorResponse(res, 400, 400, "Invalid wallet");
-        }
+        const isSettled = value.is_pending === IsPendingType.N;
 
-        const currentBalance = Number(wallet.balance);
+        // 2. Update Saldo Wallet jika bukan pending
+        if (isSettled) {
+          const balanceRes = await WalletHelper.adjustBalance({
+            manager,
+            walletId: value.wallet_id,
+            userId,
+            type: value.type,
+            amount,
+            action: "APPLY",
+          });
 
-        // 3. Cek Saldo jika EXPENSE
-        if (value.type === CategoryType.EXPENSE && currentBalance < amount) {
-          return ReturnHelper.errorResponse(
-            res,
-            400,
-            400,
-            "Insufficient balance",
-          );
-        }
-
-        // 4. Update Saldo Wallet
-        if (value.type === CategoryType.EXPENSE) {
-          wallet.balance = currentBalance - amount;
+          if (balanceRes.error) {
+            return ReturnHelper.errorResponse(res, 400, 400, balanceRes.error);
+          }
         } else {
-          wallet.balance = currentBalance + amount;
+          // Jika pending, cukup pastikan wallet valid dan milik user
+          const walletRepository = manager.getRepository(Wallet);
+          const wallet = await walletRepository.findOne({
+            where: { id: value.wallet_id },
+          });
+          if (!wallet || wallet.user_id !== userId) {
+            return ReturnHelper.errorResponse(res, 400, 400, "Invalid wallet");
+          }
         }
-        await walletRepository.save(wallet);
 
-        // 5. Simpan Transaksi
+        // 3. Simpan Transaksi
         const newTransaction = transactionRepository.create({
           user_id: userId,
           category_id: value.category_id,
           type: value.type,
           amount: amount,
+          is_pending: value.is_pending,
           wallet_id: value.wallet_id,
           transaction_date: value.transaction_date,
           description: value.description,
@@ -100,11 +104,13 @@ export class TransactionController {
         const savedTransaction =
           await transactionRepository.save(newTransaction);
 
-        // Sync monthly report secara asynchronous
-        MonthlyReportService.syncMonth(
-          userId,
-          savedTransaction.transaction_date,
-        ).catch(() => {});
+        // Sync monthly report secara asynchronous jika settled
+        if (isSettled) {
+          MonthlyReportService.syncMonth(
+            userId,
+            savedTransaction.transaction_date,
+          ).catch(() => {});
+        }
 
         return ReturnHelper.successResponseAny(
           res,
@@ -168,7 +174,6 @@ export class TransactionController {
       return await OrmHelper.DB.transaction(async (manager) => {
         const transactionRepository = manager.getRepository(Transaction);
         const categoryRepository = manager.getRepository(Category);
-        const walletRepository = manager.getRepository(Wallet);
 
         const transaction = await transactionRepository.findOne({
           where: { id: transactionId },
@@ -185,7 +190,7 @@ export class TransactionController {
 
         const oldTransactionDate = transaction.transaction_date;
 
-        // 1. Validasi Kategori Baru
+        // 1. Validasi Kategori
         const category = await categoryRepository.findOne({
           where: { id: value.category_id },
         });
@@ -197,67 +202,54 @@ export class TransactionController {
         }
 
         const targetWalletId = value.wallet_id || transaction.wallet_id;
-        const oldWallet = await walletRepository.findOne({
-          where: { id: transaction.wallet_id },
-        });
-
-        if (!oldWallet) {
-          return ReturnHelper.errorResponse(
-            res,
-            404,
-            404,
-            "Original wallet not found",
-          );
-        }
-
-        // 2. Revert Saldo dari Transaksi Lama
-        const oldAmount = Number(transaction.amount);
-        let oldWalletBalance = Number(oldWallet.balance);
-        if (transaction.type === CategoryType.EXPENSE) {
-          oldWalletBalance += oldAmount; // kembalikan uang belanja
-        } else {
-          oldWalletBalance -= oldAmount; // kurangi pemasukan sebelumnya
-        }
-        oldWallet.balance = oldWalletBalance;
-
-        // 3. Aplikasikan ke Wallet Baru / Target
+        const isSettled = transaction.is_pending === IsPendingType.N;
         const newAmount = Number(value.amount);
-        let targetWallet = oldWallet;
-        if (targetWalletId !== oldWallet.id) {
-          await walletRepository.save(oldWallet); // simpan saldo old wallet yg sudah direvert
 
-          const newWallet = await walletRepository.findOne({
-            where: { id: targetWalletId },
+        if (isSettled) {
+          // Revert saldo transaksi lama
+          const revertRes = await WalletHelper.adjustBalance({
+            manager,
+            walletId: transaction.wallet_id,
+            userId,
+            type: transaction.type,
+            amount: transaction.amount,
+            action: "REVERT",
           });
-          if (!newWallet || newWallet.user_id !== userId) {
-            return ReturnHelper.errorResponse(
-              res,
-              400,
-              400,
-              "Invalid new wallet",
-            );
+          if (revertRes.error) {
+            return ReturnHelper.errorResponse(res, 400, 400, revertRes.error);
           }
-          targetWallet = newWallet;
-        }
 
-        let targetBalance = Number(targetWallet.balance);
-        if (value.type === CategoryType.EXPENSE && targetBalance < newAmount) {
-          return ReturnHelper.errorResponse(
-            res,
-            400,
-            400,
-            "Insufficient balance in target wallet",
-          );
-        }
-
-        if (value.type === CategoryType.EXPENSE) {
-          targetWallet.balance = targetBalance - newAmount;
+          // Apply saldo transaksi baru ke target wallet
+          const applyRes = await WalletHelper.adjustBalance({
+            manager,
+            walletId: targetWalletId,
+            userId,
+            type: value.type,
+            amount: newAmount,
+            action: "APPLY",
+          });
+          if (applyRes.error) {
+            return ReturnHelper.errorResponse(res, 400, 400, applyRes.error);
+          }
         } else {
-          targetWallet.balance = targetBalance + newAmount;
+          // Transaksi pending: jika ganti wallet, pastikan wallet valid dan milik user
+          if (targetWalletId !== transaction.wallet_id) {
+            const walletRepository = manager.getRepository(Wallet);
+            const targetWallet = await walletRepository.findOne({
+              where: { id: targetWalletId },
+            });
+            if (!targetWallet || targetWallet.user_id !== userId) {
+              return ReturnHelper.errorResponse(
+                res,
+                400,
+                400,
+                "Invalid new wallet",
+              );
+            }
+          }
         }
-        await walletRepository.save(targetWallet);
 
-        // 4. Update Data Transaksi
+        // 2. Update Data Transaksi
         transaction.category_id = value.category_id;
         transaction.wallet_id = targetWalletId;
         transaction.type = value.type;
@@ -268,25 +260,112 @@ export class TransactionController {
         const updatedTransaction =
           await transactionRepository.save(transaction);
 
-        // Sync monthly report secara asynchronous (lama & baru jika ada pergantian bulan)
-        MonthlyReportService.syncMonth(
-          userId,
-          updatedTransaction.transaction_date,
-        ).catch(() => {});
-        if (
-          oldTransactionDate &&
-          String(oldTransactionDate) !==
-            String(updatedTransaction.transaction_date)
-        ) {
-          MonthlyReportService.syncMonth(userId, oldTransactionDate).catch(
-            () => {},
-          );
+        // Sync monthly report secara asynchronous jika transaksi settled
+        if (isSettled) {
+          MonthlyReportService.syncMonth(
+            userId,
+            updatedTransaction.transaction_date,
+          ).catch(() => {});
+          if (
+            oldTransactionDate &&
+            String(oldTransactionDate) !==
+              String(updatedTransaction.transaction_date)
+          ) {
+            MonthlyReportService.syncMonth(userId, oldTransactionDate).catch(
+              () => {},
+            );
+          }
         }
 
         return ReturnHelper.successResponseAny(
           res,
           200,
           "Transaction updated successfully",
+          updatedTransaction,
+        );
+      });
+    } catch (err: unknown) {
+      return ReturnHelper.errorResponse(res, 500, 500, (err as Error).message);
+    }
+  }
+
+  static async confirm(req: Request, res: Response) {
+    /* 
+      #swagger.tags = ['Transaction']
+      #swagger.summary = 'Confirm a pending transaction'
+      #swagger.security = [{"bearerAuth": []}]
+      #swagger.parameters['id'] = { description: 'Transaction ID', type: 'integer' }
+    */
+    try {
+      const transactionIdParam = Array.isArray(req.params.id)
+        ? req.params.id[0]
+        : req.params.id;
+      const transactionId = Number.parseInt(transactionIdParam, 10);
+      const userId = req.auth?.id;
+
+      if (Number.isNaN(transactionId)) {
+        return ReturnHelper.errorResponse(
+          res,
+          400,
+          400,
+          "Invalid transaction id",
+        );
+      }
+
+      return await OrmHelper.DB.transaction(async (manager) => {
+        const transactionRepository = manager.getRepository(Transaction);
+
+        const transaction = await transactionRepository.findOne({
+          where: { id: transactionId },
+        });
+
+        if (!transaction || transaction.user_id !== userId) {
+          return ReturnHelper.errorResponse(
+            res,
+            404,
+            404,
+            "Transaction not found",
+          );
+        }
+
+        if (transaction.is_pending !== IsPendingType.Y) {
+          return ReturnHelper.errorResponse(
+            res,
+            400,
+            400,
+            "Transaction is already confirmed",
+          );
+        }
+
+        // Apply saldo ke wallet
+        const balanceRes = await WalletHelper.adjustBalance({
+          manager,
+          walletId: transaction.wallet_id,
+          userId,
+          type: transaction.type,
+          amount: transaction.amount,
+          action: "APPLY",
+        });
+
+        if (balanceRes.error) {
+          return ReturnHelper.errorResponse(res, 400, 400, balanceRes.error);
+        }
+
+        // Update status pending menjadi settled
+        transaction.is_pending = IsPendingType.N;
+        const updatedTransaction =
+          await transactionRepository.save(transaction);
+
+        // Sync monthly report
+        MonthlyReportService.syncMonth(
+          userId,
+          updatedTransaction.transaction_date,
+        ).catch(() => {});
+
+        return ReturnHelper.successResponseAny(
+          res,
+          200,
+          "Transaction confirmed successfully",
           updatedTransaction,
         );
       });
@@ -320,7 +399,6 @@ export class TransactionController {
 
       return await OrmHelper.DB.transaction(async (manager) => {
         const transactionRepository = manager.getRepository(Transaction);
-        const walletRepository = manager.getRepository(Wallet);
 
         const transaction = await transactionRepository.findOne({
           where: { id: transactionId },
@@ -335,28 +413,31 @@ export class TransactionController {
           );
         }
 
-        const wallet = await walletRepository.findOne({
-          where: { id: transaction.wallet_id },
-        });
+        const isSettled = transaction.is_pending === IsPendingType.N;
 
-        if (wallet) {
-          const currentBalance = Number(wallet.balance);
-          const amount = Number(transaction.amount);
+        if (isSettled) {
+          // Revert saldo transaksi
+          const revertRes = await WalletHelper.adjustBalance({
+            manager,
+            walletId: transaction.wallet_id,
+            userId,
+            type: transaction.type,
+            amount: transaction.amount,
+            action: "REVERT",
+          });
 
-          // Kembalikan saldo
-          if (transaction.type === CategoryType.EXPENSE) {
-            wallet.balance = currentBalance + amount;
-          } else {
-            wallet.balance = currentBalance - amount;
+          if (revertRes.error) {
+            return ReturnHelper.errorResponse(res, 400, 400, revertRes.error);
           }
-          await walletRepository.save(wallet);
         }
 
         const deletedDate = transaction.transaction_date;
         await transactionRepository.softRemove(transaction);
 
-        // Sync monthly report secara asynchronous
-        MonthlyReportService.syncMonth(userId, deletedDate).catch(() => {});
+        // Sync monthly report secara asynchronous jika settled
+        if (isSettled) {
+          MonthlyReportService.syncMonth(userId, deletedDate).catch(() => {});
+        }
 
         return ReturnHelper.successResponseAny(
           res,
@@ -417,6 +498,10 @@ export class TransactionController {
 
       let total_income = 0;
       let total_expense = 0;
+      let total_pending_income = 0;
+      let total_pending_expense = 0;
+      let total_pending_count = 0;
+
       const expense_per_category: Record<string, number> = {};
       const income_per_category: Record<string, number> = {};
 
@@ -424,14 +509,24 @@ export class TransactionController {
         const amount = Number(t.amount);
         const categoryName = t.category?.name || "Unknown";
 
-        if (t.type === CategoryType.INCOME) {
-          total_income += amount;
-          income_per_category[categoryName] =
-            (income_per_category[categoryName] || 0) + amount;
+        if (t.is_pending === IsPendingType.Y) {
+          total_pending_count++;
+          if (t.type === CategoryType.INCOME) {
+            total_pending_income += amount;
+          } else {
+            total_pending_expense += amount;
+          }
         } else {
-          total_expense += amount;
-          expense_per_category[categoryName] =
-            (expense_per_category[categoryName] || 0) + amount;
+          // Settled transactions (is_pending === 'N')
+          if (t.type === CategoryType.INCOME) {
+            total_income += amount;
+            income_per_category[categoryName] =
+              (income_per_category[categoryName] || 0) + amount;
+          } else {
+            total_expense += amount;
+            expense_per_category[categoryName] =
+              (expense_per_category[categoryName] || 0) + amount;
+          }
         }
       }
 
@@ -451,6 +546,17 @@ export class TransactionController {
           total_income,
           total_expense,
           net_cash_flow: period_balance,
+        },
+        balance_summary: {
+          total_income,
+          total_expense,
+          balance: period_balance,
+        },
+        pending_summary: {
+          total_pending_income,
+          total_pending_expense,
+          net_pending: total_pending_income - total_pending_expense,
+          total_pending_count,
         },
         expense_per_category: mapToArray(expense_per_category),
         income_per_category: mapToArray(income_per_category),
