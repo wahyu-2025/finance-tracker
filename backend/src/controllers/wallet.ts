@@ -2,10 +2,10 @@ import { Request, Response } from "express";
 import { ReturnHelper } from "../helpers/express/return";
 import { ILogObj, Logger } from "tslog";
 import { OrmHelper } from "../helpers/orm";
-import { Wallet, WalletType } from "../entities/wallet";
+import { Wallet } from "../entities/wallet";
 import Joi from "joi";
-import { User } from "../entities";
 import { Transfer } from "../entities/Transfer";
+import { WalletType } from "../types/types";
 
 const log: Logger<ILogObj> = new Logger({ name: "[WalletController]" });
 

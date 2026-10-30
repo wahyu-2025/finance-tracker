@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { OrmHelper } from "../helpers/orm";
 import { MonthlyReport } from "../entities/MonthlyReport";
-import { Transaction } from "../entities/Transaction";
 import { ReturnHelper } from "../helpers/express/return";
 import { MonthlyReportService } from "../services/monthly-report";
 
@@ -42,60 +41,6 @@ export class MonthlyReportController {
       return ReturnHelper.errorResponse(res, 500, 500, (err as Error).message);
     }
   }
-
-  // /**
-  //  * Get detail of a specific monthly report including transactions breakdown
-  //  */
-  // static async getById(req: Request, res: Response) {
-  //   /* 
-  //     #swagger.tags = ['Monthly Report']
-  //     #swagger.summary = 'Get monthly report detail'
-  //     #swagger.security = [{"bearerAuth": []}]
-  //     #swagger.parameters['id'] = { description: 'Monthly Report ID', type: 'integer' }
-  //   */
-  //   try {
-  //     const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  //     const reportId = Number.parseInt(idParam, 10);
-  //     const userId = req.auth?.id;
-
-  //     if (isNaN(reportId)) {
-  //       return ReturnHelper.errorResponse(res, 400, 400, "Invalid report id");
-  //     }
-
-  //     const repo = OrmHelper.DB.getRepository(MonthlyReport);
-  //     const report = await repo.findOne({
-  //       where: { id: reportId, user_id: userId },
-  //     });
-
-  //     if (!report) {
-  //       return ReturnHelper.errorResponse(res, 404, 404, "Monthly report not found");
-  //     }
-
-  //     // Fetch transactions in this monthly report
-  //     const txRepo = OrmHelper.DB.getRepository(Transaction);
-  //     const transactions = await txRepo.createQueryBuilder("t")
-  //       .leftJoinAndSelect("t.category", "category")
-  //       .leftJoinAndSelect("t.wallet", "wallet")
-  //       .where("t.user_id = :userId", { userId })
-  //       .andWhere("t.transaction_date >= :startDate", { startDate: report.start_date })
-  //       .andWhere("t.transaction_date <= :endDate", { endDate: report.end_date })
-  //       .orderBy("t.transaction_date", "DESC")
-  //       .addOrderBy("t.id", "DESC")
-  //       .getMany();
-
-  //     return ReturnHelper.successResponseAny(
-  //       res,
-  //       200,
-  //       "Monthly report detail retrieved successfully",
-  //       {
-  //         report,
-  //         transactions,
-  //       }
-  //     );
-  //   } catch (err: unknown) {
-  //     return ReturnHelper.errorResponse(res, 500, 500, (err as Error).message);
-  //   }
-  // }
 
   /**
    * Manual trigger to recalculate Year-To-Date monthly reports for the user

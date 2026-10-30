@@ -58,7 +58,7 @@
         }
       }
     },
-    "/api/category": {
+    "/api/category/add": {
       "post": {
         "tags": [
           "Category"
@@ -85,7 +85,9 @@
             }
           }
         }
-      },
+      }
+    },
+    "/api/category/get-all": {
       "get": {
         "tags": [
           "Category"
@@ -104,7 +106,7 @@
         ]
       }
     },
-    "/api/category/{id}": {
+    "/api/category/update/{id}": {
       "put": {
         "tags": [
           "Category"
@@ -142,7 +144,9 @@
             }
           }
         }
-      },
+      }
+    },
+    "/api/category/delete/{id}": {
       "delete": {
         "tags": [
           "Category"
@@ -172,7 +176,7 @@
         ]
       }
     },
-    "/api/transaction": {
+    "/api/transaction/add": {
       "post": {
         "tags": [
           "Transaction"
@@ -201,7 +205,7 @@
         }
       }
     },
-    "/api/transaction/{id}": {
+    "/api/transaction/update/{id}": {
       "put": {
         "tags": [
           "Transaction"
@@ -239,7 +243,39 @@
             }
           }
         }
-      },
+      }
+    },
+    "/api/transaction/confirm/{id}": {
+      "put": {
+        "tags": [
+          "Transaction"
+        ],
+        "summary": "Confirm a pending transaction",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Transaction ID"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/transaction/delete/{id}": {
       "delete": {
         "tags": [
           "Transaction"
@@ -306,7 +342,7 @@
         ]
       }
     },
-    "/api/custom-recap": {
+    "/api/custom-recap/add": {
       "post": {
         "tags": [
           "Custom Recap"
@@ -333,7 +369,9 @@
             }
           }
         }
-      },
+      }
+    },
+    "/api/custom-recap/get-all": {
       "get": {
         "tags": [
           "Custom Recap"
@@ -352,7 +390,7 @@
         ]
       }
     },
-    "/api/custom-recap/{id}": {
+    "/api/custom-recap/getById/{id}": {
       "get": {
         "tags": [
           "Custom Recap"
@@ -380,7 +418,9 @@
             "bearerAuth": []
           }
         ]
-      },
+      }
+    },
+    "/api/custom-recap/update/{id}": {
       "put": {
         "tags": [
           "Custom Recap"
@@ -418,7 +458,9 @@
             }
           }
         }
-      },
+      }
+    },
+    "/api/custom-recap/delete/{id}": {
       "delete": {
         "tags": [
           "Custom Recap"
@@ -448,7 +490,7 @@
         ]
       }
     },
-    "/api/wallet": {
+    "/api/wallet/add": {
       "post": {
         "tags": [
           "Wallet"
@@ -474,7 +516,9 @@
             }
           }
         }
-      },
+      }
+    },
+    "/api/wallet/get": {
       "get": {
         "tags": [
           "Wallet"
@@ -531,7 +575,7 @@
         }
       }
     },
-    "/api/monthly-reports": {
+    "/api/monthly-reports/get-all": {
       "get": {
         "tags": [
           "Monthly Report"
@@ -896,6 +940,10 @@
           "amount": {
             "type": "number",
             "example": 50000
+          },
+          "is_pending": {
+            "type": "string",
+            "example": "N"
           },
           "transaction_date": {
             "type": "string",
