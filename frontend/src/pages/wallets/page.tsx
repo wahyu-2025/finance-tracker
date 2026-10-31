@@ -40,12 +40,6 @@ const WalletsPage = () => {
   const [selectedWallet, setSelectedWallet] = useState<WalletList | null>(null);
   const [actionType, setActionType] = useState<"add" | "edit">("add");
 
-  // const { data: walletsResponse, isLoading: isLoadingTx } = useQuery({
-  //   queryKey: ["wallets", "getWallet"],
-  //   queryFn: () => WalletService.getWallet(user?.id),
-  // });
-  // const walletsData = walletsResponse?.data || [];
-
  const fetchWalletList = async () => {
     setIsLoading(true);
     try {
@@ -70,45 +64,6 @@ const WalletsPage = () => {
   useEffect(() => {
     fetchWalletList();
   }, [user?.id]);
-
-  // const fetchAddWallet = async (data: WalletList) => {
-  //   setIsLoading(true);
-  //   try {
-  //     const response = await postWallet(data);
-  //     if (response?.status) {
-  //       setAddWallet(response.data);
-  //       toast.success("Add berhasil ditambahkan di tabel");
-  //     } else {
-  //       toast.error("Coba lagi");
-  //     }
-  //   } catch {
-  //     toast.error("Error");
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchAddWallet();
-  // },[]);
-
-  const handleAddWallet = async (data: WalletList) => {
-  setIsSubmitting(true);
-  try {
-    const response = await postWallet(data);
-    if (response.status) {
-      toast.success("Wallet berhasil ditambahkan");
-      setIsDialogOpen(false);   
-      fetchWalletList();        
-    } else {
-      toast.error(response.message || "Gagal menambahkan wallet");
-    }
-  } catch {
-    toast.error("Terjadi kesalahan");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
 
   const handleShowModal = (type: "add" | "edit", wallet?: WalletList) => {
     setActionType(type);
