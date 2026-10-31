@@ -109,6 +109,28 @@ const doc = {
         transfer_date: "2026-10-26",
         description: "Transfer antar wallet",
       },
+      CreateBudgetRequest: {
+        name: "Budget 2026",
+        start_date: "2026-10-01",
+        end_date: "2026-12-31",
+      },
+      UpdateBudgetRequest: {
+        name: "Budget 2026",
+        start_date: "2026-10-01",
+        end_date: "2026-12-31",
+      },
+      CreateBudgetItemsRequest: {
+        budget_items: [
+          {
+            category_id: 1,
+            amount: 50000,
+          },
+        ],
+      },
+      UpdateBudgetItemsRequest: {
+        category_id: 1,
+        amount: 50000,
+      },
     },
     parameters: {
       // Anda dapat mendefinisikan parameter lainnya di sini jika diperlukan
