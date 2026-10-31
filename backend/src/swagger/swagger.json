@@ -575,6 +575,232 @@
         }
       }
     },
+    "/api/budget/add": {
+      "post": {
+        "tags": [
+          "Budget"
+        ],
+        "summary": "Create a new budget",
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBudgetRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/budget/update/{id}": {
+      "put": {
+        "tags": [
+          "Budget"
+        ],
+        "summary": "Update a budget",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBudgetRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/budget/delete/{id}": {
+      "delete": {
+        "tags": [
+          "Budget"
+        ],
+        "summary": "Delete a budget",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/budget-items/add/budgetId/{budget_id}": {
+      "post": {
+        "tags": [
+          "Budget Items"
+        ],
+        "summary": "Create a new budget item",
+        "description": "",
+        "parameters": [
+          {
+            "name": "budget_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "budget_id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBudgetItemsRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/budget-items/update/budgetId/{budget_id}/budgetItemId/{id}": {
+      "put": {
+        "tags": [
+          "Budget Items"
+        ],
+        "summary": "Update a budget item",
+        "description": "",
+        "parameters": [
+          {
+            "name": "budget_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "budget_id"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBudgetItemsRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/budget-items/delete/budgetId/{budget_id}/budgetItemId/{id}": {
+      "delete": {
+        "tags": [
+          "Budget Items"
+        ],
+        "summary": "Delete a budget item",
+        "description": "",
+        "parameters": [
+          {
+            "name": "budget_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "budget_id"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/monthly-reports/get-all": {
       "get": {
         "tags": [
@@ -1061,6 +1287,74 @@
           "description": {
             "type": "string",
             "example": "Transfer antar wallet"
+          }
+        }
+      },
+      "CreateBudgetRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Budget 2026"
+          },
+          "start_date": {
+            "type": "string",
+            "example": "2026-10-01"
+          },
+          "end_date": {
+            "type": "string",
+            "example": "2026-12-31"
+          }
+        }
+      },
+      "UpdateBudgetRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Budget 2026"
+          },
+          "start_date": {
+            "type": "string",
+            "example": "2026-10-01"
+          },
+          "end_date": {
+            "type": "string",
+            "example": "2026-12-31"
+          }
+        }
+      },
+      "CreateBudgetItemsRequest": {
+        "type": "object",
+        "properties": {
+          "budget_items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "category_id": {
+                  "type": "number",
+                  "example": 1
+                },
+                "amount": {
+                  "type": "number",
+                  "example": 50000
+                }
+              }
+            }
+          }
+        }
+      },
+      "UpdateBudgetItemsRequest": {
+        "type": "object",
+        "properties": {
+          "category_id": {
+            "type": "number",
+            "example": 1
+          },
+          "amount": {
+            "type": "number",
+            "example": 50000
           }
         }
       }
