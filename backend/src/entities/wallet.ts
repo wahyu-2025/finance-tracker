@@ -12,12 +12,7 @@ import {
 import { User } from "./User";
 import { Transaction } from "./Transaction";
 import { Transfer } from "./Transfer";
-
-export enum WalletType {
-  BANK = "BANK",
-  EWALLET = "EWALLET",
-  CASH = "CASH",
-}
+import { WalletType } from "../types/types";
 
 @Entity()
 export class Wallet {

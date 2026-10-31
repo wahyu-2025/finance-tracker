@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { OrmHelper } from '../helpers/orm';
-import { Category, CategoryType } from '../entities/Category';
+import { Category } from '../entities/Category';
+import { CategoryType } from '../types/types';
 import { ReturnHelper } from '../helpers/express/return';
 import Joi from 'joi';
 

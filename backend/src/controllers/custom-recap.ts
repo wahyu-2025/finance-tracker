@@ -2,9 +2,9 @@ import { Request, Response } from "express";
 import { OrmHelper } from "../helpers/orm";
 import { CustomRecap } from "../entities/CustomRecap";
 import { Transaction } from "../entities/Transaction";
-import { CategoryType } from "../entities/Category";
 import { ReturnHelper } from "../helpers/express/return";
 import Joi from "joi";
+import { CategoryType } from "../types/types";
 
 export class CustomRecapController {
   static async create(req: Request, res: Response) {

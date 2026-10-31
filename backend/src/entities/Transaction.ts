@@ -9,8 +9,9 @@ import {
   JoinColumn,
 } from "typeorm";
 import { User } from "./User";
-import { Category, CategoryType } from "./Category";
+import { Category } from "./Category";
 import { Wallet } from "./wallet";
+import { CategoryType } from "../types/types";
 
 @Entity()
 export class Transaction {
@@ -49,6 +50,13 @@ export class Transaction {
 
   @Column("date")
   transaction_date!: Date;
+
+  @Column({
+    type: "enum",
+    enum: ["Y", "N"],
+    default: "N",
+  })
+  is_pending!: "Y" | "N";
 
   @Column({ type: "text", nullable: true })
   description!: string;

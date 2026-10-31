@@ -1,9 +1,9 @@
 import { OrmHelper } from "../helpers/orm";
 import { MonthlyReport } from "../entities/MonthlyReport";
 import { Transaction } from "../entities/Transaction";
-import { CategoryType } from "../entities/Category";
 import { User } from "../entities/User";
 import { Logger, ILogObj } from "tslog";
+import { CategoryType, IsPendingType } from "../types/types";
 
 const log: Logger<ILogObj> = new Logger({ name: "[MonthlyReportService]", type: "pretty" });
 
@@ -71,6 +71,7 @@ export class MonthlyReportService {
       const transactions = await transactionRepository
         .createQueryBuilder("t")
         .where("t.user_id = :userId", { userId })
+        .andWhere("t.is_pending = :isPending", { isPending: IsPendingType.N })
         .andWhere("t.transaction_date >= :startDate", { startDate })
         .andWhere("t.transaction_date <= :endDate", { endDate })
         .getMany();
