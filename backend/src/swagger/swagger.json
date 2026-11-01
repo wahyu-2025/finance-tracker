@@ -618,7 +618,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "description": "id"
           }
         ],
         "responses": {
@@ -673,7 +674,56 @@
         ]
       }
     },
-    "/api/budget-items/add/budgetId/{budget_id}": {
+    "/api/budget/get-all": {
+      "get": {
+        "tags": [
+          "Budget"
+        ],
+        "summary": "get budget list",
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/budget/get-detail/{id}": {
+      "get": {
+        "tags": [
+          "Budget"
+        ],
+        "summary": "get budget detail",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "id"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/budget-items/add/{budget_id}": {
       "post": {
         "tags": [
           "Budget Items"
@@ -713,7 +763,7 @@
         }
       }
     },
-    "/api/budget-items/update/budgetId/{budget_id}/budgetItemId/{id}": {
+    "/api/budget-items/update/{budget_id}/{id}": {
       "put": {
         "tags": [
           "Budget Items"
@@ -762,7 +812,7 @@
         }
       }
     },
-    "/api/budget-items/delete/budgetId/{budget_id}/budgetItemId/{id}": {
+    "/api/budget-items/delete/{budget_id}/{id}": {
       "delete": {
         "tags": [
           "Budget Items"

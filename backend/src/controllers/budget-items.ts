@@ -370,4 +370,54 @@ export class BudgetItemsController {
       );
     }
   }
+
+  // static async getBudgetItems(req: Request, res: Response) {
+  //   /* 
+  //     #swagger.tags = ['Budget Items']
+  //     #swagger.summary = 'get budget item list'
+  //     #swagger.security = [{"bearerAuth": []}]
+  //     #swagger.parameters['budget_id'] = { description: 'budget_id', type: 'integer' }
+  //   */
+  //   try {
+  //     const user_id = req.auth?.id;
+  //     const budget_id = Number(req.params.budget_id);
+
+  //     if (!user_id || !Number.isInteger(user_id)) {
+  //       return ReturnHelper.errorResponse(res, 401, 401, "Unauthorized");
+  //     }
+
+  //     if (!Number.isInteger(budget_id) || budget_id <= 0) {
+  //       return ReturnHelper.errorResponse(res, 400, 400, "Invalid budget id");
+  //     }
+
+  //     const budgetItemsRepository = OrmHelper.DB.getRepository(BudgetItem);
+
+  //     const budgetItems = await budgetItemsRepository.find({
+  //       where: { budget_id },
+  //     });
+
+  //     if (budgetItems.length === 0) {
+  //       return ReturnHelper.successResponseAny(
+  //         res,
+  //         200,
+  //         "Budget Items retrieved successfully",
+  //         [],
+  //       );
+  //     }
+
+  //     return ReturnHelper.successResponseAny(
+  //       res,
+  //       200,
+  //       "Budget Items retrieved successfully",
+  //       budgetItems,
+  //     );
+  //   } catch (error: unknown) {
+  //     return ReturnHelper.errorResponse(
+  //       res,
+  //       500,
+  //       500,
+  //       (error as Error).message,
+  //     );
+  //   }
+  // }
 }

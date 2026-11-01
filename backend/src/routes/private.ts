@@ -54,18 +54,17 @@ export class RoutePrivate {
     app.post("/api/budget/add", BudgetsController.create);
     app.put("/api/budget/update/:id", BudgetsController.update);
     app.delete("/api/budget/delete/:id", BudgetsController.delete);
+    app.get("/api/budget/get-all", BudgetsController.getBudgets);
+    app.get("/api/budget/get-detail/:id", BudgetsController.getDetailBudget);
 
     // Budget Item Routes
-    app.post(
-      "/api/budget-items/add/budgetId/:budget_id",
-      BudgetItemsController.create,
-    );
+    app.post("/api/budget-items/add/:budget_id", BudgetItemsController.create);
     app.put(
-      "/api/budget-items/update/budgetId/:budget_id/budgetItemId/:id",
+      "/api/budget-items/update/:budget_id/:id",
       BudgetItemsController.update,
     );
     app.delete(
-      "/api/budget-items/delete/budgetId/:budget_id/budgetItemId/:id",
+      "/api/budget-items/delete/:budget_id/:id",
       BudgetItemsController.delete,
     );
 
