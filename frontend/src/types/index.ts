@@ -107,7 +107,6 @@ export interface AxiosErrorResponse {
 
 export type WalletType = "CASH" | "BANK" | "EWALLET";
 
-
 export interface WalletList {
   id: number;
   user_id: number;
@@ -120,4 +119,25 @@ export interface WalletList {
   deletedAt: string | null;
 }
 
+// Category
 
+export interface CatgList {
+  id: number;
+  name: string;
+  type: "INCOME" | "EXPENSE";
+  user_id?: number | null;
+}
+
+export interface TranscListForm {
+  id: number;
+  user_id: number;
+  wallet_id: number;
+  category_id: number;
+  type: "INCOME" | "EXPENSE";
+  amount: string;
+  transaction_date: string;
+  is_pending: "Y" | "N";
+  description: string;
+  category: { id: number; name: string } | null;
+  wallet: { id: number; name: string } | null;
+}

@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { TransactionService, TransactionData } from "@/api/transaction.service";
-import { CategoryService } from "@/api/category.service";
-import { Category, Transaction, AxiosErrorResponse } from "@/types";
+import { TranscListForm, CatgList } from "@/types";
 import {
   Toolbar,
   ToolbarHeading,
@@ -31,56 +28,105 @@ import {
 } from "@/components/ui/dialog";
 import { Edit2, Trash2, Plus, Search } from "lucide-react";
 import { toast } from "sonner";
-import { format, subDays } from "date-fns";
+import { format } from "date-fns";
 import { formatPrice, parsePrice } from "@/lib/helpers";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { TranscApiForm, TranscGetList, UseTranscApi } from "./api/useTranscApi";
+import { UseCatgApi } from "../categories/api/useCatgApi";
+import StatusPending from "./component/statusPending";
+import DialogPending from "./component/dialogPending";
+
+const tgl = (transc: number) => String(transc).padStart(2, "0");
+
+const getMonthRange = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1;
+  const lastDay = new Date(year, month, 0).getDate();
+  return {
+    startDate: `${year}-${tgl(month)}-01`,
+    endDate: `${year}-${tgl(month)}-${tgl(lastDay)}`,
+  };
+};
+
+const Status_Options = [
+  { value: "N", label: "Success" },
+  { value: "Y", label: "Pending" },
+] as const;
+
+interface WalletsOption {
+  id: number;
+  name: string;
+}
 
 export function TransactionsPage() {
-  const queryClient = useQueryClient();
+  const { deleteTransc, getTransc, postTransac, putTransac, confirmTransc } =
+    UseTranscApi();
+  const { getCategory } = UseCatgApi();
+  const [reload, setReload] = useState(0);
+  const [categories, setCategories] = useState<CatgList[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [walletDatas, setWallteDatas] = useState<WalletsOption[]>([]);
+  const [transcList, setTranscList] = useState<TranscListForm[]>([]);
+  const [dateRange, setDateRange] = useState<TranscGetList>(getMonthRange());
+  const [selectTransc, setSelectTransc] = useState<TranscListForm | null>(null);
   const isMobile = useIsMobile();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] =
-    useState<Transaction | null>(null);
-
-  const [dateRange, setDateRange] = useState({
-    startDate: format(subDays(new Date(), 30), "yyyy-MM-dd"),
-    endDate: format(new Date(), "yyyy-MM-dd"),
-  });
-
-  // Form state
+    useState<TranscListForm | null>(null);
+  const [statusTransc, setStatusTransc] = useState<TranscListForm | null>(null);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [isPending, setIsPending] = useState<"Y" | "N">("N");
   const [amount, setAmount] = useState<number | null>(null);
-  const [displayValue, setDisplayValue] = useState("");
   const [type, setType] = useState<"INCOME" | "EXPENSE">("EXPENSE");
+  const [displayValue, setDisplayValue] = useState("");
   const [categoryId, setCategoryId] = useState("");
+  const [walletsId, setWalletsId] = useState("");
+  const [description, setDescription] = useState("");
   const [transactionDate, setTransactionDate] = useState(
     format(new Date(), "yyyy-MM-dd"),
   );
-  const [description, setDescription] = useState("");
 
-  const { data: historyResponse, isLoading: isLoadingTx } = useQuery({
-    queryKey: ["transactions", "history", dateRange],
-    queryFn: () =>
-      TransactionService.getHistory(dateRange.startDate, dateRange.endDate),
-  });
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const response = await getCategory();
+      if (response?.status) {
+        setCategories(response.data || []);
+      }
+    };
+    fetchCategories();
+  }, []);
 
-  const { data: categoriesResponse } = useQuery({
-    queryKey: ["categories"],
-    queryFn: CategoryService.getAll,
-  });
+  const fetchListTransac = async (params: TranscGetList) => {
+    setIsLoading(true);
+    const response = await getTransc(params);
+    if (response?.status) {
+      setTranscList(response.data?.history || []);
+      setWallteDatas(response.data?.wallets || []);
+    } else {
+      toast.error("Table Gagal dimuat bro");
+    }
+    setIsLoading(false);
+  };
+  useEffect(() => {
+    fetchListTransac(dateRange);
+  }, [reload]);
 
-  const transactions = historyResponse?.data?.history || [];
-  const categories = categoriesResponse?.data || [];
-  const filteredCategories = categories.filter(
-    (c: Category) => c.type === type,
-  );
+  const triggerReload = () => {
+    setReload((prev) => prev + 1);
+  };
 
   const resetForm = () => {
     setAmount(null);
+    setDisplayValue("");
     setType("EXPENSE");
+    setIsPending("N");
     setCategoryId("");
+    setWalletsId("");
     setTransactionDate(format(new Date(), "yyyy-MM-dd"));
     setDescription("");
     setEditingTransaction(null);
+    setSelectTransc(null);
   };
 
   const openAddDialog = () => {
@@ -88,88 +134,81 @@ export function TransactionsPage() {
     setIsDialogOpen(true);
   };
 
-  const openEditDialog = (tx: Transaction) => {
-    setEditingTransaction(tx);
-    setAmount(Number(tx.amount));
-    setDisplayValue(formatPrice(Number(tx.amount)));
-    setType(tx.type);
-    setCategoryId(tx.category_id.toString());
-    setTransactionDate(format(new Date(tx.transaction_date), "yyyy-MM-dd"));
-    setDescription(tx.description || "");
+  const openEditDialog = (transc: TranscListForm) => {
+    setEditingTransaction(transc);
+    setSelectTransc(transc);
+    setWalletsId(String(transc.wallet_id));
+    setAmount(Number(transc.amount));
+    setIsPending(transc.is_pending);
+    setDisplayValue(formatPrice(Number(transc.amount)));
+    setType(transc.type);
+    setCategoryId(transc.category_id.toString());
+    setTransactionDate(format(new Date(transc.transaction_date), "yyyy-MM-dd"));
+    setDescription(transc.description || "");
     setIsDialogOpen(true);
   };
 
-  const createMutation = useMutation({
-    mutationFn: TransactionService.create,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["transactions"] });
-      setIsDialogOpen(false);
-      toast.success("Transaction added successfully");
-    },
-    onError: (err: AxiosErrorResponse) => {
-      toast.error(err.response?.data?.message || "Failed to add transaction");
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: (data: TransactionData) => {
-      const { id, ...rest } = data;
-      return TransactionService.update(id!, rest);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["transactions"] });
-      setIsDialogOpen(false);
-      toast.success("Transaction updated successfully");
-    },
-    onError: (err: AxiosErrorResponse) => {
-      toast.error(
-        err.response?.data?.message || "Failed to update transaction",
-      );
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: TransactionService.delete,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["transactions"] });
-      toast.success("Transaction deleted successfully");
-    },
-    onError: (err: AxiosErrorResponse) => {
-      toast.error(
-        err.response?.data?.message || "Failed to delete transaction",
-      );
-    },
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const payload: TransactionData = {
-      amount: Number(amount),
-      type,
-      category_id: Number(categoryId),
-      transaction_date: transactionDate,
-      description,
-    };
-
-    if (editingTransaction) {
-      updateMutation.mutate({ ...payload, id: editingTransaction.id });
-    } else {
-      createMutation.mutate(payload);
+  const handleSubmit = async (data: TranscApiForm) => {
+    setIsLoading(true);
+    try {
+      if (editingTransaction && selectTransc) {
+        const response = await putTransac(selectTransc.id, data);
+        if (response?.status) {
+          toast.success("Sukses Cuyyyy");
+          setIsDialogOpen(false);
+          triggerReload();
+          resetForm();
+        } else {
+          toast.error("Di cek dulu ada yg belum di isi tuuh");
+        }
+      } else {
+        const response = await postTransac(data);
+        if (response?.status) {
+          toast.success("Di cek dulu ada yg belum di isi tuuh");
+          setIsDialogOpen(false);
+          triggerReload();
+          resetForm();
+        }
+      }
+    } catch {
+      toast.error("Cek semua nya dulu cuyy ada yang janggal nih");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleDelete = (id: number) => {
-    if (confirm("Are you sure you want to delete this transaction?")) {
-      deleteMutation.mutate(id);
+  const handleDeleted = async (id: number) => {
+    try {
+      const response = await deleteTransc(id);
+      if (response?.status) {
+        toast.success("Data nya berhasil ilang ni bro");
+        triggerReload();
+      } else {
+        toast.error("delete gagal bro");
+      }
+    } catch {
+      toast.error("delete gagal bro, cek koneksi lu dulu gih");
     }
   };
 
-  useEffect(() => {
-    if (!isDialogOpen) {
-      setAmount(null);
-      setDisplayValue("");
+  const handleConfirm = async () => {
+    if (!statusTransc) return;
+    setIsUpdatingStatus(true);
+    try {
+      const response = await confirmTransc(statusTransc.id);
+      if (response?.status) {
+        toast.success("Status berhasil diubah jadi Success");
+        setStatusTransc(null);
+        triggerReload();
+      } else {
+        toast.error(response?.message || "Gagal mengubah status");
+      }
+    } catch {
+      toast.error("Terjadi kesalahan, coba lagi");
+    } finally {
+      setIsUpdatingStatus(false);
     }
-  }, [isDialogOpen]);
+  };
 
   return (
     <div className="container space-y-6">
@@ -211,9 +250,7 @@ export function TransactionsPage() {
         <Button
           variant="outline"
           className="w-full md:w-auto md:mt-auto"
-          onClick={() =>
-            queryClient.invalidateQueries({ queryKey: ["transactions"] })
-          }
+          onClick={triggerReload}
         >
           <Search className="mr-2 h-4 w-4" /> Filter
         </Button>
@@ -221,41 +258,47 @@ export function TransactionsPage() {
 
       {isMobile ? (
         <div className="grid grid-cols-1 gap-4">
-          {isLoadingTx ? (
+          {isLoading ? (
             <div className="text-center p-8 text-muted-foreground bg-muted/20 rounded-lg">
               Loading...
             </div>
-          ) : transactions.length === 0 ? (
+          ) : transcList.length === 0 ? (
             <div className="text-center p-8 text-muted-foreground bg-muted/20 rounded-lg">
               No transactions found
             </div>
           ) : (
-            transactions.map((tx) => (
-              <Card key={tx.id} className="p-4 flex flex-col gap-3">
+            transcList.map((transc) => (
+              <Card key={transc.id} className="p-4 flex flex-col gap-3">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="font-medium">{tx.description || "-"}</p>
+                    <p className="font-medium">{transc.description || "-"}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {format(new Date(tx.transaction_date), "MMM dd, yyyy")}
+                      {format(
+                        new Date(transc.transaction_date),
+                        "MMM dd, yyyy",
+                      )}
                     </p>
                   </div>
                   <span
-                    className={`font-bold ${tx.type === "INCOME" ? "text-green-500" : "text-red-500"}`}
+                    className={`font-bold ${transc.type === "INCOME" ? "text-green-500" : "text-red-500"}`}
                   >
-                    {tx.type === "INCOME" ? "+" : "-"}
-                    {formatPrice(Number(tx.amount))}
+                    {transc.type === "INCOME" ? "+" : "-"}
+                    {formatPrice(Number(transc.amount))}
                   </span>
                 </div>
                 <div className="flex justify-between items-center mt-2">
-                  <span className="px-2 py-1 rounded bg-secondary text-secondary-foreground text-xs">
-                    {tx.category?.name || "Unknown"}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-1 rounded bg-secondary text-secondary-foreground text-xs">
+                      {transc.category?.name ?? "Unknown"}
+                    </span>
+                    <StatusPending transc={transc} onClick={setStatusTransc} />
+                  </div>
                   <div className="flex gap-2">
                     <Button
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8"
-                      onClick={() => openEditDialog(tx)}
+                      onClick={() => openEditDialog(transc)}
                     >
                       <Edit2 className="h-4 w-4" />
                     </Button>
@@ -263,7 +306,7 @@ export function TransactionsPage() {
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8"
-                      onClick={() => handleDelete(tx.id!)}
+                      onClick={() => handleDeleted(transc.id)}
                     >
                       <Trash2 className="h-4 w-4 text-red-500" />
                     </Button>
@@ -282,61 +325,71 @@ export function TransactionsPage() {
                 <TableHead>Description</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead>Amount</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead className="w-25">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoadingTx ? (
+              {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center h-24">
+                  <TableCell colSpan={6} className="text-center h-24">
                     Loading...
                   </TableCell>
                 </TableRow>
-              ) : transactions.length === 0 ? (
+              ) : transcList.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center h-24">
+                  <TableCell colSpan={6} className="text-center h-24">
                     No transactions found
                   </TableCell>
                 </TableRow>
               ) : (
-                transactions.map((tx) => (
-                  <TableRow key={tx.id}>
+                transcList.map((transc) => (
+                  <TableRow key={transc.id}>
                     <TableCell>
-                      {format(new Date(tx.transaction_date), "MMM dd, yyyy")}
+                      {format(
+                        new Date(transc.transaction_date),
+                        "MMM dd, yyyy",
+                      )}
                     </TableCell>
                     <TableCell className="font-medium">
-                      {tx.description || "-"}
+                      {transc.description || "-"}
                     </TableCell>
                     <TableCell>
                       <span className="px-2 py-1 rounded bg-secondary text-secondary-foreground text-xs">
-                        {tx.category?.name || "Unknown"}
+                        {transc.category?.name ?? "Unknown"}
                       </span>
                     </TableCell>
                     <TableCell>
                       <span
-                        className={`font-semibold ${tx.type === "INCOME" ? "text-green-500" : "text-red-500"}`}
+                        className={`font-semibold ${transc.type === "INCOME" ? "text-green-500" : "text-red-500"}`}
                       >
-                        {tx.type === "INCOME" ? "+" : "-"}
+                        {transc.type === "INCOME" ? "+" : "-"}
                         {new Intl.NumberFormat("id-ID", {
                           style: "currency",
                           currency: "IDR",
                           minimumFractionDigits: 2,
-                        }).format(Number(tx.amount))}
+                        }).format(Number(transc.amount))}
                       </span>
+                    </TableCell>
+                    <TableCell>
+                      <StatusPending
+                        transc={transc}
+                        onClick={setStatusTransc}
+                      />
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => openEditDialog(tx)}
+                          onClick={() => openEditDialog(transc)}
                         >
                           <Edit2 className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => handleDelete(tx.id!)}
+                          onClick={() => handleDeleted(transc.id)}
                         >
                           <Trash2 className="h-4 w-4 text-red-500" />
                         </Button>
@@ -357,7 +410,20 @@ export function TransactionsPage() {
               {editingTransaction ? "Edit Transaction" : "Add Transaction"}
             </DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit({
+                wallet_id: Number(walletsId),
+                category_id: Number(categoryId),
+                type,
+                amount: amount ?? 0,
+                is_pending: type === "EXPENSE" ? isPending : "N",
+                transaction_date: transactionDate,
+                description,
+              });
+            }}
+          >
             <DialogBody className="space-y-4 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -366,8 +432,10 @@ export function TransactionsPage() {
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     value={type}
                     onChange={(e) => {
-                      setType(e.target.value as "INCOME" | "EXPENSE");
-                      setCategoryId(""); // reset category on type change
+                      const newType = e.target.value as "INCOME" | "EXPENSE";
+                      setType(newType);
+                      setCategoryId("");
+                      if (newType === "INCOME") setIsPending("N");
                     }}
                   >
                     <option value="EXPENSE">Expense</option>
@@ -398,6 +466,60 @@ export function TransactionsPage() {
                   />
                 </div>
               </div>
+              <div>
+                <label className="text-sm font-medium mb-1 block">Status</label>
+                <div className="flex gap-6">
+                  {Status_Options.map((opt) => (
+                    <label
+                      key={opt.value}
+                      className={`flex items-center gap-2 text-sm ${
+                        type === "INCOME"
+                          ? "cursor-not-allowed opacity-50"
+                          : "cursor-pointer"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="is_pending"
+                        value={opt.value}
+                        checked={isPending === opt.value}
+                        onChange={() => setIsPending(opt.value)}
+                        disabled={type === "INCOME"}
+                        className="h-4 w-4 accent-emerald-600"
+                      />
+                      {opt.label}
+                    </label>
+                  ))}
+                </div>
+                {type === "INCOME" && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Status pending hanya untuk pengeluaran.
+                  </p>
+                )}
+                {type === "EXPENSE" && isPending === "Y" && (
+                  <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
+                    Transaksi pending belum memotong saldo wallet.
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1 block">Wallet</label>
+                <select
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  value={walletsId}
+                  onChange={(e) => setWalletsId(e.target.value)}
+                  required
+                >
+                  <option value="" disabled>
+                    Select a wallet
+                  </option>
+                  {walletDatas.map((w) => (
+                    <option key={w.id} value={w.id}>
+                      {w.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               <div>
                 <label className="text-sm font-medium mb-1 block">
@@ -412,13 +534,13 @@ export function TransactionsPage() {
                   <option value="" disabled>
                     Select a category
                   </option>
-                  {filteredCategories.map((c: Category) => (
+                  {categories.map((c: CatgList) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
                     </option>
                   ))}
                 </select>
-                {filteredCategories.length === 0 && (
+                {categories.length === 0 && (
                   <p className="text-xs text-red-500 mt-1">
                     No categories found for this type. Add one first.
                   </p>
@@ -454,20 +576,18 @@ export function TransactionsPage() {
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                disabled={
-                  createMutation.isPending ||
-                  updateMutation.isPending ||
-                  !categoryId
-                }
-              >
-                Save
-              </Button>
+              <Button type="submit">{isLoading ? "Saving..." : "Save"}</Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
+
+      <DialogPending
+        transc={statusTransc}
+        isUpdating={isUpdatingStatus}
+        onClose={() => setStatusTransc(null)}
+        onConfirm={handleConfirm}
+      />
     </div>
   );
 }

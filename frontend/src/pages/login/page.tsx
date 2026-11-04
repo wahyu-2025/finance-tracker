@@ -217,7 +217,7 @@ export function LoginPage() {
         </div>
 
         {/* bawah */}
-        <div className="flex flex-1 items-start justify-center px-5 pb-[max(2rem,env(safe-area-inset-bottom))] pt-8 sm:px-10 sm:pt-12 lg:items-center lg:p-12">
+        <div className="flex flex-1 items-start justify-center px-5 pb-[max(2rem,env(safe-area-inset-bottom))] pt-40 sm:px-10 sm:pt-12 lg:items-center lg:p-12">
           <div className={`w-full max-w-md ${animasi("delay-150")}`}>
             <h1 className="text-center text-2xl font-bold text-foreground sm:text-3xl">
               Selamat Datang Kembali

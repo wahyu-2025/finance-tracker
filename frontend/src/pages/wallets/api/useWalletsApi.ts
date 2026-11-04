@@ -1,7 +1,7 @@
 import { useCallApi } from "@/hooks/useCallApi";
 import { apiConfig } from "@/config/api.config";
 
-const API_URL = apiConfig.wallets;
+const API_URL = apiConfig.financeTrack;
 
 interface WalletForm {
   name: string;
