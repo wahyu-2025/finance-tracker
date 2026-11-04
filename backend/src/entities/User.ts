@@ -10,6 +10,7 @@ import { Transaction } from "./Transaction";
 import { Category } from "./Category";
 import { Wallet } from "./wallet";
 import { Transfer } from "./Transfer";
+import { Budget } from "./budgets";
 
 @Entity()
 export class User {
@@ -42,4 +43,7 @@ export class User {
 
   @OneToMany(() => Category, (category) => category.user)
   categories!: Category[];
+
+  @OneToMany(() => Budget, (budget) => budget.user)
+  budgets!: Budget[];
 }

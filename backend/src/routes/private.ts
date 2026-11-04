@@ -8,6 +8,8 @@ import { TransactionController } from "../controllers/transaction";
 import { CustomRecapController } from "../controllers/custom-recap";
 import { WalletController } from "../controllers/wallet";
 import { MonthlyReportController } from "../controllers/monthly-report";
+import { BudgetsController } from "../controllers/budgets";
+import { BudgetItemsController } from "../controllers/budget-items";
 
 const guard = guardPre({
   requestProperty: "auth",
@@ -47,6 +49,24 @@ export class RoutePrivate {
     app.post("/api/wallet/add", WalletController.create);
     app.get("/api/wallet/get", WalletController.getWallet);
     app.post("/api/wallet/transfer-balance", WalletController.transferBalance);
+
+    // Budget Routes
+    app.post("/api/budget/add", BudgetsController.create);
+    app.put("/api/budget/update/:id", BudgetsController.update);
+    app.delete("/api/budget/delete/:id", BudgetsController.delete);
+    app.get("/api/budget/get-all", BudgetsController.getBudgets);
+    app.get("/api/budget/get-detail/:id", BudgetsController.getDetailBudget);
+
+    // Budget Item Routes
+    app.post("/api/budget-items/add/:budget_id", BudgetItemsController.create);
+    app.put(
+      "/api/budget-items/update/:budget_id/:id",
+      BudgetItemsController.update,
+    );
+    app.delete(
+      "/api/budget-items/delete/:budget_id/:id",
+      BudgetItemsController.delete,
+    );
 
     // Monthly Report Routes
     app.get("/api/monthly-reports/get-all", MonthlyReportController.getAll);
