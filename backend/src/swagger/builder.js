@@ -102,6 +102,12 @@ const doc = {
         initial_balance: 1000000,
         balance: 1000000,
       },
+      UpdateWalletRequest: {
+        name: "BCA Utama",
+        type: "BANK",
+        initial_balance: 1000000,
+        balance: 1000000,
+      },
       CreateTransferBalance: {
         from_wallet_id: 1,
         to_wallet_id: 2,
