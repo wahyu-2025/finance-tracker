@@ -179,7 +179,7 @@ export class WalletController {
       wallet.name = value.wallet;
       wallet.type = value.type;
       wallet.initial_balance = value.initial_balance;
-      wallet.balance = value.balance;
+      wallet.balance = value.balance ? value.balance : value.initial_balance;
 
       const savedWallet = await walletRepository.save(wallet);
       return ReturnHelper.successResponseAny(
