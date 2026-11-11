@@ -68,7 +68,7 @@ export const TransactionService = {
     const response = await api.delete(`/api/transaction/${id}`);
     return response.data;
   },
-  getHistory: async (
+  getTransactionHistory: async (
     params: TransactionListParams,
   ): Promise<ApiResponse<TransactionHistoryProps>> => {
     const response = await api.get("/api/transaction/list", {

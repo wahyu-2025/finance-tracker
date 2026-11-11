@@ -146,3 +146,91 @@ export interface PaginationParams {
   page: number;
   limit: number;
 }
+
+export interface dateRangeProps {
+  startDate: string;
+  endDate: string;
+}
+
+// HISTORY TYPES
+
+export interface CashFlowSummary {
+  total_income: number;
+  total_expense: number;
+  net_cash_flow: number;
+}
+
+export interface BalanceSummary {
+  total_income: number;
+  total_expense: number;
+  balance: number;
+}
+
+export interface PendingSummary {
+  total_pending_income: number;
+  total_pending_expense: number;
+  net_pending: number;
+  total_pending_count: number;
+}
+
+export interface CategorySummary {
+  category: string;
+  total: number;
+}
+
+export interface WalletSummary {
+  id: number;
+  name: string;
+  type: string;
+  balance: number;
+}
+
+export interface HistoryTransactionCategory {
+  id: number;
+  user_id?: number | null;
+  name: string;
+  type?: "INCOME" | "EXPENSE" | string;
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string | null;
+}
+
+export interface HistoryTransactionWallet {
+  id: number;
+  user_id?: number;
+  name: string;
+  initial_balance?: string | number;
+  balance?: string | number;
+  type?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string | null;
+}
+
+export interface HistoryTransactionItem {
+  id: number;
+  user_id: number;
+  category_id: number;
+  wallet_id: number;
+  type: CategoryType;
+  amount: string | number;
+  transaction_date: string;
+  is_pending: "Y" | "N";
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  category: Category | null;
+  wallet: WalletList | null;
+}
+
+export interface HistoryProps {
+  total_balance_wallet: number;
+  net_cash_flow_summary: CashFlowSummary;
+  balance_summary: BalanceSummary;
+  pending_summary: PendingSummary;
+  expense_per_category: CategorySummary[];
+  income_per_category: CategorySummary[];
+  wallets: WalletSummary[];
+  history: HistoryTransactionItem[];
+}

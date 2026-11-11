@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { TranscListForm, CatgList } from "@/types";
+import { TranscListForm, CatgList, dateRangeProps } from "@/types";
 import {
   Toolbar,
   ToolbarHeading,
@@ -32,11 +32,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { formatPrice, parsePrice } from "@/lib/helpers";
 import { useIsMobile } from "@/hooks/use-mobile";
-import {
-  dateRangeProps,
-  TranscApiForm,
-  UseTranscApi,
-} from "./api/useTranscApi";
+import { TranscApiForm, UseTranscApi } from "./api/useTranscApi";
 import { UseCatgApi } from "../categories/api/useCatgApi";
 import { useWalletsApi } from "../wallets/api/useWalletsApi";
 import { useAuth } from "@/contexts/AuthContext";
