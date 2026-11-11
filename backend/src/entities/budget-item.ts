@@ -20,6 +20,9 @@ export class BudgetItem {
   budget_id!: number;
 
   @Column()
+  name!: string;
+
+  @Column()
   category_id!: number;
 
   @ManyToOne(() => Budget, (budget) => budget.budget_items)

@@ -122,12 +122,14 @@ const doc = {
       CreateBudgetItemsRequest: {
         budget_items: [
           {
+            name: "Budget Makan",
             category_id: 1,
             amount: 50000,
           },
         ],
       },
       UpdateBudgetItemsRequest: {
+        name: "Budget Makan",
         category_id: 1,
         amount: 50000,
       },

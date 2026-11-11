@@ -1382,6 +1382,10 @@
             "items": {
               "type": "object",
               "properties": {
+                "name": {
+                  "type": "string",
+                  "example": "Budget Makan"
+                },
                 "category_id": {
                   "type": "number",
                   "example": 1
@@ -1398,6 +1402,10 @@
       "UpdateBudgetItemsRequest": {
         "type": "object",
         "properties": {
+          "name": {
+            "type": "string",
+            "example": "Budget Makan"
+          },
           "category_id": {
             "type": "number",
             "example": 1
