@@ -141,3 +141,8 @@ export interface TranscListForm {
   category: { id: number; name: string } | null;
   wallet: { id: number; name: string } | null;
 }
+
+export interface PaginationParams {
+  page: number;
+  limit: number;
+}

@@ -22,19 +22,19 @@ export const CustomRecapService = {
     return response.data;
   },
   getAll: async () => {
-    const response = await api.get('/api/custom-recap');
+    const response = await api.get('/api/custom-recap/get-all');
     return response.data;
   },
   getOne: async (id: number) => {
-    const response = await api.get(`/api/custom-recap/${id}`);
+    const response = await api.get(`/api/custom-recap/getById/${id}`);
     return response.data;
   },
   update: async (id: number, data: CustomRecapData) => {
-    const response = await api.put(`/api/custom-recap/${id}`, data);
+    const response = await api.put(`/api/custom-recap/update/${id}`, data);
     return response.data;
   },
   delete: async (id: number) => {
-    const response = await api.delete(`/api/custom-recap/${id}`);
+    const response = await api.delete(`/api/custom-recap/delete/${id}`);
     return response.data;
   }
 };
