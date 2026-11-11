@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { TransactionService } from "@/api/transaction.service";
-import { PerCategory, Transaction } from "@/types";
+import {
+  dateRangeProps,
+  HistoryTransactionItem,
+  PerCategory,
+  Transaction,
+} from "@/types";
 import {
   Toolbar,
   ToolbarHeading,
@@ -20,6 +25,7 @@ import {
 import { format, subDays } from "date-fns";
 import { ArrowDownRight, ArrowUpRight, DollarSign } from "lucide-react";
 import { formatPrice } from "@/lib/helpers";
+import { HistoryService } from "@/api/history.service";
 
 const COLORS = [
   "#0088FE",
@@ -31,15 +37,14 @@ const COLORS = [
 ];
 
 export function DashboardPage() {
-  const [dateRange] = useState({
+  const [dateRange] = useState<dateRangeProps>({
     startDate: format(subDays(new Date(), 30), "yyyy-MM-dd"),
     endDate: format(new Date(), "yyyy-MM-dd"),
   });
 
   const { data: historyResponse, isLoading } = useQuery({
     queryKey: ["transactions", "history", dateRange],
-    queryFn: () =>
-      TransactionService.getHistory(dateRange.startDate, dateRange.endDate),
+    queryFn: () => HistoryService.getHistory(dateRange),
   });
 
   const data = historyResponse?.data;
@@ -125,20 +130,22 @@ export function DashboardPage() {
                         outerRadius={80}
                         paddingAngle={5}
                       >
-                        {expenseByCategory.map((_: PerCategory, index: number) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={COLORS[index % COLORS.length]}
-                          />
-                        ))}
+                        {expenseByCategory.map(
+                          (_: PerCategory, index: number) => (
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={COLORS[index % COLORS.length]}
+                            />
+                          ),
+                        )}
                       </Pie>
                       <RechartsTooltip
                         formatter={(value: number) => formatPrice(value)}
                       />
-                      <Legend 
-                        layout="horizontal" 
-                        verticalAlign="bottom" 
-                        align="center" 
+                      <Legend
+                        layout="horizontal"
+                        verticalAlign="bottom"
+                        align="center"
                         wrapperStyle={{ paddingTop: "20px" }}
                       />
                     </PieChart>
@@ -158,7 +165,7 @@ export function DashboardPage() {
               <div className="flex-1 overflow-auto">
                 {recentTransactions.length > 0 ? (
                   <div className="divide-y divide-border">
-                    {recentTransactions.map((tx: Transaction) => (
+                    {recentTransactions.map((tx: HistoryTransactionItem) => (
                       <div
                         key={tx.id}
                         className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors"

@@ -14,10 +14,7 @@ export interface TranscApiForm {
   description: string;
 }
 
-export interface dateRangeProps {
-  startDate: string;
-  endDate: string;
-}
+
 
 export const UseTranscApi = () => {
   const { Postdata, Getdata, Putdata, Deletedata } = useCallApi();
