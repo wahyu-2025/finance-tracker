@@ -10,7 +10,7 @@ interface WalletForm {
   balance: number;
 }
 export const useWalletsApi = () => {
-  const { Getdata, Postdata } = useCallApi();
+  const { Getdata, Postdata, Putdata } = useCallApi();
 
   const getWalletList = async (user_id: number) => {
     const response = await Getdata(`${API_URL}/api/wallet/get`, {
@@ -27,8 +27,14 @@ export const useWalletsApi = () => {
     const response = await Postdata(`${API_URL}/api/wallet/add`, data);
     return response;
   };
+
+  const updateWallet = async (id: number, data: WalletForm) => {
+    const response = await Putdata(`${API_URL}/api/wallet/update/${id}`, data);
+    return response;
+  };
   return {
     getWalletList,
     postWallet,
+    updateWallet,
   };
 };
