@@ -22,8 +22,15 @@ import {
   Tooltip as RechartsTooltip,
   Legend,
 } from "recharts";
-import { format, subDays } from "date-fns";
-import { ArrowDownRight, ArrowUpRight, DollarSign } from "lucide-react";
+import { format, startOfMonth, subDays } from "date-fns";
+import {
+  ArrowDownRight,
+  ArrowUpRight,
+  DollarSign,
+  Wallet,
+  TrendingUp,
+  TrendingDown,
+} from "lucide-react";
 import { formatPrice } from "@/lib/helpers";
 import { HistoryService } from "@/api/history.service";
 
@@ -38,7 +45,7 @@ const COLORS = [
 
 export function DashboardPage() {
   const [dateRange] = useState<dateRangeProps>({
-    startDate: format(subDays(new Date(), 30), "yyyy-MM-dd"),
+    startDate: format(startOfMonth(new Date()), "yyyy-MM-dd"),
     endDate: format(new Date(), "yyyy-MM-dd"),
   });
 
@@ -49,10 +56,11 @@ export function DashboardPage() {
 
   const data = historyResponse?.data;
 
-  const balanceSummary = data?.balance_summary || {
+  const totalBalanceWallet = data?.total_balance_wallet || 0;
+  const netCashFlowSummary = data?.net_cash_flow_summary || {
     total_income: 0,
     total_expense: 0,
-    balance: 0,
+    net_cash_flow: 0,
   };
   const expenseByCategory = data?.expense_per_category || [];
   const recentTransactions = data?.history?.slice(0, 5) || [];
@@ -63,7 +71,9 @@ export function DashboardPage() {
         <ToolbarHeading>
           <ToolbarPageTitle>Dashboard</ToolbarPageTitle>
           <ToolbarDescription>
-            Your financial overview for the last 30 days
+            Your financial overview for{" "}
+            {format(dateRange.startDate, "dd MMMM yyyy")} -{" "}
+            {format(dateRange.endDate, "dd MMMM yyyy")}
           </ToolbarDescription>
         </ToolbarHeading>
       </Toolbar>
@@ -72,19 +82,19 @@ export function DashboardPage() {
         <div className="flex h-32 items-center justify-center">Loading...</div>
       ) : (
         <>
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Card className="glassmorphism p-6 flex flex-col gap-2 relative overflow-hidden">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-muted-foreground">
                   Total Balance
                 </span>
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
+                <Wallet className="h-4 w-4 text-muted-foreground" />
               </div>
               <span className="text-3xl font-bold tracking-tight">
-                {formatPrice(balanceSummary.balance)}
+                {formatPrice(totalBalanceWallet)}
               </span>
               <div className="absolute -right-4 -bottom-4 opacity-10">
-                <DollarSign className="h-24 w-24" />
+                <Wallet className="h-24 w-24" />
               </div>
             </Card>
 
@@ -96,8 +106,11 @@ export function DashboardPage() {
                 <ArrowUpRight className="h-4 w-4 text-green-500" />
               </div>
               <span className="text-3xl font-bold tracking-tight text-green-500">
-                +{formatPrice(balanceSummary.total_income)}
+                +{formatPrice(netCashFlowSummary.total_income)}
               </span>
+              <div className="absolute -right-4 -bottom-4 opacity-10">
+                <ArrowUpRight className="h-24 w-24 text-green-500" />
+              </div>
             </Card>
 
             <Card className="glassmorphism p-6 flex flex-col gap-2 relative overflow-hidden">
@@ -108,8 +121,41 @@ export function DashboardPage() {
                 <ArrowDownRight className="h-4 w-4 text-red-500" />
               </div>
               <span className="text-3xl font-bold tracking-tight text-red-500">
-                -{formatPrice(balanceSummary.total_expense)}
+                -{formatPrice(netCashFlowSummary.total_expense)}
               </span>
+              <div className="absolute -right-4 -bottom-4 opacity-10">
+                <ArrowDownRight className="h-24 w-24 text-red-500" />
+              </div>
+            </Card>
+
+            <Card className="glassmorphism p-6 flex flex-col gap-2 relative overflow-hidden">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-muted-foreground">
+                  Net Cash Flow
+                </span>
+                {netCashFlowSummary.net_cash_flow >= 0 ? (
+                  <TrendingUp className="h-4 w-4 text-emerald-500" />
+                ) : (
+                  <TrendingDown className="h-4 w-4 text-red-500" />
+                )}
+              </div>
+              <span
+                className={`text-3xl font-bold tracking-tight ${
+                  netCashFlowSummary.net_cash_flow >= 0
+                    ? "text-emerald-500"
+                    : "text-red-500"
+                }`}
+              >
+                {netCashFlowSummary.net_cash_flow >= 0 ? "+" : "-"}
+                {formatPrice(Math.abs(netCashFlowSummary.net_cash_flow))}
+              </span>
+              <div className="absolute -right-4 -bottom-4 opacity-10">
+                {netCashFlowSummary.net_cash_flow >= 0 ? (
+                  <TrendingUp className="h-24 w-24 text-emerald-500" />
+                ) : (
+                  <TrendingDown className="h-24 w-24 text-red-500" />
+                )}
+              </div>
             </Card>
           </div>
 

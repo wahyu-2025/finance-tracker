@@ -40,7 +40,7 @@ const WalletsPage = () => {
   const [selectedWallet, setSelectedWallet] = useState<WalletList | null>(null);
   const [actionType, setActionType] = useState<"add" | "edit">("add");
 
- const fetchWalletList = async () => {
+  const fetchWalletList = async () => {
     setIsLoading(true);
     try {
       if (!user?.id) {
@@ -207,7 +207,7 @@ const WalletsPage = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          //   onClick={() => openEditDialog(tx)}
+                          onClick={() => handleShowModal("edit", wallet)}
                         >
                           <Edit2 className="h-4 w-4" />
                         </Button>

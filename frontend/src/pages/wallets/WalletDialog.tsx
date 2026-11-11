@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { WalletList, WalletType } from "@/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCallApi } from "@/hooks/useCallApi";
 import { useWalletsApi } from "./api/useWalletsApi";
 import { toast } from "sonner";
@@ -45,7 +45,7 @@ const WalletsDialog = ({
   actionType,
   onSuccess,
 }: WalletsDialogProps) => {
-  const { postWallet } = useWalletsApi();
+  const { postWallet, updateWallet } = useWalletsApi();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
 
@@ -57,7 +57,18 @@ const WalletsDialog = ({
   };
   const [form, setForm] = useState<FormWallet>(initialForm);
 
-  const handleAddWallet = async (e: React.FormEvent) => {
+  useEffect(() => {
+    if (actionType === "edit") {
+      setForm({
+        name: selectedWallet?.name || "",
+        type: selectedWallet?.type || "CASH",
+        initial_balance: selectedWallet?.initial_balance || 0,
+        balance: selectedWallet?.balance || 0,
+      });
+    }
+  }, [actionType, selectedWallet]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!form.name.trim()) {
@@ -67,20 +78,23 @@ const WalletsDialog = ({
 
     setIsSubmitting(true);
     try {
-      const response = await postWallet({
-        name: form.name.trim(),
-        type: form.type,
-        initial_balance: form.initial_balance,
-        balance: form.balance,
-      });
+      const response =
+        actionType === "edit" && selectedWallet
+          ? await updateWallet(selectedWallet.id, form)
+          : await postWallet(form);
 
       if (response.status) {
-        toast.success("Wallet berhasil ditambahkan");
+        toast.success(
+          `Wallet berhasil ${actionType === "edit" ? "diupdate" : "ditambahkan"}`,
+        );
         setForm(initialForm);
         setIsDialogOpen(false);
         onSuccess();
       } else {
-        toast.error(response.message || "Gagal menambahkan wallet");
+        toast.error(
+          response.message ||
+            `Gagal ${actionType === "edit" ? "mengupdate" : "menambahkan"} wallet`,
+        );
       }
     } catch {
       toast.error("Terjadi kesalahan");
@@ -97,7 +111,7 @@ const WalletsDialog = ({
             {actionType === "edit" ? "Edit Wallet" : "Add Wallet"}
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleAddWallet}>
+        <form onSubmit={handleSubmit}>
           <DialogBody className="space-y-4 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
