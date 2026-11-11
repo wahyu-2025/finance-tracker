@@ -15,32 +15,27 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { WalletList } from "@/types";
-import { Edit2, Plus, Search, Trash2 } from "lucide-react";
+import { Edit2, Plus, Trash2 } from "lucide-react";
 import WalletsDialog from "./WalletDialog";
-import { WalletService } from "@/api/wallet.services";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatPrice } from "@/lib/helpers";
 import { useWalletsApi } from "./api/useWalletsApi";
 import { toast } from "sonner";
 
 const WalletsPage = () => {
-  const { getWalletList, postWallet } = useWalletsApi();
-  const queryClient = useQueryClient();
+  const { getWalletList} = useWalletsApi();
   const isMobile = useIsMobile();
   const { user } = useAuth();
   const [dataWallets, setDataWallets] = useState<WalletList[]>([]);
-  const [addWallet, setAddWallet] = useState<WalletList[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedWallet, setSelectedWallet] = useState<WalletList | null>(null);
   const [actionType, setActionType] = useState<"add" | "edit">("add");
 
- const fetchWalletList = async () => {
+  const fetchWalletList = async () => {
     setIsLoading(true);
     try {
       if (!user?.id) {
@@ -49,9 +44,8 @@ const WalletsPage = () => {
         const response = await getWalletList(user.id);
         if (response?.status) {
           setDataWallets(response.data);
-          toast.success("Success");
         } else {
-          toast.error("Table Gagal dimuat");
+          toast.error(response.message || "Table Gagal dimuat");
         }
       }
     } catch {
@@ -76,6 +70,7 @@ const WalletsPage = () => {
     setSelectedWallet(null);
     setActionType("add");
   };
+
   return (
     <div className="container space-y-6">
       <Toolbar>

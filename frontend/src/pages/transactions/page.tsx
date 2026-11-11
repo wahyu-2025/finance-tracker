@@ -104,7 +104,7 @@ export function TransactionsPage() {
       setTranscList(response.data?.history || []);
       setWallteDatas(response.data?.wallets || []);
     } else {
-      toast.error("Table Gagal dimuat bro");
+      toast.error(response.message || "Table Gagal dimuat bro");
     }
     setIsLoading(false);
   };
@@ -154,17 +154,21 @@ export function TransactionsPage() {
       if (editingTransaction && selectTransc) {
         const response = await putTransac(selectTransc.id, data);
         if (response?.status) {
-          toast.success("Sukses Cuyyyy");
+          toast.success(response.message || "Sukses Cuyyyy");
           setIsDialogOpen(false);
           triggerReload();
           resetForm();
         } else {
-          toast.error("Di cek dulu ada yg belum di isi tuuh");
+          toast.error(
+            response.message || "Di cek dulu ada yg belum di isi tuuh",
+          );
         }
       } else {
         const response = await postTransac(data);
         if (response?.status) {
-          toast.success("Di cek dulu ada yg belum di isi tuuh");
+          toast.success(
+            response.message || "Di cek dulu ada yg belum di isi tuuh",
+          );
           setIsDialogOpen(false);
           triggerReload();
           resetForm();
@@ -181,10 +185,10 @@ export function TransactionsPage() {
     try {
       const response = await deleteTransc(id);
       if (response?.status) {
-        toast.success("Data nya berhasil ilang ni bro");
+        toast.success(response.message || "Data nya berhasil ilang ni bro");
         triggerReload();
       } else {
-        toast.error("delete gagal bro");
+        toast.error(response.message || "delete gagal bro");
       }
     } catch {
       toast.error("delete gagal bro, cek koneksi lu dulu gih");

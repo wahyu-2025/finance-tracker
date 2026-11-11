@@ -88,22 +88,26 @@ export function CategoriesPage() {
       if (editingCategory && selectCatg) {
         const response = await putCategory(selectCatg.id, data);
         if (response?.status) {
-          toast.success("Sukses cuyyyy");
+          toast.success(response.message || "Sukses cuyyyy");
           setIsDialogOpen(false);
           triggerReload();
           resetForm();
         } else {
-          toast.error("Di cek dulu ada yg belum di isi tuuh");
+          toast.error(
+            response.message || "Di cek dulu ada yg belum di isi tuuh",
+          );
         }
       } else {
         const response = await postCategory(data);
         if (response?.status) {
-          toast.success("Sukses cuyyyy");
+          toast.success(response.message || "Sukses cuyyyy");
           setIsDialogOpen(false);
           triggerReload();
           resetForm();
         } else {
-          toast.error("Di cek dulu ada yg belum di isi tuuh");
+          toast.error(
+            response.message || "Di cek dulu ada yg belum di isi tuuh",
+          );
         }
       }
     } catch (error) {
@@ -117,7 +121,7 @@ export function CategoriesPage() {
     try {
       const response = await deleteCategory(id);
       if (response?.status) {
-        toast.success("data nya berhasil ilang bro");
+        toast.success(-response.message || "data nya berhasil ilang bro");
         triggerReload();
       } else {
         toast.error(response?.message || "delete gagal bro");

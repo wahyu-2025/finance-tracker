@@ -75,7 +75,7 @@ const WalletsDialog = ({
       });
 
       if (response.status) {
-        toast.success("Wallet berhasil ditambahkan");
+        toast.success(response.message || "Wallet berhasil ditambahkan");
         setForm(initialForm);
         setIsDialogOpen(false);
         onSuccess();
