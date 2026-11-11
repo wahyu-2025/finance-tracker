@@ -8,6 +8,7 @@ import { CategoryType } from "../types/types";
 
 interface BudgetItemsReq {
   budget_id: number;
+  name: string;
   category_id: number;
   amount: number;
 }
@@ -33,6 +34,7 @@ export class BudgetItemsController {
         budget_items: Joi.array()
           .items(
             Joi.object({
+              name: Joi.string().required(),
               category_id: Joi.number().integer().positive().required(),
               amount: Joi.number().positive().required(),
             }),
@@ -129,6 +131,7 @@ export class BudgetItemsController {
       const newItems = value.budget_items.map((item: BudgetItemsReq) => {
         return BudgetItemsRepository.create({
           budget_id: budget_id,
+          name: item.name,
           category_id: item.category_id,
           amount: item.amount,
         });
@@ -169,6 +172,7 @@ export class BudgetItemsController {
     */
     try {
       const schema = Joi.object({
+        name: Joi.string().required(),
         category_id: Joi.number().integer().positive().optional(),
         amount: Joi.number().positive().optional(),
       }).min(1);
@@ -214,7 +218,7 @@ export class BudgetItemsController {
       const BudgetItemsRepository = OrmHelper.DB.getRepository(BudgetItem);
 
       const budgetItem = await BudgetItemsRepository.findOne({
-        where: { id, budget_id },
+        where: { budget_id, id },
       });
 
       if (!budgetItem) {
@@ -276,6 +280,10 @@ export class BudgetItemsController {
 
       if (value.amount !== undefined) {
         budgetItem.amount = value.amount;
+      }
+
+      if (value.name !== undefined) {
+        budgetItem.name = value.name;
       }
 
       await BudgetItemsRepository.save(budgetItem);
@@ -372,7 +380,7 @@ export class BudgetItemsController {
   }
 
   // static async getBudgetItems(req: Request, res: Response) {
-  //   /* 
+  //   /*
   //     #swagger.tags = ['Budget Items']
   //     #swagger.summary = 'get budget item list'
   //     #swagger.security = [{"bearerAuth": []}]
