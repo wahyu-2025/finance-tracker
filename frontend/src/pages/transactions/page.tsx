@@ -14,6 +14,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -26,19 +27,35 @@ import {
   DialogFooter,
   DialogBody,
 } from "@/components/ui/dialog";
-import { Edit2, Trash2, Plus, Search } from "lucide-react";
+import { Edit2, Trash2, Plus, Search, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { formatPrice, parsePrice } from "@/lib/helpers";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { TranscApiForm, TranscGetList, UseTranscApi } from "./api/useTranscApi";
+import {
+  dateRangeProps,
+  TranscApiForm,
+  UseTranscApi,
+} from "./api/useTranscApi";
 import { UseCatgApi } from "../categories/api/useCatgApi";
+import { useWalletsApi } from "../wallets/api/useWalletsApi";
+import { useAuth } from "@/contexts/AuthContext";
 import StatusPending from "./component/statusPending";
 import DialogPending from "./component/dialogPending";
+import { TransactionListParams } from "@/api/transaction.service";
+import { TablePagination } from "@/components/ui/table-pagination";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const tgl = (transc: number) => String(transc).padStart(2, "0");
 
-const getMonthRange = () => {
+const getMonthRange = (): dateRangeProps => {
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth() + 1;
@@ -63,12 +80,16 @@ export function TransactionsPage() {
   const { deleteTransc, getTransc, postTransac, putTransac, confirmTransc } =
     UseTranscApi();
   const { getCategory } = UseCatgApi();
+  const { getWalletList } = useWalletsApi();
+  const { user } = useAuth();
+
   const [reload, setReload] = useState(0);
   const [categories, setCategories] = useState<CatgList[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
   const [walletDatas, setWallteDatas] = useState<WalletsOption[]>([]);
   const [transcList, setTranscList] = useState<TranscListForm[]>([]);
-  const [dateRange, setDateRange] = useState<TranscGetList>(getMonthRange());
+  const [dateRange] = useState<dateRangeProps>(getMonthRange());
   const [selectTransc, setSelectTransc] = useState<TranscListForm | null>(null);
   const isMobile = useIsMobile();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -87,6 +108,29 @@ export function TransactionsPage() {
     format(new Date(), "yyyy-MM-dd"),
   );
 
+  const [filterForm, setFilterForm] = useState({
+    startDate: dateRange.startDate,
+    endDate: dateRange.endDate,
+    type: "",
+    category_id: "",
+    wallet_id: "",
+    is_pending: "",
+  });
+
+  const intitalFilter: TransactionListParams = {
+    page: 1,
+    limit: 5,
+    category_id: undefined,
+    wallet_id: undefined,
+    type: undefined,
+    is_pending: undefined,
+    startDate: dateRange.startDate,
+    endDate: dateRange.endDate,
+  };
+
+  const [filterParams, setFilterParams] =
+    useState<TransactionListParams>(intitalFilter);
+
   useEffect(() => {
     const fetchCategories = async () => {
       const response = await getCategory();
@@ -94,23 +138,75 @@ export function TransactionsPage() {
         setCategories(response.data || []);
       }
     };
+    const fetchWallets = async () => {
+      if (!user?.id) return;
+      const res = await getWalletList(user.id);
+      if (res?.status) {
+        setWallteDatas(res.data || []);
+      }
+    };
     fetchCategories();
-  }, []);
+    fetchWallets();
+  }, [user?.id]);
 
-  const fetchListTransac = async (params: TranscGetList) => {
+  const fetchListTransac = async (params: TransactionListParams) => {
     setIsLoading(true);
     const response = await getTransc(params);
     if (response?.status) {
-      setTranscList(response.data?.history || []);
-      setWallteDatas(response.data?.wallets || []);
+      setTranscList(response.data?.list || []);
+      if (response.data?.wallets) {
+        setWallteDatas(response.data.wallets);
+      }
+      setTotalCount(response.data?.total_count || 0);
     } else {
       toast.error("Table Gagal dimuat bro");
     }
     setIsLoading(false);
   };
+
   useEffect(() => {
-    fetchListTransac(dateRange);
-  }, [reload]);
+    const payload: TransactionListParams = filterParams;
+    fetchListTransac(payload);
+  }, [reload, filterParams]);
+
+  const handleApplyFilter = () => {
+    setFilterParams((prev) => ({
+      ...prev,
+      page: 1,
+      startDate: filterForm.startDate || undefined,
+      endDate: filterForm.endDate || undefined,
+      type: (filterForm.type as "INCOME" | "EXPENSE") || undefined,
+      category_id: filterForm.category_id
+        ? Number(filterForm.category_id)
+        : undefined,
+      wallet_id: filterForm.wallet_id
+        ? Number(filterForm.wallet_id)
+        : undefined,
+      is_pending: (filterForm.is_pending as "Y" | "N") || undefined,
+    }));
+  };
+
+  const handleResetFilter = () => {
+    const freshRange = getMonthRange();
+    setFilterForm({
+      startDate: freshRange.startDate,
+      endDate: freshRange.endDate,
+      type: "",
+      category_id: "",
+      wallet_id: "",
+      is_pending: "",
+    });
+    setFilterParams({
+      page: 1,
+      limit: filterParams.limit || 5,
+      startDate: freshRange.startDate,
+      endDate: freshRange.endDate,
+      type: undefined,
+      category_id: undefined,
+      wallet_id: undefined,
+      is_pending: undefined,
+    });
+  };
 
   const triggerReload = () => {
     setReload((prev) => prev + 1);
@@ -152,6 +248,7 @@ export function TransactionsPage() {
     setIsLoading(true);
     try {
       if (editingTransaction && selectTransc) {
+        delete data.is_pending;
         const response = await putTransac(selectTransc.id, data);
         if (response?.status) {
           toast.success("Sukses Cuyyyy");
@@ -226,95 +323,236 @@ export function TransactionsPage() {
         </ToolbarActions>
       </Toolbar>
 
-      <Card className=" p-4 flex flex-col md:flex-row gap-4 flex-wrap">
-        <div className="w-full md:w-auto">
-          <label className="text-xs font-medium mb-1 block">Start Date</label>
-          <Input
-            type="date"
-            value={dateRange.startDate}
-            onChange={(e) =>
-              setDateRange((prev) => ({ ...prev, startDate: e.target.value }))
-            }
-          />
+      <Card className="p-4 space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div>
+            <Label className="text-xs text-muted-foreground block mb-1">
+              Start Date
+            </Label>
+            <Input
+              type="date"
+              className="h-9 text-xs"
+              value={filterForm.startDate}
+              onChange={(e) =>
+                setFilterForm((prev) => ({
+                  ...prev,
+                  startDate: e.target.value,
+                }))
+              }
+            />
+          </div>
+
+          <div>
+            <Label className="text-xs text-muted-foreground block mb-1">
+              End Date
+            </Label>
+            <Input
+              type="date"
+              className="h-9 text-xs"
+              value={filterForm.endDate}
+              onChange={(e) =>
+                setFilterForm((prev) => ({ ...prev, endDate: e.target.value }))
+              }
+            />
+          </div>
+
+          <div>
+            <Label className="text-xs text-muted-foreground block mb-1">
+              Type
+            </Label>
+            <Select
+              value={filterForm.type || "ALL"}
+              onValueChange={(val) =>
+                setFilterForm((prev) => ({
+                  ...prev,
+                  type: val === "ALL" ? "" : val,
+                }))
+              }
+            >
+              <SelectTrigger className="h-9 w-full text-xs" size="sm">
+                <SelectValue placeholder="All Types" />
+              </SelectTrigger>
+              <SelectContent side="bottom">
+                <SelectItem value="ALL">All Types</SelectItem>
+                <SelectItem value="EXPENSE">Expense</SelectItem>
+                <SelectItem value="INCOME">Income</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label className="text-xs text-muted-foreground block mb-1">
+              Category
+            </Label>
+            <Select
+              value={filterForm.category_id || "ALL"}
+              onValueChange={(val) =>
+                setFilterForm((prev) => ({
+                  ...prev,
+                  category_id: val === "ALL" ? "" : val,
+                }))
+              }
+            >
+              <SelectTrigger className="h-9 w-full text-xs" size="sm">
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent side="bottom">
+                <SelectItem value="ALL">All Categories</SelectItem>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} value={String(cat.id)}>
+                    {cat.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label className="text-xs text-muted-foreground block mb-1">
+              Wallet
+            </Label>
+            <Select
+              value={filterForm.wallet_id || "ALL"}
+              onValueChange={(val) =>
+                setFilterForm((prev) => ({
+                  ...prev,
+                  wallet_id: val === "ALL" ? "" : val,
+                }))
+              }
+            >
+              <SelectTrigger className="h-9 w-full text-xs" size="sm">
+                <SelectValue placeholder="All Wallets" />
+              </SelectTrigger>
+              <SelectContent side="bottom">
+                <SelectItem value="ALL">All Wallets</SelectItem>
+                {walletDatas.map((w) => (
+                  <SelectItem key={w.id} value={String(w.id)}>
+                    {w.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label className="text-xs text-muted-foreground block mb-1">
+              Status
+            </Label>
+            <Select
+              value={filterForm.is_pending || "ALL"}
+              onValueChange={(val) =>
+                setFilterForm((prev) => ({
+                  ...prev,
+                  is_pending: val === "ALL" ? "" : val,
+                }))
+              }
+            >
+              <SelectTrigger className="h-9 w-full text-xs" size="sm">
+                <SelectValue placeholder="All Status" />
+              </SelectTrigger>
+              <SelectContent side="bottom">
+                <SelectItem value="ALL">All Status</SelectItem>
+                <SelectItem value="N">Success</SelectItem>
+                <SelectItem value="Y">Pending</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-        <div className="w-full md:w-auto">
-          <label className="text-xs font-medium mb-1 block">End Date</label>
-          <Input
-            type="date"
-            value={dateRange.endDate}
-            onChange={(e) =>
-              setDateRange((prev) => ({ ...prev, endDate: e.target.value }))
-            }
-          />
+
+        <div className="flex flex-wrap items-center justify-end gap-2 pt-2 border-t">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 text-xs"
+            onClick={handleResetFilter}
+          >
+            <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
+          </Button>
+          <Button size="sm" className="h-8 text-xs" onClick={handleApplyFilter}>
+            <Search className="mr-1.5 h-3.5 w-3.5" /> Apply Filter
+          </Button>
         </div>
-        <Button
-          variant="outline"
-          className="w-full md:w-auto md:mt-auto"
-          onClick={triggerReload}
-        >
-          <Search className="mr-2 h-4 w-4" /> Filter
-        </Button>
       </Card>
 
       {isMobile ? (
-        <div className="grid grid-cols-1 gap-4">
-          {isLoading ? (
-            <div className="text-center p-8 text-muted-foreground bg-muted/20 rounded-lg">
-              Loading...
-            </div>
-          ) : transcList.length === 0 ? (
-            <div className="text-center p-8 text-muted-foreground bg-muted/20 rounded-lg">
-              No transactions found
-            </div>
-          ) : (
-            transcList.map((transc) => (
-              <Card key={transc.id} className="p-4 flex flex-col gap-3">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="font-medium">{transc.description || "-"}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {format(
-                        new Date(transc.transaction_date),
-                        "MMM dd, yyyy",
-                      )}
-                    </p>
-                  </div>
-                  <span
-                    className={`font-bold ${transc.type === "INCOME" ? "text-green-500" : "text-red-500"}`}
-                  >
-                    {transc.type === "INCOME" ? "+" : "-"}
-                    {formatPrice(Number(transc.amount))}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center mt-2">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-1 rounded bg-secondary text-secondary-foreground text-xs">
-                      {transc.category?.name ?? "Unknown"}
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 gap-4">
+            {isLoading ? (
+              <div className="text-center p-8 text-muted-foreground bg-muted/20 rounded-lg">
+                Loading...
+              </div>
+            ) : transcList.length === 0 ? (
+              <div className="text-center p-8 text-muted-foreground bg-muted/20 rounded-lg">
+                No transactions found
+              </div>
+            ) : (
+              transcList.map((transc) => (
+                <Card key={transc.id} className="p-4 flex flex-col gap-3">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-medium">{transc.description || "-"}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {format(
+                          new Date(transc.transaction_date),
+                          "MMM dd, yyyy",
+                        )}
+                      </p>
+                    </div>
+                    <span
+                      className={`font-bold ${transc.type === "INCOME" ? "text-green-500" : "text-red-500"}`}
+                    >
+                      {transc.type === "INCOME" ? "+" : "-"}
+                      {formatPrice(Number(transc.amount))}
                     </span>
-                    <StatusPending transc={transc} onClick={setStatusTransc} />
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => openEditDialog(transc)}
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => handleDeleted(transc.id)}
-                    >
-                      <Trash2 className="h-4 w-4 text-red-500" />
-                    </Button>
+                  <div className="flex justify-between items-center mt-2">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-1 rounded bg-secondary text-secondary-foreground text-xs">
+                        {transc.category?.name ?? "Unknown"}
+                      </span>
+                      <StatusPending
+                        transc={transc}
+                        onClick={setStatusTransc}
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => openEditDialog(transc)}
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => handleDeleted(transc.id)}
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              </Card>
-            ))
-          )}
+                </Card>
+              ))
+            )}
+          </div>
+
+          <Card className="p-3">
+            <TablePagination
+              page={filterParams.page}
+              limit={filterParams.limit}
+              totalCount={totalCount}
+              isLoading={isLoading}
+              onPageChange={(e) =>
+                setFilterParams({ ...filterParams, page: e })
+              }
+              onLimitChange={(e) =>
+                setFilterParams({ ...filterParams, limit: e })
+              }
+            />
+          </Card>
         </div>
       ) : (
         <Card className="glassmorphism p-0 overflow-hidden">
@@ -400,6 +638,20 @@ export function TransactionsPage() {
               )}
             </TableBody>
           </Table>
+          <TableFooter className="px-3">
+            <TablePagination
+              page={filterParams.page}
+              limit={filterParams.limit}
+              totalCount={totalCount}
+              isLoading={isLoading}
+              onPageChange={(e) =>
+                setFilterParams({ ...filterParams, page: e })
+              }
+              onLimitChange={(e) =>
+                setFilterParams({ ...filterParams, limit: e })
+              }
+            />
+          </TableFooter>
         </Card>
       )}
 
@@ -427,25 +679,29 @@ export function TransactionsPage() {
             <DialogBody className="space-y-4 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Type</label>
-                  <select
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  <Label className="text-sm font-medium mb-1 block">Type</Label>
+                  <Select
                     value={type}
-                    onChange={(e) => {
-                      const newType = e.target.value as "INCOME" | "EXPENSE";
+                    onValueChange={(val) => {
+                      const newType = val as "INCOME" | "EXPENSE";
                       setType(newType);
                       setCategoryId("");
                       if (newType === "INCOME") setIsPending("N");
                     }}
                   >
-                    <option value="EXPENSE">Expense</option>
-                    <option value="INCOME">Income</option>
-                  </select>
+                    <SelectTrigger className="h-10 w-full">
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="EXPENSE">Expense</SelectItem>
+                      <SelectItem value="INCOME">Income</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">
+                  <Label className="text-sm font-medium mb-1 block">
                     Amount
-                  </label>
+                  </Label>
                   <Input
                     type="text"
                     value={displayValue}
@@ -467,13 +723,13 @@ export function TransactionsPage() {
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium mb-1 block">Status</label>
+                <Label className="text-sm font-medium mb-1 block">Status</Label>
                 <div className="flex gap-6">
                   {Status_Options.map((opt) => (
                     <label
                       key={opt.value}
                       className={`flex items-center gap-2 text-sm ${
-                        type === "INCOME"
+                        type === "INCOME" || !!editingTransaction
                           ? "cursor-not-allowed opacity-50"
                           : "cursor-pointer"
                       }`}
@@ -484,7 +740,7 @@ export function TransactionsPage() {
                         value={opt.value}
                         checked={isPending === opt.value}
                         onChange={() => setIsPending(opt.value)}
-                        disabled={type === "INCOME"}
+                        disabled={type === "INCOME" || !!editingTransaction}
                         className="h-4 w-4 accent-emerald-600"
                       />
                       {opt.label}
@@ -503,43 +759,43 @@ export function TransactionsPage() {
                 )}
               </div>
               <div>
-                <label className="text-sm font-medium mb-1 block">Wallet</label>
-                <select
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                <Label className="text-sm font-medium mb-1 block">Wallet</Label>
+                <Select
                   value={walletsId}
-                  onChange={(e) => setWalletsId(e.target.value)}
-                  required
+                  onValueChange={(val) => setWalletsId(val)}
                 >
-                  <option value="" disabled>
-                    Select a wallet
-                  </option>
-                  {walletDatas.map((w) => (
-                    <option key={w.id} value={w.id}>
-                      {w.name}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="h-10 w-full">
+                    <SelectValue placeholder="Select a wallet" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {walletDatas.map((w) => (
+                      <SelectItem key={w.id} value={String(w.id)}>
+                        {w.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-1 block">
+                <Label className="text-sm font-medium mb-1 block">
                   Category
-                </label>
-                <select
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                </Label>
+                <Select
                   value={categoryId}
-                  onChange={(e) => setCategoryId(e.target.value)}
-                  required
+                  onValueChange={(val) => setCategoryId(val)}
                 >
-                  <option value="" disabled>
-                    Select a category
-                  </option>
-                  {categories.map((c: CatgList) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="h-10 w-full">
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((c: CatgList) => (
+                      <SelectItem key={c.id} value={String(c.id)}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 {categories.length === 0 && (
                   <p className="text-xs text-red-500 mt-1">
                     No categories found for this type. Add one first.
@@ -548,7 +804,7 @@ export function TransactionsPage() {
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-1 block">Date</label>
+                <Label className="text-sm font-medium mb-1 block">Date</Label>
                 <Input
                   type="date"
                   value={transactionDate}
@@ -558,9 +814,9 @@ export function TransactionsPage() {
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-1 block">
+                <Label className="text-sm font-medium mb-1 block">
                   Description
-                </label>
+                </Label>
                 <Input
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}

@@ -305,12 +305,101 @@
         ]
       }
     },
-    "/api/transaction/history": {
+    "/api/transaction/list": {
       "get": {
         "tags": [
           "Transaction"
         ],
-        "summary": "Get transaction history with summary",
+        "summary": "Get transaction history",
+        "description": "",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "default": 1,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "default": 10,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "enum": [
+              "INCOME",
+              "EXPENSE"
+            ],
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category_id",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "wallet_id",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "is_pending",
+            "in": "query",
+            "enum": [
+              "Y",
+              "N"
+            ],
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "description": "YYYY-MM-DD",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "description": "YYYY-MM-DD",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/get-history": {
+      "get": {
+        "tags": [
+          "History"
+        ],
+        "summary": "Get history with summary",
         "description": "",
         "parameters": [
           {

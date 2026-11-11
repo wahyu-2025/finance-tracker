@@ -1,5 +1,6 @@
 import { useCallApi } from "@/hooks/useCallApi";
 import { apiConfig } from "@/config/api.config";
+import { TransactionListParams } from "@/api/transaction.service";
 
 const API_URL = apiConfig.financeTrack;
 
@@ -8,12 +9,12 @@ export interface TranscApiForm {
   category_id: number;
   type: string;
   amount: number;
-  is_pending: string;
+  is_pending?: string;
   transaction_date: string;
   description: string;
 }
 
-export interface TranscGetList {
+export interface dateRangeProps {
   startDate: string;
   endDate: string;
 }
@@ -21,10 +22,9 @@ export interface TranscGetList {
 export const UseTranscApi = () => {
   const { Postdata, Getdata, Putdata, Deletedata } = useCallApi();
 
-  const getTransc = async (params: TranscGetList) => {
-    const response = await Getdata(`${API_URL}/api/transaction/history`, {
-      startDate: params.startDate,
-      endDate: params.endDate,
+  const getTransc = async (params: TransactionListParams) => {
+    const response = await Getdata(`${API_URL}/api/transaction/list`, {
+      ...params,
     });
     return response;
   };

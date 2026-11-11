@@ -10,6 +10,7 @@ import { WalletController } from "../controllers/wallet";
 import { MonthlyReportController } from "../controllers/monthly-report";
 import { BudgetsController } from "../controllers/budgets";
 import { BudgetItemsController } from "../controllers/budget-items";
+import { HistoryController } from "../controllers/history";
 
 const guard = guardPre({
   requestProperty: "auth",
@@ -36,7 +37,10 @@ export class RoutePrivate {
     app.put("/api/transaction/update/:id", TransactionController.update);
     app.put("/api/transaction/confirm/:id", TransactionController.confirm);
     app.delete("/api/transaction/delete/:id", TransactionController.delete);
-    app.get("/api/transaction/history", TransactionController.getHistory);
+    app.get("/api/transaction/list", TransactionController.getTransaction);
+
+    // History Routes
+    app.get("/api/get-history", HistoryController.getHistory);
 
     // Custom Recap Routes
     app.post("/api/custom-recap/add", CustomRecapController.create);
