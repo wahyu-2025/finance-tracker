@@ -47,6 +47,8 @@ export class RoutePrivate {
 
     // Wallet Routes
     app.post("/api/wallet/add", WalletController.create);
+    app.put("/api/wallet/update/:id", WalletController.update);
+    app.delete("/api/wallet/delete/:id", WalletController.delete);
     app.get("/api/wallet/get", WalletController.getWallet);
     app.post("/api/wallet/transfer-balance", WalletController.transferBalance);
 

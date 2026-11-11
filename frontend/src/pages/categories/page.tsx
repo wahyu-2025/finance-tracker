@@ -1,7 +1,4 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { CategoryService, CategoryData } from "@/api/category.service";
-import { AxiosErrorResponse } from "@/types";
+import { useEffect, useState } from "react";
 import {
   Toolbar,
   ToolbarHeading,
@@ -31,91 +28,102 @@ import {
 import { Edit2, Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { CatgApiForm, UseCatgApi } from "./api/useCatgApi";
+import { CatgList } from "@/types";
 
 export function CategoriesPage() {
-  const queryClient = useQueryClient();
+  const { getCategory, postCategory, putCategory, deleteCategory } =
+    UseCatgApi();
   const isMobile = useIsMobile();
+  const [catgList, setCatgList] = useState<CatgList[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<CategoryData | null>(
-    null,
-  );
-
+  const [selectCatg, setSelectCatg] = useState<CatgList | null>(null);
+  const [editingCategory, setEditingCategory] = useState<CatgList | null>(null);
   const [name, setName] = useState("");
   const [type, setType] = useState<"INCOME" | "EXPENSE">("INCOME");
-
-  const { data: categoriesResponse, isLoading } = useQuery({
-    queryKey: ["categories"],
-    queryFn: CategoryService.getAll,
-  });
-
-  const categories = categoriesResponse?.data || [];
-
-  const resetForm = () => {
-    setName("");
-    setType("INCOME");
-    setEditingCategory(null);
-  };
+  const [reload, setReload] = useState(0);
 
   const openAddDialog = () => {
     resetForm();
     setIsDialogOpen(true);
   };
 
-  const openEditDialog = (category: CategoryData) => {
+  const openEditDialog = (category: CatgList) => {
     setEditingCategory(category);
+    setSelectCatg(category);
     setName(category.name);
     setType(category.type);
     setIsDialogOpen(true);
   };
 
-  const createMutation = useMutation({
-    mutationFn: CategoryService.create,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-      setIsDialogOpen(false);
-      toast.success("Category created successfully");
-    },
-    onError: (err: AxiosErrorResponse) => {
-      toast.error(err.response?.data?.message || "Failed to create category");
-    },
-  });
+  const resetForm = () => {
+    setName("");
+    setType("INCOME");
+    setEditingCategory(null);
+    setSelectCatg(null);
+  };
+  const triggerReload = () => {
+    setReload((prev) => prev + 1);
+  };
 
-  const updateMutation = useMutation({
-    mutationFn: (data: CategoryData) =>
-      CategoryService.update(data.id!, data.name, data.type),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-      setIsDialogOpen(false);
-      toast.success("Category updated successfully");
-    },
-    onError: (err: AxiosErrorResponse) => {
-      toast.error(err.response?.data?.message || "Failed to update category");
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: CategoryService.delete,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-      toast.success("Category deleted successfully");
-    },
-    onError: (err: AxiosErrorResponse) => {
-      toast.error(err.response?.data?.message || "Failed to delete category");
-    },
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editingCategory) {
-      updateMutation.mutate({ ...editingCategory, name, type });
+  const fetchCatgList = async () => {
+    setIsLoading(true);
+    const response = await getCategory();
+    if (response?.status) {
+      setCatgList(response.data);
     } else {
-      createMutation.mutate({ name, type });
+      toast.error("Table Gagal dimuat");
+    }
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    fetchCatgList();
+  }, [reload]);
+
+  const handleSumbit = async (data: CatgApiForm) => {
+    setIsLoading(true);
+    try {
+      if (editingCategory && selectCatg) {
+        const response = await putCategory(selectCatg.id, data);
+        if (response?.status) {
+          toast.success("Sukses cuyyyy");
+          setIsDialogOpen(false);
+          triggerReload();
+          resetForm();
+        } else {
+          toast.error("Di cek dulu ada yg belum di isi tuuh");
+        }
+      } else {
+        const response = await postCategory(data);
+        if (response?.status) {
+          toast.success("Sukses cuyyyy");
+          setIsDialogOpen(false);
+          triggerReload();
+          resetForm();
+        } else {
+          toast.error("Di cek dulu ada yg belum di isi tuuh");
+        }
+      }
+    } catch (error) {
+      toast.error("Cek semua nya dulu cuy ada yg janggal nih");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleDelete = (id: number) => {
-    if (confirm("Are you sure you want to delete this category?")) {
-      deleteMutation.mutate(id);
+  const handleDeleted = async (id: number) => {
+    try {
+      const response = await deleteCategory(id);
+      if (response?.status) {
+        toast.success("data nya berhasil ilang bro");
+        triggerReload();
+      } else {
+        toast.error(response?.message || "delete gagal bro");
+      }
+    } catch {
+      toast.error("delete gagal bro, cek koneksi lu dulu gih");
     }
   };
 
@@ -141,12 +149,12 @@ export function CategoriesPage() {
             <div className="text-center p-8 text-muted-foreground bg-muted/20 rounded-lg">
               Loading...
             </div>
-          ) : categories.length === 0 ? (
+          ) : catgList.length === 0 ? (
             <div className="text-center p-8 text-muted-foreground bg-muted/20 rounded-lg">
               No categories found
             </div>
           ) : (
-            categories.map((cat: CategoryData) => (
+            catgList.map((cat: CatgList) => (
               <Card key={cat.id} className="p-4 flex flex-col gap-3">
                 <div className="flex justify-between items-start">
                   <p className="font-medium text-base">{cat.name}</p>
@@ -170,7 +178,7 @@ export function CategoriesPage() {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={() => handleDelete(cat.id!)}
+                    onClick={() => handleDeleted(cat.id)}
                     disabled={cat.user_id === null}
                   >
                     <Trash2 className="h-4 w-4 text-red-500" />
@@ -197,14 +205,14 @@ export function CategoriesPage() {
                     Loading...
                   </TableCell>
                 </TableRow>
-              ) : categories.length === 0 ? (
+              ) : catgList.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={3} className="text-center h-24">
                     No categories found
                   </TableCell>
                 </TableRow>
               ) : (
-                categories.map((cat: CategoryData) => (
+                catgList.map((cat: CatgList) => (
                   <TableRow key={cat.id}>
                     <TableCell className="font-medium">{cat.name}</TableCell>
                     <TableCell>
@@ -227,7 +235,7 @@ export function CategoriesPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => handleDelete(cat.id!)}
+                          onClick={() => handleDeleted(cat.id)}
                           disabled={cat.user_id === null}
                         >
                           <Trash2 className="h-4 w-4 text-red-500" />
@@ -249,7 +257,12 @@ export function CategoriesPage() {
               {editingCategory ? "Edit Category" : "Add Category"}
             </DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSumbit({ name, type });
+            }}
+          >
             <DialogBody className="space-y-4 py-4">
               <div>
                 <label className="text-sm font-medium mb-1 block">Name</label>
@@ -283,10 +296,11 @@ export function CategoriesPage() {
                 Cancel
               </Button>
               <Button
-                type="submit"
-                disabled={createMutation.isPending || updateMutation.isPending}
+                type="button"
+                onClick={() => handleSumbit({ name, type })}
+                disabled={isLoading}
               >
-                Save
+                {isLoading ? "Saving..." : "Save"}
               </Button>
             </DialogFooter>
           </form>

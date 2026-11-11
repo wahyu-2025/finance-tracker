@@ -518,6 +518,75 @@
         }
       }
     },
+    "/api/wallet/update/{id}": {
+      "put": {
+        "tags": [
+          "Wallet"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Wallet ID"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWalletRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/wallet/delete/{id}": {
+      "delete": {
+        "tags": [
+          "Wallet"
+        ],
+        "summary": "Delete Wallet",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Wallet ID"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/wallet/get": {
       "get": {
         "tags": [
@@ -1295,6 +1364,27 @@
         }
       },
       "CreateWalletRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "BCA Utama"
+          },
+          "type": {
+            "type": "string",
+            "example": "BANK"
+          },
+          "initial_balance": {
+            "type": "number",
+            "example": 1000000
+          },
+          "balance": {
+            "type": "number",
+            "example": 1000000
+          }
+        }
+      },
+      "UpdateWalletRequest": {
         "type": "object",
         "properties": {
           "name": {
