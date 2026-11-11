@@ -23,7 +23,7 @@ function TableFooter({ className, ...props }: React.HTMLAttributes<HTMLTableSect
   return (
     <tfoot
       data-slot="table-footer"
-      className={cn('border-t bg-muted/50 font-medium last:[&>tr]:border-b-0', className)}
+      className={cn('border-t font-medium last:[&>tr]:border-b-0', className)}
       {...props}
     />
   );

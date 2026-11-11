@@ -1,4 +1,5 @@
-import api from './axiosInstance';
+import { Category, CategoryType, WalletList } from "@/types";
+import api from "./axiosInstance";
 
 export interface CustomRecapData {
   name: string;
@@ -18,23 +19,23 @@ export interface CustomRecapItem extends CustomRecapData {
 
 export const CustomRecapService = {
   create: async (data: CustomRecapData) => {
-    const response = await api.post('/api/custom-recap', data);
+    const response = await api.post("/api/custom-recap/add", data);
     return response.data;
   },
   getAll: async () => {
-    const response = await api.get('/api/custom-recap');
+    const response = await api.get("/api/custom-recap/get-all");
     return response.data;
   },
   getOne: async (id: number) => {
-    const response = await api.get(`/api/custom-recap/${id}`);
+    const response = await api.get(`/api/custom-recap/getById/${id}`);
     return response.data;
   },
   update: async (id: number, data: CustomRecapData) => {
-    const response = await api.put(`/api/custom-recap/${id}`, data);
+    const response = await api.put(`/api/custom-recap/update/${id}`, data);
     return response.data;
   },
   delete: async (id: number) => {
-    const response = await api.delete(`/api/custom-recap/${id}`);
+    const response = await api.delete(`/api/custom-recap/delete/${id}`);
     return response.data;
-  }
+  },
 };
