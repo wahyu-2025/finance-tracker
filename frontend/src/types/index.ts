@@ -234,3 +234,4 @@ export interface HistoryProps {
   wallets: WalletSummary[];
   history: HistoryTransactionItem[];
 }
+

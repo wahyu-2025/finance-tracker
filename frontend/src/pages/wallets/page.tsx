@@ -1,3 +1,6 @@
+import { useEffect, useState } from "react";
+import { Edit2, Plus, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import {
   Toolbar,
   ToolbarHeading,
@@ -15,18 +18,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useEffect, useState } from "react";
+import { ConfirmDialog } from "./component/deleteDialog";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { WalletList } from "@/types";
-import { Edit2, Plus, Trash2 } from "lucide-react";
-import WalletsDialog from "./WalletDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatPrice } from "@/lib/helpers";
+import { WalletList } from "@/types";
+import WalletsDialog from "./WalletDialog";
 import { useWalletsApi } from "./api/useWalletsApi";
-import { toast } from "sonner";
+
+const getTypeBadge = (type: string) =>
+  type === "CASH"
+    ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
+    : type === "BANK"
+      ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100"
+      : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100";
 
 const WalletsPage = () => {
-  const { getWalletList} = useWalletsApi();
+  const { getWalletList, deleteWallet } = useWalletsApi();
   const isMobile = useIsMobile();
   const { user } = useAuth();
   const [dataWallets, setDataWallets] = useState<WalletList[]>([]);
@@ -35,18 +43,19 @@ const WalletsPage = () => {
   const [selectedWallet, setSelectedWallet] = useState<WalletList | null>(null);
   const [actionType, setActionType] = useState<"add" | "edit">("add");
 
+  // State popup konfirmasi hapus
+  const [deleteTarget, setDeleteTarget] = useState<WalletList | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const fetchWalletList = async () => {
+    if (!user?.id) return;
     setIsLoading(true);
     try {
-      if (!user?.id) {
-        return;
+      const response = await getWalletList(user.id);
+      if (response?.status) {
+        setDataWallets(response.data);
       } else {
-        const response = await getWalletList(user.id);
-        if (response?.status) {
-          setDataWallets(response.data);
-        } else {
-          toast.error(response.message || "Table Gagal dimuat");
-        }
+        toast.error(response.message || "Table failed to load");
       }
     } catch {
       toast.error("Error Get Type Data");
@@ -57,6 +66,7 @@ const WalletsPage = () => {
 
   useEffect(() => {
     fetchWalletList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   const handleShowModal = (type: "add" | "edit", wallet?: WalletList) => {
@@ -65,11 +75,46 @@ const WalletsPage = () => {
     setIsDialogOpen(true);
   };
 
-  const handleCloseModal = () => {
-    setIsDialogOpen(false);
-    setSelectedWallet(null);
-    setActionType("add");
+  // Dipanggil saat tombol "Hapus" di popup konfirmasi diklik
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    try {
+      const response = await deleteWallet(deleteTarget.id);
+      if (response?.status) {
+        toast.success(response.message || "Wallet deleted successfully");
+        setDeleteTarget(null);
+        fetchWalletList();
+      } else {
+        toast.error(response?.message || "Failed to delete wallet");
+      }
+    } catch {
+      toast.error("There is an error");
+    } finally {
+      setIsDeleting(false);
+    }
   };
+
+  const ActionButtons = ({ wallet }: { wallet: WalletList }) => (
+    <div className="flex gap-1">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8"
+        onClick={() => handleShowModal("edit", wallet)}
+      >
+        <Edit2 className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8"
+        onClick={() => setDeleteTarget(wallet)}
+      >
+        <Trash2 className="h-4 w-4 text-red-500" />
+      </Button>
+    </div>
+  );
 
   return (
     <div className="container space-y-6">
@@ -91,59 +136,32 @@ const WalletsPage = () => {
             <div className="text-center p-8 text-muted-foreground bg-muted/20 rounded-lg">
               Loading...
             </div>
-          ) : dataWallets?.length === 0 ? (
+          ) : dataWallets.length === 0 ? (
             <div className="text-center p-8 text-muted-foreground bg-muted/20 rounded-lg">
-              No transactions found
+              No wallets found
             </div>
           ) : (
             dataWallets.map((wallet) => (
               <Card key={wallet.id} className="p-4 flex flex-col gap-3">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="font-medium">{wallet.name || "-"}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {/* {format(new Date(tx.transaction_date), "MMM dd, yyyy")} */}
-                    </p>
-                  </div>
+                <div className="flex justify-between items-start gap-3">
+                  <p className="font-medium truncate">{wallet.name || "-"}</p>
                   <span
-                    className={`px-2 py-1 rounded ${
-                      wallet.type === "CASH"
-                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
-                        : wallet.type === "BANK"
-                          ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
-                          : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100"
-                    } text-secondary-foreground text-xs`}
+                    className={`shrink-0 px-2 py-1 rounded-full text-xs font-semibold ${getTypeBadge(wallet.type)}`}
                   >
                     {wallet.type || "Unknown"}
                   </span>
                 </div>
-                <div className="flex justify-between items-center mt-2">
-                  <div className="flex flex-col gap-1">
-                    <p className="text-sm">
-                      Initial Balance: {formatPrice(wallet.initial_balance)}
+                <div className="flex justify-between items-end gap-3">
+                  <div className="flex flex-col gap-1 text-sm">
+                    <p className="text-muted-foreground">
+                      Initial:{" "}
+                      {formatPrice(Number(wallet.initial_balance ?? 0))}
                     </p>
-                    <p className="text-sm">
-                      Balance: {formatPrice(wallet.balance)}
+                    <p className="font-semibold">
+                      Balance: {formatPrice(Number(wallet.balance ?? 0))}
                     </p>
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      //   onClick={() => openEditDialog(tx)}
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      //   onClick={() => handleDelete(tx.id!)}
-                    >
-                      <Trash2 className="h-4 w-4 text-red-500" />
-                    </Button>
-                  </div>
+                  <ActionButtons wallet={wallet} />
                 </div>
               </Card>
             ))
@@ -168,52 +186,31 @@ const WalletsPage = () => {
                     Loading...
                   </TableCell>
                 </TableRow>
-              ) : dataWallets?.length === 0 ? (
+              ) : dataWallets.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center h-24">
-                    No transactions found
+                    No wallets found
                   </TableCell>
                 </TableRow>
               ) : (
-                dataWallets?.map((wallet) => (
-                  <TableRow
-                    key={wallet.id}
-                    onClick={() => setSelectedWallet(wallet)}
-                    className={
-                      selectedWallet?.id == wallet.id
-                        ? "bg-primary/10 hover:bg-primary/10"
-                        : ""
-                    }
-                  >
-                    <TableCell>{wallet.name}</TableCell>
-                    <TableCell className="font-medium">
+                dataWallets.map((wallet) => (
+                  <TableRow key={wallet.id}>
+                    <TableCell className="font-medium">{wallet.name}</TableCell>
+                    <TableCell>
                       <span
-                        className={`px-2 py-1 rounded-full text-xs font-semibold ${wallet.type === "CASH" ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100" : wallet.type === "BANK" ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100" : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100"}`}
+                        className={`px-2 py-1 rounded-full text-xs font-semibold ${getTypeBadge(wallet.type)}`}
                       >
                         {wallet.type}
                       </span>
                     </TableCell>
                     <TableCell>
-                      {formatPrice(wallet.initial_balance || 0)}
+                      {formatPrice(Number(wallet.initial_balance ?? 0))}
                     </TableCell>
-                    <TableCell>{formatPrice(wallet.balance || 0)}</TableCell>
+                    <TableCell className="font-semibold">
+                      {formatPrice(Number(wallet.balance ?? 0))}
+                    </TableCell>
                     <TableCell>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          //   onClick={() => openEditDialog(tx)}
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          //   onClick={() => handleDelete(tx.id!)}
-                        >
-                          <Trash2 className="h-4 w-4 text-red-500" />
-                        </Button>
-                      </div>
+                      <ActionButtons wallet={wallet} />
                     </TableCell>
                   </TableRow>
                 ))
@@ -229,6 +226,20 @@ const WalletsPage = () => {
         selectedWallet={selectedWallet}
         actionType={actionType}
         onSuccess={fetchWalletList}
+      />
+
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        title="Delete wallet?"
+        description={
+          <>
+            Wallet <b>{deleteTarget?.name}</b> will be deleted and cannot be
+            recovered.
+          </>
+        }
+        isLoading={isDeleting}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteTarget(null)}
       />
     </div>
   );

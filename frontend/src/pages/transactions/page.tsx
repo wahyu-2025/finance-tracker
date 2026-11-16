@@ -436,7 +436,7 @@ export function TransactionsPage() {
 
           <div>
             <Label className="text-xs text-muted-foreground block mb-1">
-              Status
+              Status476600
             </Label>
             <Select
               value={filterForm.is_pending || "ALL"}

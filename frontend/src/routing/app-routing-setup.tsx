@@ -12,6 +12,7 @@ import { ProfilePage } from "@/pages/profile/page";
 import { CategoriesPage } from "@/pages/categories/page";
 import { TransactionsPage } from "@/pages/transactions/page";
 import WalletsPage from "@/pages/wallets/page";
+import { BudgetPage } from "@/pages/budget/page";
 
 export function AppRoutingSetup() {
   return (
@@ -37,6 +38,7 @@ export function AppRoutingSetup() {
         <Route path="/categories" element={<CategoriesPage />} />
         <Route path="/transactions" element={<TransactionsPage />} />
         <Route path="/wallets" element={<WalletsPage />} />
+        <Route path="/budget" element={<BudgetPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
