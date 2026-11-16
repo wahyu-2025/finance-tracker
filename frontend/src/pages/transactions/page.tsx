@@ -562,6 +562,7 @@ export function TransactionsPage() {
                 <TableHead>Date</TableHead>
                 <TableHead>Description</TableHead>
                 <TableHead>Category</TableHead>
+                <TableHead>Wallet</TableHead>
                 <TableHead>Amount</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="w-25">Actions</TableHead>
@@ -595,6 +596,11 @@ export function TransactionsPage() {
                     <TableCell>
                       <span className="px-2 py-1 rounded bg-secondary text-secondary-foreground text-xs">
                         {transc.category?.name ?? "Unknown"}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <span className="px-2 py-1 rounded bg-secondary text-secondary-foreground text-xs">
+                        {transc.wallet?.name ?? "Unknown"}
                       </span>
                     </TableCell>
                     <TableCell>
