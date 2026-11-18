@@ -9,6 +9,20 @@ import { CategoryType, IsPendingType } from "../types/types";
 import { MonthlyReportService } from "../services/monthly-report";
 import { WalletHelper } from "../helpers/wallet";
 
+interface CreateTransactionItem {
+  category_id: number;
+  type: CategoryType;
+  amount: number;
+  transaction_date: Date;
+  is_pending: IsPendingType;
+  wallet_id: number;
+  description?: string | null;
+}
+
+interface CreateTransactionPayload {
+  transactions: CreateTransactionItem[];
+}
+
 export class TransactionController {
   static async create(req: Request, res: Response) {
     /* 
@@ -26,17 +40,22 @@ export class TransactionController {
     */
     try {
       const schema = Joi.object({
-        category_id: Joi.number().required(),
-        type: Joi.string()
-          .valid(CategoryType.INCOME, CategoryType.EXPENSE)
+        transactions: Joi.array()
+          .items({
+            category_id: Joi.number().positive().required(),
+            type: Joi.string()
+              .valid(CategoryType.INCOME, CategoryType.EXPENSE)
+              .required(),
+            amount: Joi.number().positive().required(),
+            transaction_date: Joi.date().iso().required(),
+            is_pending: Joi.string()
+              .valid(IsPendingType.Y, IsPendingType.N)
+              .default(IsPendingType.N),
+            wallet_id: Joi.number().positive().required(),
+            description: Joi.string().allow("", null).optional(),
+          })
+          .min(1)
           .required(),
-        amount: Joi.number().positive().required(),
-        transaction_date: Joi.date().iso().required(),
-        is_pending: Joi.string()
-          .valid(IsPendingType.Y, IsPendingType.N)
-          .default(IsPendingType.N),
-        wallet_id: Joi.number().required(),
-        description: Joi.string().allow("", null).optional(),
       });
 
       const { error, value } = schema.validate(req.body);
@@ -45,82 +64,120 @@ export class TransactionController {
       }
 
       const userId = req.auth?.id;
-      const amount = Number(value.amount);
+      const payload = value as CreateTransactionPayload;
 
-      return await OrmHelper.DB.transaction(async (manager) => {
-        const categoryRepository = manager.getRepository(Category);
-        const transactionRepository = manager.getRepository(Transaction);
-
-        // 1. Validasi Kategori
-        const category = await categoryRepository.findOne({
-          where: { id: value.category_id },
-        });
-        if (
-          !category ||
-          (category.user_id !== null && category.user_id !== userId)
-        ) {
-          return ReturnHelper.errorResponse(res, 400, 400, "Invalid category");
-        }
-
-        const isSettled = value.is_pending === IsPendingType.N;
-
-        // 2. Update Saldo Wallet jika bukan pending
-        if (isSettled) {
-          const balanceRes = await WalletHelper.adjustBalance({
-            manager,
-            walletId: value.wallet_id,
-            userId,
-            type: value.type,
-            amount,
-            action: "APPLY",
-          });
-
-          if (balanceRes.error) {
-            return ReturnHelper.errorResponse(res, 400, 400, balanceRes.error);
-          }
-        } else {
-          // Jika pending, cukup pastikan wallet valid dan milik user
+      const savedTransactions = await OrmHelper.DB.transaction(
+        async (manager) => {
+          const categoryRepository = manager.getRepository(Category);
+          const transactionRepository = manager.getRepository(Transaction);
           const walletRepository = manager.getRepository(Wallet);
-          const wallet = await walletRepository.findOne({
-            where: { id: value.wallet_id },
-          });
-          if (!wallet || wallet.user_id !== userId) {
-            return ReturnHelper.errorResponse(res, 400, 400, "Invalid wallet");
+
+          // 1. Validasi Kategori
+          for (const item of payload.transactions) {
+            const category = await categoryRepository.findOne({
+              where: { id: item.category_id },
+            });
+            if (
+              !category ||
+              (category.user_id !== null && category.user_id !== userId)
+            ) {
+              throw new Error("Invalid category");
+            }
+
+            if (category.type !== item.type) {
+              throw new Error("Category type does not match transaction type");
+            }
+
+            const wallet = await walletRepository.findOne({
+              where: { id: item.wallet_id },
+            });
+            if (!wallet || wallet.user_id !== userId) {
+              throw new Error("Invalid wallet");
+            }
           }
+
+          for (const item of payload.transactions) {
+            const isSettled = item.is_pending === IsPendingType.N;
+
+            if (!isSettled) continue;
+
+            // 2. Update Saldo Wallet jika bukan pending
+            const balanceRes = await WalletHelper.adjustBalance({
+              manager,
+              walletId: item.wallet_id,
+              userId,
+              type: item.type,
+              amount: item.amount,
+              action: "APPLY",
+            });
+
+            if (balanceRes.error) {
+              throw new Error(balanceRes.error);
+            }
+          }
+
+          // 3. Simpan Transaksi
+          const newTransaction = payload.transactions.map((item) =>
+            transactionRepository.create({
+              user_id: userId,
+              category_id: item.category_id,
+              type: item.type,
+              amount: item.amount,
+              is_pending: item.is_pending,
+              wallet_id: item.wallet_id,
+              transaction_date: item.transaction_date,
+              description: item.description,
+            }),
+          );
+
+          return await transactionRepository.save(newTransaction);
+        },
+      );
+
+      // 5. Sync monthly report setelah database transaction berhasil
+      const affectedMonths = new Map<string, Date>();
+
+      for (const transaction of savedTransactions) {
+        const date = new Date(transaction.transaction_date);
+
+        const monthKey = `${date.getFullYear()}-${date.getMonth() + 1}`;
+
+        if (
+          transaction.is_pending === IsPendingType.N &&
+          !affectedMonths.has(monthKey)
+        ) {
+          affectedMonths.set(monthKey, date);
         }
+      }
 
-        // 3. Simpan Transaksi
-        const newTransaction = transactionRepository.create({
-          user_id: userId,
-          category_id: value.category_id,
-          type: value.type,
-          amount: amount,
-          is_pending: value.is_pending,
-          wallet_id: value.wallet_id,
-          transaction_date: value.transaction_date,
-          description: value.description,
-        });
+      await Promise.all(
+        Array.from(affectedMonths.values()).map((date) =>
+          MonthlyReportService.syncMonth(userId, date).catch(() => {}),
+        ),
+      );
 
-        const savedTransaction =
-          await transactionRepository.save(newTransaction);
-
-        // Sync monthly report secara asynchronous jika settled
-        if (isSettled) {
-          MonthlyReportService.syncMonth(
-            userId,
-            savedTransaction.transaction_date,
-          ).catch(() => {});
-        }
-
-        return ReturnHelper.successResponseAny(
-          res,
-          201,
-          "Transaction created successfully",
-          savedTransaction,
-        );
-      });
+      return ReturnHelper.successResponseAny(
+        res,
+        201,
+        "Transaction created successfully",
+        // savedTransactions,
+      );
     } catch (err: unknown) {
-      return ReturnHelper.errorResponse(res, 500, 500, (err as Error).message);
+      const error = err as Error;
+
+      const statusCode =
+        error.message === "Invalid category" ||
+        error.message === "Invalid wallet" ||
+        error.message.startsWith("Insufficient")
+          ? 400
+          : 500;
+
+      return ReturnHelper.errorResponse(
+        res,
+        statusCode,
+        statusCode,
+        error.message,
+      );
     }
   }
 
