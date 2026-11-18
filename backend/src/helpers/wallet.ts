@@ -29,11 +29,18 @@ export class WalletHelper {
   }): Promise<{ wallet?: Wallet; error?: string }> {
     const walletRepository = manager.getRepository(Wallet);
 
+    if (type !== CategoryType.INCOME && type !== CategoryType.EXPENSE) {
+      return { error: "Invalid transaction type" };
+    }
+
     const wallet = await walletRepository.findOne({
-      where: { id: walletId },
+      where: { id: walletId, user_id: userId },
+      lock: {
+        mode: "pessimistic_write",
+      },
     });
 
-    if (!wallet || wallet.user_id !== userId) {
+    if (!wallet) {
       return { error: "Invalid wallet" };
     }
 
