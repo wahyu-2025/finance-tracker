@@ -1359,33 +1359,41 @@
       "CreateTransactionRequest": {
         "type": "object",
         "properties": {
-          "wallet_id": {
-            "type": "number",
-            "example": 1
-          },
-          "category_id": {
-            "type": "number",
-            "example": 1
-          },
-          "type": {
-            "type": "string",
-            "example": "EXPENSE"
-          },
-          "amount": {
-            "type": "number",
-            "example": 50000
-          },
-          "is_pending": {
-            "type": "string",
-            "example": "N"
-          },
-          "transaction_date": {
-            "type": "string",
-            "example": "2026-10-26"
-          },
-          "description": {
-            "type": "string",
-            "example": "Makan siang"
+          "transactions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "wallet_id": {
+                  "type": "number",
+                  "example": 1
+                },
+                "category_id": {
+                  "type": "number",
+                  "example": 1
+                },
+                "type": {
+                  "type": "string",
+                  "example": "EXPENSE"
+                },
+                "amount": {
+                  "type": "number",
+                  "example": 50000
+                },
+                "is_pending": {
+                  "type": "string",
+                  "example": "N"
+                },
+                "transaction_date": {
+                  "type": "string",
+                  "example": "2026-10-26"
+                },
+                "description": {
+                  "type": "string",
+                  "example": "Makan siang"
+                }
+              }
+            }
           }
         }
       },

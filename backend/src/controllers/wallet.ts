@@ -70,12 +70,12 @@ export class WalletController {
         user_id: userId,
       });
 
-      const savedWallet = await walletRepository.save(newWallet);
+      await walletRepository.save(newWallet);
+
       return ReturnHelper.successResponseAny(
         res,
         201,
         "Wallet created successfully",
-        savedWallet,
       );
     } catch (error) {
       return ReturnHelper.errorResponse(res, 500, 500, error.message);
@@ -176,17 +176,16 @@ export class WalletController {
         return ReturnHelper.errorResponse(res, 400, 400, error.message);
       }
 
-      wallet.name = value.wallet;
+      wallet.name = value.name;
       wallet.type = value.type;
       wallet.initial_balance = value.initial_balance;
       wallet.balance = value.balance ? value.balance : value.initial_balance;
 
-      const savedWallet = await walletRepository.save(wallet);
+      await walletRepository.save(wallet);
       return ReturnHelper.successResponseAny(
         res,
         201,
-        "Wallet created successfully",
-        savedWallet,
+        "Wallet update successfully",
       );
     } catch (error) {
       return ReturnHelper.errorResponse(res, 500, 500, error.message);

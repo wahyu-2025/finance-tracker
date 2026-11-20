@@ -70,13 +70,17 @@ const doc = {
         type: "EXPENSE",
       },
       CreateTransactionRequest: {
-        wallet_id: 1,
-        category_id: 1,
-        type: "EXPENSE",
-        amount: 50000,
-        is_pending: "N",
-        transaction_date: "2026-10-26",
-        description: "Makan siang",
+        transactions: [
+          {
+            wallet_id: 1,
+            category_id: 1,
+            type: "EXPENSE",
+            amount: 50000,
+            is_pending: "N",
+            transaction_date: "2026-10-26",
+            description: "Makan siang",
+          },
+        ],
       },
       UpdateTransactionRequest: {
         wallet_id: 1,
