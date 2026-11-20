@@ -13,7 +13,7 @@ const StatusPending = ({ transc, onClick }: StatusBadgeProps) => {
       type="button"
       onClick={() => onClick(transc)}
       disabled={!canChange}
-      title={canChange ? "Klik untuk ubah status" : undefined}
+      title={canChange ? "Click to change status" : undefined}
       className={`rounded-full px-2.5 py-1 text-xs font-semibold transition disabled:cursor-default ${
         transc.is_pending === "Y"
           ? "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-100"

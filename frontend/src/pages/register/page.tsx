@@ -16,9 +16,9 @@ import {
 } from "lucide-react";
 
 const Features = [
-  "Catat pemasukan dan pengeluaran",
-  "Atur budget bulanan per kategori",
-  "Pantau saldo semua wallet",
+  "Record income and expenses",
+  "Set a monthly budget by category",
+  "Monitor the balances of all wallets",
 ];
 
 const TagLine = [
@@ -72,16 +72,6 @@ export function RegisterPage() {
           alt="Finance Tracker"
           className="h-65 w-auto self-start"
         />
-        {/* <div className="max-w-md ">
-          <h2 className="text-5xl font-bold leading-tight text-white">
-            Pantau setiap rupiah, capai setiap target.
-          </h2>
-          <p className="mt-4 text-slate-400">
-            Catat transaksi, atur anggaran bulanan, dan lihat ke mana uangmu
-            pergi, semua di satu tempat.
-          </p>
-        </div> */}
-
         <div
           className={`relative mt-12 max-w-md xl:mt-14 ${animasi("delay-100")}`}
         >
@@ -118,8 +108,8 @@ export function RegisterPage() {
             ))}
           </h2>
           <p className="mt-4 text-slate-400">
-            Catat transaksi, atur anggaran bulanan, dan lihat ke mana uangmu
-            pergi, semua di satu tempat.
+            Record transactions, set a monthly budget, and see where your money
+            goes all in one place.
           </p>
           <ul className="mt-8 space-y-3">
             {Features.map((f) => (
@@ -145,7 +135,7 @@ export function RegisterPage() {
               Total Saldo
             </div>
             <p className="mt-2 text-lg font-bold text-white">Rp 12.450.000</p>
-            <p className="mt-1 text-xs text-emerald-400">+8% bulan ini</p>
+            <p className="mt-1 text-xs text-emerald-400">+8% this month</p>
           </div>
           {/* card 2 */}
           <div className="rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur transition duration-300 hover:-translate-y-1 hover:border-emerald-400/100">
@@ -154,7 +144,7 @@ export function RegisterPage() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
               </span>
-              <span className="text-slate-400">Budget Makan</span>
+              <span className="text-slate-400">Food Budget</span>
               <span className="font-semibold text-white">80%</span>
             </div>
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
@@ -172,7 +162,7 @@ export function RegisterPage() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
               </span>
-              <span className="text-slate-400">Cicilan Motor</span>
+              <span className="text-slate-400">Motorcycle Installments</span>
               <span className="font-semibold text-white">20%</span>
             </div>
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
@@ -204,19 +194,19 @@ export function RegisterPage() {
               className="h-9 w-auto sm:h-10"
             />
             <p className="mt-6 font-['Plus_Jakarta_Sans',sans-serif] text-2xl font-extrabold leading-tight tracking-tight text-white sm:text-3xl">
-              Pantau setiap{" "}
+              Monitor Every setiap{" "}
               <span className="bg-gradient-to-r from-emerald-300 to-teal-200 bg-clip-text text-transparent">
-                rupiah
+                Rupiah
               </span>
-              , capai setiap{" "}
+              , Achieve Every{" "}
               <span className="bg-gradient-to-r from-emerald-300 to-teal-200 bg-clip-text text-transparent">
-                target
+                Target
               </span>
               .
             </p>
             <p className="mt-2 hidden text-sm text-slate-400 sm:block">
-              Catat transaksi, atur anggaran bulanan, dan lihat ke mana uangmu
-              pergi.
+              Record transactions, set a monthly budget, and see where your
+              money goes.
             </p>
           </div>
         </div>
@@ -290,9 +280,7 @@ export function RegisterPage() {
                     onClick={() => setShowPassword((p) => !p)}
                     className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-muted-foreground hover:text-foreground"
                     aria-label={
-                      showPassword
-                        ? "Sembunyikan Password"
-                        : "Tampilkan Password"
+                      showPassword ? "Hide Password" : "Show Password"
                     }
                   >
                     {showPassword ? (
@@ -326,6 +314,4 @@ export function RegisterPage() {
       </div>
     </div>
   );
-
- 
 }

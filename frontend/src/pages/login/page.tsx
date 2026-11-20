@@ -15,18 +15,18 @@ export interface ErrorResponseType {
 }
 
 const Features = [
-  "Catat pemasukan dan pengeluaran",
-  "Atur budget bulanan per kategori",
-  "Pantau saldo semua wallet",
+  "Record income and expenses",
+  "Set a monthly budget by category",
+  "Monitor the balances of all wallets",
 ];
 
 const TagLine = [
-  { text: "Pantau" },
-  { text: "setiap" },
-  { text: "rupiah,", highlight: true },
-  { text: "capai" },
-  { text: "setiap" },
-  { text: "target.", highlight: true, underline: true },
+  { text: "Monitor" },
+  { text: "Every" },
+  { text: "Rupiah,", highlight: true },
+  { text: "Achieve" },
+  { text: "Every" },
+  { text: "Target.", highlight: true, underline: true },
 ];
 
 export function LoginPage() {
@@ -113,8 +113,8 @@ export function LoginPage() {
             ))}
           </h2>
           <p className="mt-4 text-slate-400">
-            Catat transaksi, atur anggaran bulanan, dan lihat ke mana uangmu
-            pergi, semua di satu tempat.
+            Record transactions, set a monthly budget, and see where your money
+            goes all in one place.
           </p>
           <ul className="mt-8 space-y-3">
             {Features.map((f) => (
@@ -137,10 +137,10 @@ export function LoginPage() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
               </span>
-              Total Saldo
+              Total Balance
             </div>
             <p className="mt-2 text-lg font-bold text-white">Rp 12.450.000</p>
-            <p className="mt-1 text-xs text-emerald-400">+8% bulan ini</p>
+            <p className="mt-1 text-xs text-emerald-400">+8% this month</p>
           </div>
           {/* card 2 */}
           <div className="rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur transition duration-300 hover:-translate-y-1 hover:border-emerald-400/100">
@@ -149,7 +149,7 @@ export function LoginPage() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
               </span>
-              <span className="text-slate-400">Budget Makan</span>
+              <span className="text-slate-400">Food Budget</span>
               <span className="font-semibold text-white">80%</span>
             </div>
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
@@ -167,7 +167,7 @@ export function LoginPage() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
               </span>
-              <span className="text-slate-400">Cicilan Motor</span>
+              <span className="text-slate-400">Motorcycle Installments</span>
               <span className="font-semibold text-white">20%</span>
             </div>
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
@@ -210,8 +210,8 @@ export function LoginPage() {
               .
             </p>
             <p className="mt-2 hidden text-sm text-slate-400 sm:block">
-              Catat transaksi, atur anggaran bulanan, dan lihat ke mana uangmu
-              pergi.
+              Record transactions, set a monthly budget, and see where your
+              money goes.
             </p>
           </div>
         </div>
@@ -220,11 +220,10 @@ export function LoginPage() {
         <div className="flex flex-1 items-start justify-center px-5 pb-[max(2rem,env(safe-area-inset-bottom))] pt-40 sm:px-10 sm:pt-12 lg:items-center lg:p-12">
           <div className={`w-full max-w-md ${animasi("delay-150")}`}>
             <h1 className="text-center text-2xl font-bold text-foreground sm:text-3xl">
-              Selamat Datang Kembali
+              Welcome back
             </h1>
             <p className="mt-2 text-center text-sm text-foreground sm:text-base">
-              Masuk untuk mendapatkan pengalaman baru menggunakan Finance
-              Tracker
+              Log in to enjoy a new experience using Finance Tracker
             </p>
             {error && (
               <div className="mb-4 text-sm text-red-500 text-center">
@@ -302,7 +301,6 @@ export function LoginPage() {
             </div>
           </div>
         </div>
-        {/* sini */}
       </div>
     </div>
   );

@@ -34,12 +34,12 @@ const DialogPending = ({
     >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Ubah Status Transaksi</DialogTitle>
+          <DialogTitle>Change Transaction Status</DialogTitle>
         </DialogHeader>
 
         <DialogBody className="space-y-3 py-4 text-sm">
           <p>
-            Ubah status transaksi ini menjadi{" "}
+            Change the status of this transaction to{" "}
             <b>{toSuccess ? "Success" : "Pending"}</b>?
           </p>
 
@@ -56,21 +56,21 @@ const DialogPending = ({
 
           <p className="text-xs text-muted-foreground">
             {toSuccess
-              ? "Setelah Success, saldo wallet akan berkurang sesuai nominal."
-              : "Setelah Pending, nominal ini tidak lagi memotong saldo wallet sampai ditandai Success."}
+              ? "Once successful, the wallet balance will decrease by the corresponding amount."
+              : "Once in Pending status, this amount will no longer be deducted from your wallet balance until it is marked as Success."}
           </p>
         </DialogBody>
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            Batal
+            Cancel
           </Button>
           <Button onClick={onConfirm} disabled={isUpdating}>
             {isUpdating
-              ? "Menyimpan..."
+              ? "Saving..."
               : toSuccess
-                ? "Tandai Success"
-                : "Tandai Pending"}
+                ? "Mark as Success"
+                : "Mark as Pending"}
           </Button>
         </DialogFooter>
       </DialogContent>

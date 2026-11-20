@@ -53,7 +53,6 @@ const DialogBudgetDetail = ({
     : { totalAmount: 0, usage: 0, remaining: 0, percentage: 0 };
   const summaryColor = getUsageColor(summary.percentage);
 
-  // Kategori yang belum ada di budget ini
   const usedIds = items.map((item) => item.category_id);
   const availableCategories = categories.filter((c) => !usedIds.includes(c.id));
 
@@ -111,7 +110,9 @@ const DialogBudgetDetail = ({
       >
         <DialogContent className="w-[calc(100%-1.5rem)] max-w-2xl p-0 sm:w-full">
           <DialogHeader className="border-b px-4 py-4 sm:px-6">
-            <DialogTitle className="truncate pr-6">{budget?.name}</DialogTitle>
+            <DialogTitle className="truncate pr-6 p-2">
+              {budget?.name}
+            </DialogTitle>
             {budget && (
               <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <CalendarDays className="h-3.5 w-3.5 shrink-0" />
@@ -121,7 +122,6 @@ const DialogBudgetDetail = ({
           </DialogHeader>
 
           <DialogBody className="max-h-[75dvh] space-y-5 overflow-y-auto px-4 py-4 sm:px-6">
-            {/* Ringkasan */}
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
               <StatBox label="Total Budget" value={summary.totalAmount} />
               <StatBox label="Usage" value={summary.usage} />
@@ -171,7 +171,10 @@ const DialogBudgetDetail = ({
                   const color = getUsageColor(percentage);
 
                   return (
-                    <div key={item.id} className="rounded-lg border p-3">
+                    <div
+                      key={item.id}
+                      className="rounded-lg border p-3 transition hover:-translate-y-1 hover:border-emerald-500/100"
+                    >
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <div className="flex min-w-0 flex-wrap items-center gap-2">
@@ -224,11 +227,13 @@ const DialogBudgetDetail = ({
 
             <form onSubmit={handleAdd} className="space-y-2 border-t pt-4">
               <p className="text-sm font-semibold">Add Budget Items</p>
-              <Input
-                value={itemName}
-                onChange={(e) => setItemName(e.target.value)}
-                placeholder="Input Name......"
-              />
+              <div className="h-12">
+                <Input
+                  value={itemName}
+                  onChange={(e) => setItemName(e.target.value)}
+                  placeholder="Input Name......"
+                />
+              </div>
               <div className="flex flex-col gap-2 sm:flex-row">
                 <select
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:flex-1"
@@ -276,7 +281,7 @@ const DialogBudgetDetail = ({
         </DialogContent>
       </Dialog>
 
-     <ConfirmDialog
+      <ConfirmDialog
         open={deleteItem !== null}
         title="Delete budget item?"
         description={

@@ -42,8 +42,6 @@ const WalletsPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedWallet, setSelectedWallet] = useState<WalletList | null>(null);
   const [actionType, setActionType] = useState<"add" | "edit">("add");
-
-  // State popup konfirmasi hapus
   const [deleteTarget, setDeleteTarget] = useState<WalletList | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -66,7 +64,6 @@ const WalletsPage = () => {
 
   useEffect(() => {
     fetchWalletList();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   const handleShowModal = (type: "add" | "edit", wallet?: WalletList) => {
@@ -75,7 +72,7 @@ const WalletsPage = () => {
     setIsDialogOpen(true);
   };
 
-  // Dipanggil saat tombol "Hapus" di popup konfirmasi diklik
+
   const handleConfirmDelete = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);

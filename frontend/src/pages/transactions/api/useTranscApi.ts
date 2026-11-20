@@ -14,8 +14,6 @@ export interface TranscApiForm {
   description: string;
 }
 
-
-
 export const UseTranscApi = () => {
   const { Postdata, Getdata, Putdata, Deletedata } = useCallApi();
 
@@ -27,7 +25,9 @@ export const UseTranscApi = () => {
   };
 
   const postTransac = async (data: TranscApiForm) => {
-    const response = await Postdata(`${API_URL}/api/transaction/add`, data);
+    const response = await Postdata(`${API_URL}/api/transaction/add`, {
+      transactions: [data],
+    });
 
     return response;
   };

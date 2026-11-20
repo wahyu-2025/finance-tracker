@@ -155,7 +155,7 @@ export function TransactionsPage() {
       }
       setTotalCount(response.data?.total_count || 0);
     } else {
-      toast.error(response.message || "Table Gagal dimuat bro");
+      toast.error(response.message || "Table failed to load");
     }
     setIsLoading(false);
   };
@@ -247,28 +247,28 @@ export function TransactionsPage() {
         delete data.is_pending;
         const response = await putTransac(selectTransc.id, data);
         if (response?.status) {
-          toast.success(response.message || "Sukses Cuyyyy");
+          toast.success(
+            response.message || "Transactions successfully Updated",
+          );
           setIsDialogOpen(false);
           triggerReload();
           resetForm();
         } else {
-          toast.error(
-            response.message || "Di cek dulu ada yg belum di isi tuuh",
-          );
+          toast.error(response.message || "Failed to change Transaction");
         }
       } else {
         const response = await postTransac(data);
         if (response?.status) {
-          toast.success(
-            response.message || "Di cek dulu ada yg belum di isi tuuh",
-          );
+          toast.success(response.message || "Transaction successfully added");
           setIsDialogOpen(false);
           triggerReload();
           resetForm();
+        } else {
+          toast.error(response.message || "Failed to added Transaction");
         }
       }
     } catch {
-      toast.error("Cek semua nya dulu cuyy ada yang janggal nih");
+      toast.error("There is an error");
     } finally {
       setIsLoading(false);
     }
@@ -278,13 +278,13 @@ export function TransactionsPage() {
     try {
       const response = await deleteTransc(id);
       if (response?.status) {
-        toast.success(response.message || "Data nya berhasil ilang ni bro");
+        toast.success(response.message || "Transaction deleted successfully");
         triggerReload();
       } else {
-        toast.error(response.message || "delete gagal bro");
+        toast.error(response.message || "Failed to delete Transaction");
       }
     } catch {
-      toast.error("delete gagal bro, cek koneksi lu dulu gih");
+      toast.error("There is an error");
     }
   };
 
@@ -294,14 +294,14 @@ export function TransactionsPage() {
     try {
       const response = await confirmTransc(statusTransc.id);
       if (response?.status) {
-        toast.success("Status berhasil diubah jadi Success");
+        toast.success("Status successfully changed to Success");
         setStatusTransc(null);
         triggerReload();
       } else {
-        toast.error(response?.message || "Gagal mengubah status");
+        toast.error(response?.message || "Failed to change status");
       }
     } catch {
-      toast.error("Terjadi kesalahan, coba lagi");
+      toast.error("An error occurred, please try again");
     } finally {
       setIsUpdatingStatus(false);
     }
@@ -436,7 +436,7 @@ export function TransactionsPage() {
 
           <div>
             <Label className="text-xs text-muted-foreground block mb-1">
-              Status476600
+              Status
             </Label>
             <Select
               value={filterForm.is_pending || "ALL"}
@@ -755,12 +755,12 @@ export function TransactionsPage() {
                 </div>
                 {type === "INCOME" && (
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Status pending hanya untuk pengeluaran.
+                    Pending status is for expenses only.
                   </p>
                 )}
                 {type === "EXPENSE" && isPending === "Y" && (
                   <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
-                    Transaksi pending belum memotong saldo wallet.
+                    Pending transactions have not yet deducted the wallet balance.
                   </p>
                 )}
               </div>

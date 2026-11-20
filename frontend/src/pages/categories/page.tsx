@@ -30,6 +30,7 @@ import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { CatgApiForm, UseCatgApi } from "./api/useCatgApi";
 import { CatgList } from "@/types";
+import { ConfirmDialog } from "@/components/ui/deletedCompont";
 
 export function CategoriesPage() {
   const { getCategory, postCategory, putCategory, deleteCategory } =
@@ -43,6 +44,8 @@ export function CategoriesPage() {
   const [name, setName] = useState("");
   const [type, setType] = useState<"INCOME" | "EXPENSE">("INCOME");
   const [reload, setReload] = useState(0);
+  const [deleteTarget, setDeleteTarget] = useState<CatgList | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const openAddDialog = () => {
     resetForm();
@@ -73,7 +76,7 @@ export function CategoriesPage() {
     if (response?.status) {
       setCatgList(response.data);
     } else {
-      toast.error("Table Gagal dimuat");
+      toast.error(response.message || "Table failed to load");
     }
     setIsLoading(false);
   };
@@ -88,46 +91,46 @@ export function CategoriesPage() {
       if (editingCategory && selectCatg) {
         const response = await putCategory(selectCatg.id, data);
         if (response?.status) {
-          toast.success(response.message || "Sukses cuyyyy");
+          toast.success(response.message || "Categories successfully Update");
           setIsDialogOpen(false);
           triggerReload();
           resetForm();
         } else {
-          toast.error(
-            response.message || "Di cek dulu ada yg belum di isi tuuh",
-          );
+          toast.error(response.message || "Failed to change Categories");
         }
       } else {
         const response = await postCategory(data);
         if (response?.status) {
-          toast.success(response.message || "Sukses cuyyyy");
+          toast.success(response.message || "Wallet successfully Added");
           setIsDialogOpen(false);
           triggerReload();
           resetForm();
         } else {
-          toast.error(
-            response.message || "Di cek dulu ada yg belum di isi tuuh",
-          );
+          toast.error(response.message || "Failed to change Categories");
         }
       }
     } catch (error) {
-      toast.error("Cek semua nya dulu cuy ada yg janggal nih");
+      toast.error("There is an error");
     } finally {
       setIsLoading(false);
     }
   };
-
-  const handleDeleted = async (id: number) => {
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
     try {
-      const response = await deleteCategory(id);
+      const response = await deleteCategory(deleteTarget.id);
       if (response?.status) {
-        toast.success(-response.message || "data nya berhasil ilang bro");
+        toast.success(response.message || "Categories deleted successfully");
+        setDeleteTarget(null);
         triggerReload();
       } else {
-        toast.error(response?.message || "delete gagal bro");
+        toast.error(response?.message || "Failed to delete wallet");
       }
     } catch {
-      toast.error("delete gagal bro, cek koneksi lu dulu gih");
+      toast.error("There is an error");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -182,7 +185,7 @@ export function CategoriesPage() {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={() => handleDeleted(cat.id)}
+                    onClick={() => setDeleteTarget(cat)}
                     disabled={cat.user_id === null}
                   >
                     <Trash2 className="h-4 w-4 text-red-500" />
@@ -239,7 +242,7 @@ export function CategoriesPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => handleDeleted(cat.id)}
+                          onClick={() => setDeleteTarget(cat)}
                           disabled={cat.user_id === null}
                         >
                           <Trash2 className="h-4 w-4 text-red-500" />
@@ -310,6 +313,20 @@ export function CategoriesPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        title="Delete ?"
+        description={
+          <>
+            Wallet <b>{deleteTarget?.name}</b> will be deleted and cannot be
+            recovered.
+          </>
+        }
+        isLoading={isDeleting}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

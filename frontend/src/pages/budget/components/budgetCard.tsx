@@ -102,7 +102,7 @@ const BudgetCard = ({
 
       <ConfirmDialog
         open={isConfirmOpen}
-        title="Delete Budget ?"
+        title="Delete ?"
         description={
           <>
             Budget <b>{budget.name}</b>
