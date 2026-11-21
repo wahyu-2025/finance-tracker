@@ -81,17 +81,10 @@ export function ReportsPage() {
       </Toolbar>
 
       <Tabs defaultValue="custom" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="realtime">Realtime</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="bulanan">Bulanan</TabsTrigger>
           <TabsTrigger value="custom">Custom</TabsTrigger>
         </TabsList>
-        <TabsContent
-          value="realtime"
-          className="p-4 text-center text-muted-foreground"
-        >
-          Fitur Realtime belum tersedia.
-        </TabsContent>
         <TabsContent
           value="bulanan"
           className="p-4 text-center text-muted-foreground"

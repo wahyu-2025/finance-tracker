@@ -307,6 +307,13 @@ export function TransactionsPage() {
     }
   };
 
+  const formCategories = categories.filter((c) => c.type === type);
+
+  // ✅ Kategori untuk filter bar: ikut type filter (kalau dipilih)
+  const filterCategories = filterForm.type
+    ? categories.filter((c) => c.type === filterForm.type)
+    : categories;
+
   return (
     <div className="container space-y-6">
       <Toolbar>
@@ -398,7 +405,7 @@ export function TransactionsPage() {
               </SelectTrigger>
               <SelectContent side="bottom">
                 <SelectItem value="ALL">All Categories</SelectItem>
-                {categories.map((cat) => (
+                {filterCategories.map((cat) => (
                   <SelectItem key={cat.id} value={String(cat.id)}>
                     {cat.name}
                   </SelectItem>
@@ -760,7 +767,8 @@ export function TransactionsPage() {
                 )}
                 {type === "EXPENSE" && isPending === "Y" && (
                   <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
-                    Pending transactions have not yet deducted the wallet balance.
+                    Pending transactions have not yet deducted the wallet
+                    balance.
                   </p>
                 )}
               </div>
@@ -795,14 +803,14 @@ export function TransactionsPage() {
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    {categories.map((c: CatgList) => (
+                    {formCategories.map((c: CatgList) => (
                       <SelectItem key={c.id} value={String(c.id)}>
                         {c.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                {categories.length === 0 && (
+                {formCategories.length === 0 && (
                   <p className="text-xs text-red-500 mt-1">
                     No categories found for this type. Add one first.
                   </p>

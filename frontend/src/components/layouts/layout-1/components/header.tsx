@@ -65,8 +65,10 @@ export function Header() {
         <div className="flex lg:hidden items-center gap-2.5">
           <Link to="/" className="shrink-0">
             <img
-              src={toAbsoluteUrl("/media/app/mini-logo.svg")}
-              className="h-[25px] w-full"
+              src={toAbsoluteUrl(
+                "/media/images/logo-fintrack/finance-tracker-logo.png",
+              )}
+              className="h-[45px] w-full"
               alt="mini-logo"
             />
           </Link>

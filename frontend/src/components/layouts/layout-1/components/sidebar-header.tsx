@@ -17,24 +17,32 @@ export function SidebarHeader() {
       <Link to="/layout-1">
         <div className="dark:hidden">
           <img
-            src={toAbsoluteUrl("/media/app/ft-sidebar-light.png")}
+            src={toAbsoluteUrl(
+              "/media/images/logo-fintrack/ft-sidebar-light.png",
+            )}
             className="default-logo h-[40px] max-w-none"
             alt="Default Logo"
           />
           <img
-            src={toAbsoluteUrl("/media/app/mini-logo.svg")}
+            src={toAbsoluteUrl(
+              "/media/images/logo-fintrack/finance-tracker-logo.png",
+            )}
             className="small-logo h-[22px] max-w-none"
             alt="Mini Logo"
           />
         </div>
         <div className="hidden dark:block">
           <img
-            src={toAbsoluteUrl("/media/app/ft-sidebar-light.png")}
+            src={toAbsoluteUrl(
+              "/media/images/logo-fintrack/ft-sidebar-light.png",
+            )}
             className="default-logo h-[40px] max-w-none"
             alt="Default Dark Logo"
           />
           <img
-            src={toAbsoluteUrl("/media/app/mini-logo.svg")}
+            src={toAbsoluteUrl(
+              "/media/images/logo-fintrack/finance-tracker-logo.png",
+            )}
             className="small-logo h-[22px] max-w-none"
             alt="Mini Logo"
           />
